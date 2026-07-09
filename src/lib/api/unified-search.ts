@@ -12,6 +12,7 @@ import { normalizeTitle } from "@/lib/catalog/utils";
 import { searchCatalog, getCatalogCount } from "@/lib/services/catalog-search";
 import { meiliSearch, isMeilisearchEnabled } from "@/lib/api/meilisearch";
 import { enrichCatalogFromRawgSearch } from "@/lib/services/catalog-sync";
+import { tryToUsd } from "@/lib/currency";
 
 async function ensureCatalogSeeded() {
   const count = await getCatalogCount();
@@ -82,6 +83,7 @@ function mergeSearchResults(...lists: SearchResult[][]): SearchResult[] {
 export interface UnifiedSearchOptions extends RawgSearchOptions {
   minDiscount?: number;
   maxPrice?: number;
+  fastSearch?: boolean;
 }
 
 export async function unifiedSearch(
@@ -92,7 +94,8 @@ export async function unifiedSearch(
 
   await ensureCatalogSeeded();
 
-  const catalogSearch = isMeilisearchEnabled() ? meiliSearch : searchCatalog;
+  const catalogSearch =
+    options.fastSearch && isMeilisearchEnabled() ? meiliSearch : searchCatalog;
 
   const [catalog, cheapshark, steam, rawg] = await Promise.all([
     catalogSearch(query, 120),
@@ -137,11 +140,11 @@ async function resolveSteamGame(appId: string): Promise<GameDeal | null> {
   if (steam.price) {
     const priceUsd =
       steam.price.currency === "TRY"
-        ? Math.round((steam.price.final / 34.5) * 100) / 100
+        ? await tryToUsd(steam.price.final)
         : steam.price.final;
     const normalUsd =
       steam.price.currency === "TRY"
-        ? Math.round((steam.price.initial / 34.5) * 100) / 100
+        ? await tryToUsd(steam.price.initial)
         : steam.price.initial;
 
     stores.push({

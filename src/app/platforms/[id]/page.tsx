@@ -4,9 +4,28 @@ import { getDealsFiltered } from "@/lib/api/deals";
 import { DealCard } from "@/components/games/DealCard";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
+import { getServerLocale } from "@/lib/i18n/server";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
 
 interface PlatformPageProps {
   params: Promise<{ id: string }>;
+}
+
+export async function generateMetadata({ params }: PlatformPageProps) {
+  const locale = await getServerLocale();
+  const { id } = await params;
+  const platform = getPlatformById(id);
+  if (!platform) return { title: "Platform" };
+  const path = `/platforms/${id}`;
+  return buildPageMetadata("platforms", locale, {
+    path,
+    canonicalPath: path,
+    titleOverride: `${platform.name} — ${locale === "tr" ? "Oyun İndirimleri" : "Game Deals"}`,
+    descriptionOverride:
+      locale === "tr"
+        ? `${platform.name} mağazasındaki oyun indirimlerini ve fiyatlarını takip et.`
+        : `Track game deals and prices on ${platform.name}.`,
+  });
 }
 
 export default async function PlatformStorePage({ params }: PlatformPageProps) {

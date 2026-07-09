@@ -4,18 +4,6 @@ import { useEffect, useState } from "react";
 import { Clock } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
-/** Steam spring/summer sales often end Thursday 19:00 TR — show weekly countdown as fallback */
-function getNextThursday7pm(): Date {
-  const now = new Date();
-  const target = new Date(now);
-  const day = now.getDay();
-  const daysUntilThu = (4 - day + 7) % 7 || 7;
-  target.setDate(now.getDate() + daysUntilThu);
-  target.setHours(19, 0, 0, 0);
-  if (target <= now) target.setDate(target.getDate() + 7);
-  return target;
-}
-
 function formatRemaining(
   ms: number,
   endingSoon: string,
@@ -39,7 +27,15 @@ export function SaleCountdown({ endAt }: { endAt?: string }) {
   const [remaining, setRemaining] = useState<string | null>(null);
 
   useEffect(() => {
-    const end = endAt ? new Date(endAt) : getNextThursday7pm();
+    if (!endAt) {
+      setRemaining(null);
+      return;
+    }
+    const end = new Date(endAt);
+    if (Number.isNaN(end.getTime()) || end.getTime() <= Date.now()) {
+      setRemaining(null);
+      return;
+    }
     const endingSoon = t("deals.saleCountdown.endingSoon");
     const tick = () =>
       setRemaining(formatRemaining(end.getTime() - Date.now(), endingSoon, locale));
@@ -48,7 +44,7 @@ export function SaleCountdown({ endAt }: { endAt?: string }) {
     return () => clearInterval(id);
   }, [endAt, locale, t]);
 
-  if (!remaining) return null;
+  if (!endAt || !remaining) return null;
 
   return (
     <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-medium">

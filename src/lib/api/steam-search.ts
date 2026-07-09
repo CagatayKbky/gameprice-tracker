@@ -1,4 +1,5 @@
 import { SearchResult } from "@/types";
+import { tryToUsd } from "@/lib/currency";
 
 interface SteamSearchItem {
   id: number;
@@ -30,26 +31,28 @@ export async function searchSteamStore(query: string): Promise<SearchResult[]> {
     const data: SteamSearchResponse = await res.json();
     if (!data.items?.length) return [];
 
-    return data.items
-      .filter((item) => item.id && item.name)
-      .slice(0, 50)
-      .map((item) => {
-        const priceTry = item.price ? item.price.final / 100 : undefined;
-        const priceUsd = priceTry ? Math.round((priceTry / 34.5) * 100) / 100 : undefined;
-        const discount = item.price?.discount_percent || 0;
+    return Promise.all(
+      data.items
+        .filter((item) => item.id && item.name)
+        .slice(0, 50)
+        .map(async (item) => {
+          const priceTry = item.price ? item.price.final / 100 : undefined;
+          const priceUsd = priceTry ? await tryToUsd(priceTry) : undefined;
+          const discount = item.price?.discount_percent || 0;
 
-        return {
-          gameId: `steam-${item.id}`,
-          title: item.name,
-          imageUrl: item.tiny_image,
-          steamAppId: String(item.id),
-          cheapestPrice: priceUsd,
-          cheapestPlatform: "Steam",
-          maxDiscount: discount,
-          source: "steam" as const,
-          platforms: ["steam", "pc"],
-        };
-      });
+          return {
+            gameId: `steam-${item.id}`,
+            title: item.name,
+            imageUrl: item.tiny_image,
+            steamAppId: String(item.id),
+            cheapestPrice: priceUsd,
+            cheapestPlatform: "Steam",
+            maxDiscount: discount,
+            source: "steam" as const,
+            platforms: ["steam", "pc"],
+          };
+        })
+    );
   } catch {
     return [];
   }

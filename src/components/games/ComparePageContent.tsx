@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
-import { GitCompareArrows, Loader2, Trash2 } from "lucide-react";
+import { GitCompareArrows, Trash2 } from "lucide-react";
 import { useCompare } from "@/components/providers/CompareProvider";
 import { CompareTable } from "@/components/games/CompareTable";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { SkeletonGrid } from "@/components/ui/Skeleton";
 import { GameDeal } from "@/types";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
@@ -33,21 +34,14 @@ export function ComparePageContent() {
 
   if (compareGames.length < 2) {
     return (
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-20 text-center">
-        <GitCompareArrows className="w-12 h-12 text-muted mx-auto mb-4" />
-        <h1 className="text-2xl font-bold mb-2">{t("compare.titleEmpty")}</h1>
-        <p className="text-muted mb-2">
-          {t("compare.minGames").replace("{count}", String(compareGames.length))}
-        </p>
-        <p className="text-sm text-muted mb-6">
-          {t("compare.hint")}
-        </p>
-        <Link
-          href="/search?q=game"
-          className="inline-flex px-6 py-2.5 rounded-xl bg-accent text-white text-sm font-medium"
-        >
-          {t("compare.searchGames")}
-        </Link>
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+        <EmptyState
+          icon={GitCompareArrows}
+          title={t("compare.titleEmpty")}
+          description={t("compare.hint")}
+          actionLabel={t("compare.searchGames")}
+          actionHref="/search?q=game"
+        />
       </div>
     );
   }
@@ -93,9 +87,7 @@ export function ComparePageContent() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-muted" />
-        </div>
+        <SkeletonGrid count={2} />
       ) : games.length >= 2 ? (
         <CompareTable games={games} />
       ) : (

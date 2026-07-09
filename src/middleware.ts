@@ -9,10 +9,12 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   if (pathname.startsWith("/api/")) {
-    const ip = getClientIp(request);
-    const { ok } = rateLimit(`api:${ip}`, 120, 60_000);
-    if (!ok) {
-      return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+    if (!pathname.startsWith("/api/billing/webhook")) {
+      const ip = getClientIp(request);
+      const { ok } = rateLimit(`api:${ip}`, 120, 60_000);
+      if (!ok) {
+        return NextResponse.json({ error: "Too many requests" }, { status: 429 });
+      }
     }
   }
 

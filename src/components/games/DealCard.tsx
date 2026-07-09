@@ -6,12 +6,17 @@ import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { GameImage } from "@/components/ui/GameImage";
 import { HistoricalLowBadge } from "./HistoricalLowBadge";
 import { DlcBadge } from "./DlcBadge";
+import { OwnedBadge } from "./OwnedBadge";
+import { useOwnedGames } from "@/hooks/useOwnedGames";
 
 interface DealCardProps {
   deal: DealOfTheDay;
 }
 
 export function DealCard({ deal }: DealCardProps) {
+  const { isOwned } = useOwnedGames();
+  const owned = isOwned(deal.gameId, deal.steamAppId);
+
   return (
     <Link
       href={`/game/${deal.gameId}`}
@@ -26,6 +31,7 @@ export function DealCard({ deal }: DealCardProps) {
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           sizes="112px"
         />
+        {owned && <OwnedBadge compact />}
         <div className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-emerald-500 text-white text-xs font-bold">
           -%{deal.discount}
         </div>

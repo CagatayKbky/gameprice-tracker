@@ -4,6 +4,7 @@ import { useState, useEffect } from "react";
 import { Bell, Heart } from "lucide-react";
 import { useCurrency } from "@/components/providers/CurrencyProvider";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { useRouter } from "next/navigation";
 
 interface PriceAlertButtonProps {
   gameId: string;
@@ -18,6 +19,7 @@ export function PriceAlertButton({
 }: PriceAlertButtonProps) {
   const { format, convert } = useCurrency();
   const { t } = useLocale();
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(false);
   const [targetPrice, setTargetPrice] = useState(
     Math.floor(convert(currentPrice) * 0.8 * 100) / 100
@@ -33,7 +35,7 @@ export function PriceAlertButton({
     setLoading(true);
     try {
       const targetUsd = targetPrice / (convert(1) || 1);
-      await fetch("/api/alerts", {
+      const res = await fetch("/api/alerts", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -43,6 +45,11 @@ export function PriceAlertButton({
           currentPrice,
         }),
       });
+      if (res.status === 403) {
+        router.push("/pricing");
+        return;
+      }
+      if (!res.ok) throw new Error("alert_failed");
       setSaved(true);
       setTimeout(() => {
         setIsOpen(false);
@@ -127,6 +134,7 @@ export function WishlistButton({
   imageUrl?: string;
 }) {
   const { t } = useLocale();
+  const router = useRouter();
   const [isInWishlist, setIsInWishlist] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -147,7 +155,7 @@ export function WishlistButton({
         await fetch(`/api/wishlist?gameId=${gameId}`, { method: "DELETE" });
         setIsInWishlist(false);
       } else {
-        await fetch("/api/wishlist", {
+        const res = await fetch("/api/wishlist", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -156,6 +164,11 @@ export function WishlistButton({
             imageUrl,
           }),
         });
+        if (res.status === 403) {
+          router.push("/pricing");
+          return;
+        }
+        if (!res.ok) throw new Error("wishlist_failed");
         setIsInWishlist(true);
       }
     } finally {

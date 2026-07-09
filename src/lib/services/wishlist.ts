@@ -2,6 +2,7 @@ import { prisma } from "@/lib/db";
 import { WishlistItemData } from "@/types";
 import { resolveGame } from "@/lib/api/unified-search";
 import { resolveGameImage } from "@/lib/game-images";
+import { assertWishlistCapacity } from "@/lib/premium/access";
 
 export async function getWishlist(sessionId: string): Promise<WishlistItemData[]> {
   const items = await prisma.wishlistItem.findMany({
@@ -54,6 +55,19 @@ export async function addToWishlist(
   gameTitle: string,
   imageUrl?: string
 ) {
+  const existing = await prisma.wishlistItem.findUnique({
+    where: { sessionId_cheapSharkGameId: { sessionId, cheapSharkGameId } },
+  });
+  if (!existing) {
+    const capacity = await assertWishlistCapacity(sessionId);
+    if (!capacity.ok) {
+      const err = new Error("wishlist_limit") as Error & { code?: string; limit?: number };
+      err.code = "wishlist_limit";
+      err.limit = capacity.limit;
+      throw err;
+    }
+  }
+
   return prisma.wishlistItem.upsert({
     where: { sessionId_cheapSharkGameId: { sessionId, cheapSharkGameId } },
     create: { sessionId, cheapSharkGameId, gameTitle, imageUrl },

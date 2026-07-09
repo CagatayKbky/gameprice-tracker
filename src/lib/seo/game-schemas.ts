@@ -1,7 +1,8 @@
 import { buildGameJsonLd } from "@/lib/seo/game-metadata";
 import type { GameDeal } from "@/types";
+import { SITE_URL } from "@/lib/seo/constants";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const APP_URL = SITE_URL;
 
 export function buildBreadcrumbJsonLd(game: GameDeal) {
   return {

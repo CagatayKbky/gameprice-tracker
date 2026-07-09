@@ -1,11 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { getHistoricalLowDeals } from "@/lib/api/deals";
+import { notifyFreeGames } from "@/lib/services/free-game-notify";
 import { sendWeeklyDigestEmail } from "@/lib/services/email";
 import { authorizeCron } from "@/lib/cron-auth";
 import { logJobFinish, logJobStart } from "@/lib/services/job-log";
 
 async function runWeeklyDigest() {
+  const freeGamesResult = await notifyFreeGames().catch(() => ({ notified: 0, newGames: 0 }));
   const deals = await getHistoricalLowDeals();
   const topDeals = deals.length > 0 ? deals.slice(0, 10) : [];
 
@@ -37,7 +39,7 @@ async function runWeeklyDigest() {
     else failed++;
   }
 
-  return { sent, failed, subscribers: subscribers.length, deals: topDeals.length };
+  return { sent, failed, subscribers: subscribers.length, deals: topDeals.length, freeGamesResult };
 }
 
 export async function GET(request: NextRequest) {

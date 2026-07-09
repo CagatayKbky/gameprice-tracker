@@ -43,3 +43,25 @@
   font-size: 13px;
   font-weight: 500;
 }
+
+#gameprice-widget .gp-badge {
+  padding: 2px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+}
+
+#gameprice-widget .gp-great {
+  background: rgba(52, 211, 153, 0.25);
+  color: #6ee7b7;
+}
+
+#gameprice-widget .gp-good {
+  background: rgba(245, 158, 11, 0.25);
+  color: #fcd34d;
+}
+
+#gameprice-widget .gp-neutral {
+  background: rgba(255, 255, 255, 0.1);
+  color: #e2e8f0;
+}

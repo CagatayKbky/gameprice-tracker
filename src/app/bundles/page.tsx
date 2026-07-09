@@ -5,6 +5,12 @@ import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { GameImage } from "@/components/ui/GameImage";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
+
+export async function generateMetadata() {
+  const locale = await getServerLocale();
+  return buildPageMetadata("bundles", locale, { path: "/bundles" });
+}
 
 export default async function BundlesPage() {
   const locale = await getServerLocale();

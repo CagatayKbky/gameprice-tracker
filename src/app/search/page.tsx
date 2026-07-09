@@ -8,6 +8,13 @@ import { SearchBar } from "@/components/layout/SearchBar";
 import { Search, WifiOff, Database } from "lucide-react";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
+import { getServerPremiumStatus } from "@/lib/premium/server";
+import { SearchProBanner } from "@/components/premium/SearchProBanner";
+import { cookies } from "next/headers";
+import { SESSION_COOKIE } from "@/lib/session";
+import { getProfile } from "@/lib/services/profile";
+import { getOwnedAppIds } from "@/lib/services/steam-library";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
 
 interface SearchPageProps {
   searchParams: Promise<{
@@ -19,14 +26,39 @@ interface SearchPageProps {
     genre?: string;
     year?: string;
     metacritic?: string;
+    onSale?: string;
   }>;
+}
+
+export async function generateMetadata({ searchParams }: SearchPageProps) {
+  const locale = await getServerLocale();
+  const params = await searchParams;
+  const query = params.q?.trim();
+  if (query) {
+    const path = `/search?q=${encodeURIComponent(query)}`;
+    return buildPageMetadata("search", locale, {
+      path,
+      canonicalPath: path,
+      titleOverride: `${query} — ${locale === "tr" ? "Oyun Fiyatları" : "Game Prices"}`,
+      descriptionOverride:
+        locale === "tr"
+          ? `${query} için Steam, Epic ve diğer mağaza fiyatlarını karşılaştır.`
+          : `Compare Steam, Epic, and other store prices for ${query}.`,
+    });
+  }
+  return buildPageMetadata("search", locale, { path: "/search" });
 }
 
 export default async function SearchPage({ searchParams }: SearchPageProps) {
   const locale = await getServerLocale();
+  const premium = await getServerPremiumStatus();
   const numberLocale = locale === "en" ? "en-US" : "tr-TR";
   const params = await searchParams;
   const query = params.q?.trim() || "";
+  const sessionId = (await cookies()).get(SESSION_COOKIE)?.value ?? null;
+  const [profile, ownedAppIds] = sessionId
+    ? await Promise.all([getProfile(sessionId), getOwnedAppIds(sessionId)])
+    : [null, new Set<string>()];
 
   let results: Awaited<ReturnType<typeof unifiedSearch>> = [];
   let apiError = false;
@@ -40,6 +72,7 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         genre: params.genre,
         year: params.year,
         minMetacritic: params.metacritic ? parseInt(params.metacritic) : undefined,
+        fastSearch: premium?.isPro ?? false,
       });
 
       if (params.discount) {
@@ -51,6 +84,15 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
         results = results.filter(
           (r) => r.cheapestPrice === undefined || r.cheapestPrice <= max
         );
+      }
+      if (params.onSale === "1") {
+        results = results.filter((r) => (r.maxDiscount || 0) > 0);
+      }
+      if (profile?.hideOwnedGames) {
+        results = results.filter((r) => {
+          const appId = r.steamAppId || (r.gameId.startsWith("steam-") ? r.gameId.replace("steam-", "") : null);
+          return !appId || !ownedAppIds.has(appId);
+        });
       }
     } catch {
       apiError = true;
@@ -100,6 +142,8 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
           <SearchBar />
         </Suspense>
       </div>
+
+      {query && !premium?.isPro && <SearchProBanner />}
 
       {query && (
         <Suspense fallback={<div className="h-16 bg-card rounded-xl animate-pulse mb-6" />}>

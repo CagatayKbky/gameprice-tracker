@@ -44,6 +44,13 @@ export function convertPrice(
   return Math.round(converted * 100) / 100;
 }
 
+/** Convert TRY amount to USD using live or fallback rates. */
+export async function tryToUsd(amountTry: number): Promise<number> {
+  const rates = await getExchangeRates();
+  const tryRate = rates.TRY || FALLBACK_RATES.TRY;
+  return Math.round((amountTry / tryRate) * 100) / 100;
+}
+
 export async function getRatesForClient(): Promise<Record<Currency, number>> {
   return getExchangeRates();
 }

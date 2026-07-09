@@ -7,6 +7,8 @@ import { WishlistItemData } from "@/types";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { GameImage } from "@/components/ui/GameImage";
 import { SteamWishlistImport } from "@/components/games/SteamWishlistImport";
+import { WishlistSavingsBanner } from "@/components/wishlist/WishlistSavingsBanner";
+import { BuyWaitPanel } from "@/components/profile/BuyWaitPanel";
 import { BulkWishlistImport } from "@/components/games/BulkWishlistImport";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
@@ -20,14 +22,17 @@ export default function WishlistPage() {
   const [items, setItems] = useState<WishlistItemData[]>([]);
   const [subscriptions, setSubscriptions] = useState<SubscriptionData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [steamId, setSteamId] = useState<string | null>(null);
 
   const load = () => {
     setLoading(true);
     Promise.all([
       fetch("/api/wishlist").then((r) => r.json()),
       fetch("/api/wishlist/subscriptions").then((r) => r.json()),
+      fetch("/api/profile").then((r) => r.json()),
     ])
-      .then(([wishlist, subs]) => {
+      .then(([wishlist, subs, prof]) => {
+        setSteamId(prof.steamId || null);
         const subMap = new Map<string, { gamepass: boolean; psplus: boolean }>(
           (subs.items || []).map(
             (s: { gameId: string; gamepass: boolean; psplus: boolean }) =>
@@ -97,7 +102,17 @@ export default function WishlistPage() {
         </div>
       )}
 
-      <SteamWishlistImport onImported={load} />
+      <WishlistSavingsBanner />
+
+      {items.length > 0 && (
+        <section className="mb-6 rounded-2xl border border-[#2a475e]/50 bg-[#0e1419] p-5">
+          <h2 className="mb-1 font-semibold text-white">{t("buyWait.title")}</h2>
+          <p className="mb-4 text-sm text-[#8f98a0]">{t("buyWait.subtitle")}</p>
+          <BuyWaitPanel compact />
+        </section>
+      )}
+
+      <SteamWishlistImport onImported={load} defaultProfile={steamId || undefined} />
       <BulkWishlistImport onImported={load} />
 
       {loading ? (

@@ -5,6 +5,8 @@ import { GameDeal } from "@/types";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { GameImage } from "@/components/ui/GameImage";
 import { PlatformBadge } from "./PlatformBadge";
+import { WorthItScoreBadge } from "./WorthItScoreBadge";
+import { calculateWorthItScore } from "@/lib/worth-it-score";
 import { ExternalLink } from "lucide-react";
 
 interface CompareTableProps {
@@ -16,6 +18,7 @@ export function CompareTable({ games }: CompareTableProps) {
     { label: "En Ucuz Fiyat", key: "cheapest" },
     { label: "En Düşük", key: "currentLow" },
     { label: "Tarihi En Düşük", key: "historicalLow" },
+    { label: "Değer Skoru", key: "worthIt" },
     { label: "Mağaza Sayısı", key: "storeCount" },
     { label: "Metacritic", key: "metacritic" },
   ];
@@ -77,6 +80,16 @@ export function CompareTable({ games }: CompareTableProps) {
                     <PriceDisplay
                       amount={game.historicalLow}
                       className="font-bold"
+                    />
+                  )}
+                  {row.key === "worthIt" && game.cheapestStore && (
+                    <WorthItScoreBadge
+                      score={calculateWorthItScore({
+                        currentPrice: game.cheapestStore.price,
+                        historicalLow: game.historicalLow,
+                        discount: game.cheapestStore.discount,
+                        metacritic: game.metacritic,
+                      })}
                     />
                   )}
                   {row.key === "storeCount" && (

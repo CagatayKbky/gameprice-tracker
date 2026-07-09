@@ -6,11 +6,12 @@ import { useLocale } from "@/components/providers/LocaleProvider";
 
 interface SteamWishlistImportProps {
   onImported: () => void;
+  defaultProfile?: string;
 }
 
-export function SteamWishlistImport({ onImported }: SteamWishlistImportProps) {
+export function SteamWishlistImport({ onImported, defaultProfile }: SteamWishlistImportProps) {
   const { t } = useLocale();
-  const [profile, setProfile] = useState("");
+  const [profile, setProfile] = useState(defaultProfile || "");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
     imported: number;
@@ -20,7 +21,6 @@ export function SteamWishlistImport({ onImported }: SteamWishlistImportProps) {
   const [error, setError] = useState("");
 
   const handleImport = async () => {
-    if (!profile.trim()) return;
     setLoading(true);
     setError("");
     setResult(null);
@@ -29,7 +29,7 @@ export function SteamWishlistImport({ onImported }: SteamWishlistImportProps) {
       const res = await fetch("/api/steam/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ profile: profile.trim() }),
+        body: JSON.stringify(profile.trim() ? { profile: profile.trim() } : {}),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -62,7 +62,7 @@ export function SteamWishlistImport({ onImported }: SteamWishlistImportProps) {
         />
         <button
           onClick={handleImport}
-          disabled={loading || !profile.trim()}
+          disabled={loading || (!profile.trim() && !defaultProfile)}
           className="px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50 flex items-center justify-center gap-2"
         >
           {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}

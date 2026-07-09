@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import type { GameDeal } from "@/types";
+import { SITE_URL } from "@/lib/seo/constants";
 
-const APP_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+const APP_URL = SITE_URL;
 
 export function buildGameMetadata(game: GameDeal): Metadata {
   const price = game.cheapestStore?.price;
@@ -57,6 +58,7 @@ export function buildGameMetadata(game: GameDeal): Metadata {
 export function buildGameJsonLd(game: GameDeal) {
   const price = game.cheapestStore?.price;
   const gameUrl = `${APP_URL}/game/${game.gameId}`;
+  const imageUrl = gameImageUrl(game);
 
   const offers =
     price && price > 0
@@ -78,19 +80,8 @@ export function buildGameJsonLd(game: GameDeal) {
     "@type": "VideoGame",
     name: game.title,
     description: `${game.title} için çoklu platform fiyat karşılaştırması ve indirim takibi.`,
-    image: game.imageUrl,
+    image: imageUrl,
     url: gameUrl,
-    ...(game.metacritic
-      ? {
-          aggregateRating: {
-            "@type": "AggregateRating",
-            ratingValue: game.metacritic,
-            bestRating: 100,
-            worstRating: 0,
-            ratingCount: 1,
-          },
-        }
-      : {}),
     ...(offers ? { offers } : {}),
     publisher: {
       "@type": "Organization",
@@ -98,4 +89,12 @@ export function buildGameJsonLd(game: GameDeal) {
       url: APP_URL,
     },
   };
+}
+
+function gameImageUrl(game: GameDeal) {
+  return game.imageUrl?.startsWith("http")
+    ? game.imageUrl
+    : game.imageUrl
+      ? `${APP_URL}${game.imageUrl}`
+      : `${APP_URL}/icon-512.png`;
 }

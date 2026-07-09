@@ -37,15 +37,25 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
-  const alert = await createAlert(sessionId, {
-    cheapSharkGameId,
-    gameTitle,
-    targetPrice,
-    currentPrice,
-    platformId,
-  });
-
-  return NextResponse.json(alert, { headers: response.headers });
+  try {
+    const alert = await createAlert(sessionId, {
+      cheapSharkGameId,
+      gameTitle,
+      targetPrice,
+      currentPrice,
+      platformId,
+    });
+    return NextResponse.json(alert, { headers: response.headers });
+  } catch (error) {
+    if (error instanceof Error && error.message === "alert_limit") {
+      const limit = (error as Error & { limit?: number }).limit ?? 1;
+      return NextResponse.json(
+        { error: "alert_limit", limit, upgradeUrl: "/pricing" },
+        { status: 403, headers: response.headers }
+      );
+    }
+    throw error;
+  }
 }
 
 export async function DELETE(request: NextRequest) {

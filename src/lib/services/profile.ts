@@ -3,6 +3,8 @@ import { prisma } from "@/lib/db";
 export interface UserProfileData {
   email?: string | null;
   name?: string | null;
+  isAdmin?: boolean;
+  publicProfile?: boolean;
   emailNotifications: boolean;
   weeklyDigest?: boolean;
   pushNotifications?: boolean;
@@ -12,6 +14,12 @@ export interface UserProfileData {
   steamId?: string | null;
   steamPersona?: string | null;
   steamAvatar?: string | null;
+  onboardingDone?: boolean;
+  freeGameNotify?: boolean;
+  hideOwnedGames?: boolean;
+  steamLibrarySyncedAt?: Date | null;
+  activeProfileFrame?: string;
+  activeProfileEffect?: string;
 }
 
 export async function getProfile(sessionId: string): Promise<UserProfileData | null> {
@@ -20,6 +28,8 @@ export async function getProfile(sessionId: string): Promise<UserProfileData | n
   return {
     email: profile.email,
     name: profile.name,
+    isAdmin: profile.isAdmin,
+    publicProfile: profile.publicProfile,
     emailNotifications: profile.emailNotifications,
     weeklyDigest: profile.weeklyDigest,
     pushNotifications: profile.pushNotifications,
@@ -29,6 +39,12 @@ export async function getProfile(sessionId: string): Promise<UserProfileData | n
     steamId: profile.steamId,
     steamPersona: profile.steamPersona,
     steamAvatar: profile.steamAvatar,
+    onboardingDone: profile.onboardingDone,
+    freeGameNotify: profile.freeGameNotify,
+    hideOwnedGames: profile.hideOwnedGames,
+    steamLibrarySyncedAt: profile.steamLibrarySyncedAt,
+    activeProfileFrame: profile.activeProfileFrame,
+    activeProfileEffect: profile.activeProfileEffect,
   };
 }
 
@@ -39,16 +55,22 @@ export async function upsertProfile(sessionId: string, data: Partial<UserProfile
       sessionId,
       email: data.email ?? null,
       name: data.name ?? null,
+      isAdmin: data.isAdmin ?? false,
+      publicProfile: data.publicProfile ?? true,
       emailNotifications: data.emailNotifications ?? true,
       weeklyDigest: data.weeklyDigest ?? true,
       pushNotifications: data.pushNotifications ?? true,
       wishlistDealAlerts: data.wishlistDealAlerts ?? true,
       discordWebhook: data.discordWebhook ?? null,
       telegramChatId: data.telegramChatId ?? null,
+      activeProfileFrame: data.activeProfileFrame ?? "classic",
+      activeProfileEffect: data.activeProfileEffect ?? "none",
     },
     update: {
       ...(data.email !== undefined ? { email: data.email || null } : {}),
       ...(data.name !== undefined ? { name: data.name || null } : {}),
+      ...(data.isAdmin !== undefined ? { isAdmin: data.isAdmin } : {}),
+      ...(data.publicProfile !== undefined ? { publicProfile: data.publicProfile } : {}),
       ...(data.emailNotifications !== undefined
         ? { emailNotifications: data.emailNotifications }
         : {}),
@@ -64,6 +86,15 @@ export async function upsertProfile(sessionId: string, data: Partial<UserProfile
         : {}),
       ...(data.telegramChatId !== undefined
         ? { telegramChatId: data.telegramChatId || null }
+        : {}),
+      ...(data.onboardingDone !== undefined ? { onboardingDone: data.onboardingDone } : {}),
+      ...(data.freeGameNotify !== undefined ? { freeGameNotify: data.freeGameNotify } : {}),
+      ...(data.hideOwnedGames !== undefined ? { hideOwnedGames: data.hideOwnedGames } : {}),
+      ...(data.activeProfileFrame !== undefined
+        ? { activeProfileFrame: data.activeProfileFrame || "classic" }
+        : {}),
+      ...(data.activeProfileEffect !== undefined
+        ? { activeProfileEffect: data.activeProfileEffect || "none" }
         : {}),
       updatedAt: new Date(),
     },

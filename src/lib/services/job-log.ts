@@ -3,9 +3,11 @@ import { prisma } from "@/lib/db";
 export type JobType =
   | "sync-prices"
   | "sync-catalog"
+  | "sync-meilisearch"
   | "weekly-digest"
   | "wishlist-deals"
-  | "alert-check";
+  | "alert-check"
+  | "free-games";
 
 export async function logJobStart(type: JobType, meta?: Record<string, unknown>) {
   return prisma.jobLog.create({

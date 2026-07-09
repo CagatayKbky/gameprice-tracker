@@ -12,6 +12,8 @@
     "db:studio": "prisma studio",
     "postinstall": "node scripts/prepare-db-provider.mjs && prisma generate",
     "catalog:sync": "npx tsx scripts/run-catalog-sync.ts",
+    "meili:sync": "npx tsx scripts/sync-meilisearch.ts",
+    "iyzico:setup": "npx tsx scripts/setup-iyzico-plans.ts",
     "vapid:generate": "npx tsx scripts/generate-vapid-keys.ts",
     "test:e2e": "playwright test",
     "test": "vitest run",

@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { fetchSteamWishlist } from "@/lib/api/steam-wishlist";
 import { unifiedSearch } from "@/lib/api/unified-search";
 import { addToWishlist } from "@/lib/services/wishlist";
+import { getProfile } from "@/lib/services/profile";
 import { SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
 
 function ensureSession(request: NextRequest, response: NextResponse): string {
@@ -23,14 +24,22 @@ function ensureSession(request: NextRequest, response: NextResponse): string {
 export async function POST(request: NextRequest) {
   const response = NextResponse.json({});
   try {
-    const body = await request.json();
-    const profile = body.profile?.trim();
-    if (!profile) {
-      return NextResponse.json({ error: "Steam profil ID veya URL gerekli" }, { status: 400 });
+    const body = await request.json().catch(() => ({}));
+    const sessionId = ensureSession(request, response);
+
+    let profileInput = body.profile?.trim();
+    if (!profileInput) {
+      const userProfile = await getProfile(sessionId);
+      profileInput = userProfile?.steamId || "";
+    }
+    if (!profileInput) {
+      return NextResponse.json(
+        { error: "Steam hesabı bağlı değil veya profil ID gerekli" },
+        { status: 400, headers: response.headers }
+      );
     }
 
-    const sessionId = ensureSession(request, response);
-    const steamItems = await fetchSteamWishlist(profile);
+    const steamItems = await fetchSteamWishlist(profileInput);
 
     if (!steamItems.length) {
       return NextResponse.json({ error: "İstek listesi boş veya bulunamadı" }, { status: 404 });

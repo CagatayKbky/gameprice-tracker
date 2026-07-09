@@ -1,56 +1,64 @@
 import type { MetadataRoute } from "next";
 import { prisma } from "@/lib/db";
 import { DEAL_CATEGORIES } from "@/lib/deal-categories";
+import { GAMES_PER_SITEMAP, PUBLIC_STATIC_ROUTES, SITE_URL } from "@/lib/seo/constants";
 
-const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+export async function generateSitemaps() {
+  try {
+    const total = await prisma.catalogGame.count({
+      where: { cheapSharkId: { not: null } },
+    });
+    const gamePages = Math.max(1, Math.ceil(total / GAMES_PER_SITEMAP));
+    return Array.from({ length: gamePages }, (_, id) => ({ id }));
+  } catch {
+    return [{ id: 0 }];
+  }
+}
 
-export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const staticRoutes = [
-    "",
-    "/browse",
-    "/search",
-    "/deals",
-    "/compare",
-    "/platforms",
-    "/wishlist",
-    "/alerts",
-    "/settings",
-    "/profile",
-    "/bundles",
-    "/about",
-    "/guides/sale-calendar",
-    "/admin",
-  ];
+function staticSitemapEntries(): MetadataRoute.Sitemap {
+  const categoryRoutes = DEAL_CATEGORIES.map((c) => ({
+    path: `/deals/category/${c.slug}`,
+    priority: 0.85,
+    changeFrequency: "daily" as const,
+  }));
 
-  const categoryRoutes = DEAL_CATEGORIES.map((c) => `/deals/category/${c.slug}`);
+  return [...PUBLIC_STATIC_ROUTES, ...categoryRoutes].map((route) => ({
+    url: `${SITE_URL}${route.path}`,
+    lastModified: new Date(),
+    changeFrequency: route.changeFrequency,
+    priority: route.priority,
+  }));
+}
 
-  let gameRoutes: MetadataRoute.Sitemap = [];
+export default async function sitemap({
+  id,
+}: {
+  id: number;
+}): Promise<MetadataRoute.Sitemap> {
+  const pageId = Number(id) || 0;
+
   try {
     const games = await prisma.catalogGame.findMany({
       where: { cheapSharkId: { not: null } },
       orderBy: { updatedAt: "desc" },
-      take: 5000,
+      skip: pageId * GAMES_PER_SITEMAP,
+      take: GAMES_PER_SITEMAP,
       select: { cheapSharkId: true, slug: true, updatedAt: true },
     });
 
-    gameRoutes = games.map((g) => ({
-      url: `${baseUrl}/game/${g.cheapSharkId || g.slug}`,
+    const gameRoutes: MetadataRoute.Sitemap = games.map((g) => ({
+      url: `${SITE_URL}/game/${g.cheapSharkId || g.slug}`,
       lastModified: g.updatedAt,
-      changeFrequency: "daily" as const,
+      changeFrequency: "daily",
       priority: 0.6,
     }));
+
+    if (pageId === 0) {
+      return [...staticSitemapEntries(), ...gameRoutes];
+    }
+
+    return gameRoutes;
   } catch {
-    // DB unavailable during build
+    return pageId === 0 ? staticSitemapEntries() : [];
   }
-
-  const pages = [...staticRoutes, ...categoryRoutes].map((route) => ({
-    url: `${baseUrl}${route}`,
-    lastModified: new Date(),
-    changeFrequency: (route === "" || route === "/deals" ? "hourly" : "daily") as
-      | "hourly"
-      | "daily",
-    priority: route === "" ? 1 : 0.8,
-  }));
-
-  return [...pages, ...gameRoutes];
 }

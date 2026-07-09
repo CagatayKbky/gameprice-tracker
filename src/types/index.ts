@@ -90,6 +90,9 @@ export interface SearchResult {
   source?: "cheapshark" | "steam" | "rawg" | "catalog";
   sources?: string[];
   rawgId?: number;
+  historicalLow?: number;
+  isHistoricalLow?: boolean;
+  worthItScore?: number;
 }
 
 export interface SteamRegionalPrice {
@@ -103,6 +106,7 @@ export interface SteamRegionalPrice {
 export interface DealOfTheDay {
   title: string;
   gameId: string;
+  steamAppId?: string;
   imageUrl?: string;
   normalPrice: number;
   salePrice: number;

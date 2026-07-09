@@ -1,4 +1,4 @@
-const DEFAULT_APP = "https://gameprice-tracker.vercel.app";
+const DEFAULT_APP = "https://gameprice.org";
 
 const APP_CANDIDATES = [
   localStorage.getItem("gameprice_app_url"),
@@ -14,11 +14,14 @@ function extractAppId() {
   return m?.[1];
 }
 
-function formatUsd(amount) {
-  return new Intl.NumberFormat("en-US", {
+function formatTry(amountUsd) {
+  const tryRate = 40;
+  const tryAmount = amountUsd * tryRate;
+  return new Intl.NumberFormat("tr-TR", {
     style: "currency",
-    currency: "USD",
-  }).format(amount);
+    currency: "TRY",
+    maximumFractionDigits: 0,
+  }).format(tryAmount);
 }
 
 async function fetchGamePrice(appId) {
@@ -34,10 +37,17 @@ async function fetchGamePrice(appId) {
       discount: cheapest.discount || 0,
       platform: cheapest.platformName || "Store",
       title: game.title,
+      historicalLow: game.historicalLow,
     };
   } catch {
     return null;
   }
+}
+
+function worthItLabel(price, historicalLow, discount) {
+  if (historicalLow && price <= historicalLow * 1.05) return { text: "Mükemmel fırsat", cls: "gp-great" };
+  if (discount >= 50) return { text: "İyi fiyat", cls: "gp-good" };
+  return { text: "Karşılaştır", cls: "gp-neutral" };
 }
 
 async function injectWidget() {
@@ -54,14 +64,16 @@ async function injectWidget() {
   widget.rel = "noopener";
 
   if (priceInfo) {
+    const badge = worthItLabel(priceInfo.price, priceInfo.historicalLow, priceInfo.discount);
     widget.innerHTML = `
       <span class="gp-brand">🎮 GamePrice</span>
-      <span class="gp-price">${formatUsd(priceInfo.price)}</span>
+      <span class="gp-price">${formatTry(priceInfo.price)}</span>
       ${priceInfo.discount > 0 ? `<span class="gp-discount">-%${priceInfo.discount}</span>` : ""}
-      <span class="gp-cta">Tüm platformları karşılaştır →</span>
+      <span class="gp-badge ${badge.cls}">${badge.text}</span>
+      <span class="gp-cta">Tüm platformlar →</span>
     `;
   } else {
-    widget.textContent = "🎮 GamePrice'ta tüm platform fiyatlarını karşılaştır";
+    widget.textContent = "🎮 GamePrice — tüm platform fiyatlarını karşılaştır";
   }
 
   const buyArea =

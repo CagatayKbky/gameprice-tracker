@@ -1,14 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { User, Mail, Bell, Save, Loader2, Newspaper, MessageSquare } from "lucide-react";
+import { User, Mail, Bell, Save, Loader2, Newspaper, MessageSquare, Crown } from "lucide-react";
+import Link from "next/link";
 import { PushNotificationToggle } from "@/components/settings/PushNotificationToggle";
 import { SteamLoginButton } from "@/components/auth/SteamLoginButton";
 import { MagicLinkLogin } from "@/components/auth/MagicLinkLogin";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { usePremium } from "@/components/providers/PremiumProvider";
+import { ProBadge } from "@/components/premium/PricingPlans";
 
 export default function SettingsPage() {
   const { t } = useLocale();
+  const { isPro, limits, usage, cancelSubscription } = usePremium();
   const [email, setEmail] = useState("");
   const [name, setName] = useState("");
   const [emailNotifications, setEmailNotifications] = useState(true);
@@ -17,8 +21,13 @@ export default function SettingsPage() {
   const [discordWebhook, setDiscordWebhook] = useState("");
   const [telegramChatId, setTelegramChatId] = useState("");
   const [wishlistDealAlerts, setWishlistDealAlerts] = useState(true);
+  const [freeGameNotify, setFreeGameNotify] = useState(true);
+  const [hideOwnedGames, setHideOwnedGames] = useState(true);
+  const [publicProfile, setPublicProfile] = useState(true);
   const [steamId, setSteamId] = useState<string | null>(null);
   const [steamPersona, setSteamPersona] = useState<string | null>(null);
+  const [librarySyncing, setLibrarySyncing] = useState(false);
+  const [libraryCount, setLibraryCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
@@ -35,8 +44,17 @@ export default function SettingsPage() {
         setDiscordWebhook(data.discordWebhook || "");
         setTelegramChatId(data.telegramChatId || "");
         setWishlistDealAlerts(data.wishlistDealAlerts !== false);
+        setFreeGameNotify(data.freeGameNotify !== false);
+        setHideOwnedGames(data.hideOwnedGames !== false);
+        setPublicProfile(data.publicProfile !== false);
         setSteamId(data.steamId || null);
         setSteamPersona(data.steamPersona || null);
+        if (data.steamId) {
+          fetch("/api/steam/library")
+            .then((r) => r.json())
+            .then((lib) => setLibraryCount(lib.count ?? null))
+            .catch(() => {});
+        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -59,6 +77,9 @@ export default function SettingsPage() {
           discordWebhook: discordWebhook || null,
           telegramChatId: telegramChatId || null,
           wishlistDealAlerts,
+          freeGameNotify,
+          hideOwnedGames,
+          publicProfile,
         }),
       });
       setSaved(true);
@@ -89,6 +110,48 @@ export default function SettingsPage() {
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
+        <div className="rounded-2xl border border-accent/30 bg-accent/5 p-6 space-y-3">
+          <div className="flex items-center justify-between gap-3">
+            <h2 className="font-semibold flex items-center gap-2">
+              <Crown className="w-4 h-4 text-accent" />
+              {t("premium.settings.title")}
+              <ProBadge />
+            </h2>
+            {!isPro && (
+              <Link
+                href="/pricing"
+                className="text-sm px-3 py-1.5 rounded-lg bg-accent text-white font-medium"
+              >
+                {t("premium.upgradeCta")}
+              </Link>
+            )}
+          </div>
+          <p className="text-sm text-muted">
+            {isPro ? t("premium.settings.active") : t("premium.settings.inactive")}
+          </p>
+          <p className="text-xs text-muted">
+            {t("premium.settings.usage", {
+              wishlist: String(usage.wishlist),
+              wishlistMax: limits.wishlist === Infinity ? "∞" : String(limits.wishlist),
+              alerts: String(usage.alerts),
+              alertsMax: limits.alerts === Infinity ? "∞" : String(limits.alerts),
+            })}
+          </p>
+          {isPro && (
+            <button
+              type="button"
+              onClick={() => {
+                if (confirm(t("premium.cancelConfirm"))) {
+                  cancelSubscription().catch(() => alert(t("premium.cancelError")));
+                }
+              }}
+              className="text-sm text-red-400 hover:underline"
+            >
+              {t("premium.cancelSubscription")}
+            </button>
+          )}
+        </div>
+
         <MagicLinkLogin />
 
         <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
@@ -162,19 +225,73 @@ export default function SettingsPage() {
           <h2 className="font-semibold flex items-center gap-2">
             <Bell className="w-4 h-4 text-muted" />
             {t("settings.push")}
+            {!isPro && (
+              <span className="text-xs text-accent font-normal">{t("premium.settings.proLocked")}</span>
+            )}
           </h2>
-          <PushNotificationToggle
-            enabled={pushNotifications}
-            onEnabledChange={setPushNotifications}
-          />
+          {isPro ? (
+            <PushNotificationToggle
+              enabled={pushNotifications}
+              onEnabledChange={setPushNotifications}
+            />
+          ) : (
+            <p className="text-sm text-muted">
+              <Link href="/pricing" className="text-accent hover:underline">
+                {t("premium.upgradeCta")}
+              </Link>
+              {" — "}
+              {t("premium.upgrade.push.desc")}
+            </p>
+          )}
         </div>
 
         <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
           <h2 className="font-semibold">{t("settings.steam")}</h2>
           <SteamLoginButton connected={!!steamId} steamPersona={steamPersona} />
-          <p className="text-xs text-muted">
-            {t("settings.steamHint")}
-          </p>
+          <p className="text-xs text-muted">{t("settings.steamHint")}</p>
+          {steamId && (
+            <>
+              <div className="flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  disabled={librarySyncing}
+                  onClick={async () => {
+                    setLibrarySyncing(true);
+                    try {
+                      const res = await fetch("/api/steam/library", { method: "POST" });
+                      const data = await res.json();
+                      if (res.ok) setLibraryCount(data.synced);
+                      else alert(data.error || t("settings.librarySyncError"));
+                    } finally {
+                      setLibrarySyncing(false);
+                    }
+                  }}
+                  className="px-4 py-2 rounded-xl bg-[#1b2838] text-white text-sm font-medium hover:bg-[#2a475e] disabled:opacity-50"
+                >
+                  {librarySyncing ? t("settings.librarySyncing") : t("settings.librarySync")}
+                </button>
+                {libraryCount != null && (
+                  <span className="text-sm text-muted">
+                    {t("settings.libraryCount", { count: String(libraryCount) })}
+                  </span>
+                )}
+                {libraryCount && libraryCount > 0 && (
+                  <Link href="/profile/library" className="text-sm text-accent hover:underline">
+                    {t("profile.libraryViewAll")}
+                  </Link>
+                )}
+              </div>
+              <label className="flex items-center gap-3 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={hideOwnedGames}
+                  onChange={(e) => setHideOwnedGames(e.target.checked)}
+                  className="w-4 h-4 rounded accent-accent"
+                />
+                <span className="text-sm">{t("settings.hideOwned")}</span>
+              </label>
+            </>
+          )}
         </div>
 
         <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
@@ -189,8 +306,14 @@ export default function SettingsPage() {
               value={discordWebhook}
               onChange={(e) => setDiscordWebhook(e.target.value)}
               placeholder={t("settings.discordPlaceholder")}
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm"
+              disabled={!isPro}
+              className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm disabled:opacity-50"
             />
+            {!isPro && (
+              <p className="text-xs text-accent">
+                <Link href="/pricing">{t("premium.upgradeCta")}</Link>
+              </p>
+            )}
           </div>
           <div>
             <label className="text-sm text-muted block mb-2">{t("settings.telegramChatId")}</label>
@@ -199,7 +322,8 @@ export default function SettingsPage() {
               value={telegramChatId}
               onChange={(e) => setTelegramChatId(e.target.value)}
               placeholder={t("settings.telegramPlaceholder")}
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm"
+              disabled={!isPro}
+              className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm disabled:opacity-50"
             />
             <p className="text-xs text-muted mt-2">
               {t("settings.telegramHint")}
@@ -217,9 +341,25 @@ export default function SettingsPage() {
             />
             <span className="text-sm">{t("settings.wishlistDeals")}</span>
           </label>
-          <p className="text-xs text-muted mt-2">
-            {t("settings.wishlistDealsHint")}
-          </p>
+          <p className="text-xs text-muted mt-2">{t("settings.wishlistDealsHint")}</p>
+          <label className="flex items-center gap-3 cursor-pointer mt-3">
+            <input
+              type="checkbox"
+              checked={freeGameNotify}
+              onChange={(e) => setFreeGameNotify(e.target.checked)}
+              className="w-4 h-4 rounded accent-accent"
+            />
+            <span className="text-sm">{t("settings.freeGameNotify")}</span>
+          </label>
+          <label className="flex items-center gap-3 cursor-pointer mt-3">
+            <input
+              type="checkbox"
+              checked={publicProfile}
+              onChange={(e) => setPublicProfile(e.target.checked)}
+              className="w-4 h-4 rounded accent-accent"
+            />
+            <span className="text-sm">{t("settings.publicProfile")}</span>
+          </label>
         </div>
 
         <button

@@ -67,6 +67,84 @@
       transparent 100%
     );
   }
+
+  .steam-profile-banner {
+    background:
+      radial-gradient(circle at 20% 20%, rgba(102, 192, 244, 0.18), transparent 35%),
+      radial-gradient(circle at 80% 0%, rgba(99, 102, 241, 0.12), transparent 30%),
+      linear-gradient(135deg, #0f1720 0%, #1b2838 45%, #2a475e 100%);
+  }
+
+  .profile-ring-classic {
+    background: linear-gradient(180deg, #4b5563, #9ca3af, #4b5563);
+  }
+
+  .profile-ring-steam-blue {
+    background: conic-gradient(from 0deg, #1b2838, #66c0f4, #2a475e, #8fd3ff, #1b2838);
+  }
+
+  .profile-ring-pro-gold {
+    background: conic-gradient(from 0deg, #3a250f, #fbbf24, #fde68a, #d97706, #3a250f);
+  }
+
+  .profile-ring-neon-purple {
+    background: conic-gradient(from 0deg, #1d1230, #d946ef, #a855f7, #f0abfc, #1d1230);
+  }
+
+  .profile-ring-holo {
+    background: conic-gradient(from 0deg, #22d3ee, #a855f7, #f472b6, #fbbf24, #22d3ee);
+  }
+
+  .profile-ring-spin {
+    animation: profile-ring-spin 4s linear infinite;
+  }
+
+  .profile-ring-spin-fast {
+    animation: profile-ring-spin 2.4s linear infinite;
+  }
+
+  .profile-aura-soft {
+    box-shadow: 0 0 28px rgba(102, 192, 244, 0.35);
+  }
+
+  .profile-aura-pulse {
+    animation: profile-aura-pulse 2.8s ease-in-out infinite;
+  }
+
+  .profile-aura-shimmer::after {
+    content: "";
+    position: absolute;
+    inset: -6px;
+    border-radius: 9999px;
+    background: conic-gradient(from 0deg, transparent, rgba(255, 255, 255, 0.22), transparent);
+    animation: profile-ring-spin 3s linear infinite;
+    pointer-events: none;
+  }
+}
+
+@keyframes profile-ring-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes profile-aura-pulse {
+  0%,
+  100% {
+    box-shadow: 0 0 18px rgba(102, 192, 244, 0.2);
+  }
+  50% {
+    box-shadow: 0 0 34px rgba(251, 191, 36, 0.35);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .profile-ring-spin,
+  .profile-ring-spin-fast,
+  .profile-aura-pulse,
+  .profile-aura-shimmer::after {
+    animation: none !important;
+  }
 }
 
 /* Custom scrollbar */

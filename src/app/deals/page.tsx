@@ -14,6 +14,11 @@ import { DealsMegaHero } from "@/components/deals/DealsMegaHero";
 import { TrendingDown, Gift } from "lucide-react";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
+import { cookies } from "next/headers";
+import { SESSION_COOKIE } from "@/lib/session";
+import { getProfile } from "@/lib/services/profile";
+import { getOwnedAppIds } from "@/lib/services/steam-library";
 
 interface DealsPageProps {
   searchParams: Promise<{ tab?: string; store?: string }>;
@@ -37,11 +42,30 @@ const TAB_SUBTITLE_KEYS: Record<string, string> = {
   aaa: "deals.subtitle.aaa",
 };
 
+export async function generateMetadata({ searchParams }: DealsPageProps) {
+  const locale = await getServerLocale();
+  const params = await searchParams;
+  const tab = params.tab || "all";
+  const base = buildPageMetadata("deals", locale, { path: "/deals", canonicalPath: "/deals" });
+  if (tab === "all") return base;
+  const titleKey = TAB_TITLE_KEYS[tab];
+  if (!titleKey) return base;
+  return buildPageMetadata("deals", locale, {
+    path: "/deals",
+    canonicalPath: "/deals",
+    titleOverride: `${t(locale, titleKey)} | GamePrice`,
+  });
+}
+
 export default async function DealsPage({ searchParams }: DealsPageProps) {
   const locale = await getServerLocale();
   const params = await searchParams;
   const tab = params.tab || "all";
   const storeId = params.store;
+  const sessionId = (await cookies()).get(SESSION_COOKIE)?.value ?? null;
+  const [profile, ownedAppIds] = sessionId
+    ? await Promise.all([getProfile(sessionId), getOwnedAppIds(sessionId)])
+    : [null, new Set<string>()];
 
   let deals;
 
@@ -74,6 +98,14 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
 
   if (tab !== "free" && tab !== "historical-low") {
     deals = await enrichDealsWithHistoricalLow(deals);
+  }
+
+  if (profile?.hideOwnedGames) {
+    deals = deals.filter((deal) => {
+      const appId =
+        deal.steamAppId || (deal.gameId.startsWith("steam-") ? deal.gameId.replace("steam-", "") : null);
+      return !appId || !ownedAppIds.has(appId);
+    });
   }
 
   const title = t(locale, TAB_TITLE_KEYS[tab] || TAB_TITLE_KEYS.all);

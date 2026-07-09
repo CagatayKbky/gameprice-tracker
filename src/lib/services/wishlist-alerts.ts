@@ -5,6 +5,7 @@ import { sendDiscordPriceAlert } from "@/lib/services/discord";
 import { sendTelegramAlert } from "@/lib/services/telegram";
 import { sendPushToSession } from "@/lib/services/push";
 import { getProfileEmail } from "@/lib/services/profile";
+import { createUserNotification } from "@/lib/services/notifications";
 
 const MIN_DISCOUNT_NOTIFY = 25;
 
@@ -96,6 +97,15 @@ export async function checkWishlistDealAlerts() {
         title: "İstek listesi indirimi!",
         body: `${item.gameTitle} — $${price.toFixed(2)} (%${discount})`,
         url: `${process.env.NEXT_PUBLIC_APP_URL || ""}/game/${item.cheapSharkGameId}`,
+      });
+
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+      await createUserNotification({
+        sessionId: item.sessionId,
+        type: "wishlist_deal",
+        title: "İstek listesi indirimi",
+        body: `${item.gameTitle} — $${price.toFixed(2)} (%${discount} indirim)`,
+        url: `${appUrl}/game/${item.cheapSharkGameId}`,
       });
 
       await prisma.wishlistItem.update({

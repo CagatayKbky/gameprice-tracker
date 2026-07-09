@@ -8,6 +8,7 @@ import {
   useCallback,
   ReactNode,
 } from "react";
+import { usePremium } from "@/components/providers/PremiumProvider";
 
 export interface CompareGame {
   gameId: string;
@@ -17,6 +18,7 @@ export interface CompareGame {
 
 interface CompareContextValue {
   games: CompareGame[];
+  maxCompare: number;
   addGame: (game: CompareGame) => boolean;
   removeGame: (gameId: string) => void;
   clearAll: () => void;
@@ -25,31 +27,39 @@ interface CompareContextValue {
 
 const CompareContext = createContext<CompareContextValue | null>(null);
 const STORAGE_KEY = "gp_compare";
-const MAX_COMPARE = 3;
 
 export function CompareProvider({ children }: { children: ReactNode }) {
+  const { limits } = usePremium();
+  const maxCompare = limits.compare;
   const [games, setGames] = useState<CompareGame[]>([]);
 
   useEffect(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (stored) setGames(JSON.parse(stored));
+      if (stored) {
+        const parsed = JSON.parse(stored) as CompareGame[];
+        setGames(parsed.slice(0, maxCompare));
+      }
     } catch {}
-  }, []);
+  }, [maxCompare]);
 
-  const persist = useCallback((next: CompareGame[]) => {
-    setGames(next);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  }, []);
+  const persist = useCallback(
+    (next: CompareGame[]) => {
+      const trimmed = next.slice(0, maxCompare);
+      setGames(trimmed);
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
+    },
+    [maxCompare]
+  );
 
   const addGame = useCallback(
     (game: CompareGame) => {
       if (games.some((g) => g.gameId === game.gameId)) return true;
-      if (games.length >= MAX_COMPARE) return false;
+      if (games.length >= maxCompare) return false;
       persist([...games, game]);
       return true;
     },
-    [games, persist]
+    [games, maxCompare, persist]
   );
 
   const removeGame = useCallback(
@@ -68,7 +78,7 @@ export function CompareProvider({ children }: { children: ReactNode }) {
 
   return (
     <CompareContext.Provider
-      value={{ games, addGame, removeGame, clearAll, isInCompare }}
+      value={{ games, maxCompare, addGame, removeGame, clearAll, isInCompare }}
     >
       {children}
     </CompareContext.Provider>

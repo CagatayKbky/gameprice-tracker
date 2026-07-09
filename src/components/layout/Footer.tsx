@@ -17,12 +17,15 @@ export function Footer() {
     { href: "/feed.xml", label: t("footer.explore.rss") },
     { href: "/compare", label: t("footer.explore.compare") },
     { href: "/platforms", label: t("footer.explore.platforms") },
+    { href: "/guides", label: t("footer.explore.guides") },
+    { href: "/guides/sale-calendar", label: t("footer.explore.saleCalendar") },
   ];
 
   const accountLinks = [
     { href: "/wishlist", label: t("footer.account.wishlist") },
     { href: "/alerts", label: t("footer.account.alerts") },
     { href: "/settings", label: t("footer.account.settings") },
+    { href: "/pricing", label: t("nav.premium") },
     { href: "/about", label: t("footer.account.about") },
   ];
 

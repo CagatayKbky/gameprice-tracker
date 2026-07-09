@@ -1,9 +1,20 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async redirects() {
+    return [
+      {
+        source: "/:path*",
+        has: [{ type: "host", value: "www.gameprice.org" }],
+        destination: "https://gameprice.org/:path*",
+        permanent: true,
+      },
+    ];
+  },
   images: {
     remotePatterns: [
       // Steam
+      { protocol: "https", hostname: "steamcdn-a.akamaihd.net" },
       { protocol: "https", hostname: "**.steamstatic.com" },
       { protocol: "https", hostname: "**.akamaihd.net" },
       { protocol: "https", hostname: "steamstore-a.akamaihd.net" },

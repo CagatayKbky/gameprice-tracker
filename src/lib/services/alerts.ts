@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { PriceAlertData } from "@/types";
+import { assertAlertCapacity } from "@/lib/premium/access";
 
 export async function getAlerts(sessionId: string): Promise<PriceAlertData[]> {
   const alerts = await prisma.priceAlert.findMany({
@@ -29,6 +30,14 @@ export async function createAlert(
     platformId?: string;
   }
 ) {
+  const capacity = await assertAlertCapacity(sessionId);
+  if (!capacity.ok) {
+    const err = new Error("alert_limit") as Error & { code?: string; limit?: number };
+    err.code = "alert_limit";
+    err.limit = capacity.limit;
+    throw err;
+  }
+
   return prisma.priceAlert.create({
     data: {
       sessionId,

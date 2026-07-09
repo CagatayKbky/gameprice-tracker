@@ -2,11 +2,12 @@ import Link from "next/link";
 import { Gamepad2, Search, TrendingDown, Bell, BarChart3 } from "lucide-react";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
 
-export const metadata = {
-  title: "Hakkında — GamePrice",
-  description: "GamePrice oyun fiyat takip platformu hakkında bilgi.",
-};
+export async function generateMetadata() {
+  const locale = await getServerLocale();
+  return buildPageMetadata("about", locale, { path: "/about" });
+}
 
 const highlightKeys = [
   {

@@ -37,21 +37,34 @@ model PriceSnapshot {
 }
 
 model UserProfile {
-  id                  String   @id @default(cuid())
-  sessionId           String   @unique
+  id                  String    @id @default(cuid())
+  sessionId           String    @unique
   email               String?
   name                String?
-  emailNotifications  Boolean  @default(true)
-  weeklyDigest        Boolean  @default(true)
-  pushNotifications   Boolean  @default(true)
-  wishlistDealAlerts  Boolean  @default(true)
+  isAdmin             Boolean   @default(false)
+  publicProfile       Boolean   @default(true)
+  emailNotifications  Boolean   @default(true)
+  weeklyDigest        Boolean   @default(true)
+  pushNotifications   Boolean   @default(true)
+  wishlistDealAlerts  Boolean   @default(true)
   discordWebhook      String?
   telegramChatId      String?
-  steamId             String?  @unique
+  steamId             String?   @unique
   steamPersona        String?
   steamAvatar         String?
-  createdAt           DateTime @default(now())
-  updatedAt           DateTime @updatedAt
+  profileSlug         String?   @unique
+  onboardingDone      Boolean   @default(false)
+  freeGameNotify      Boolean   @default(true)
+  hideOwnedGames      Boolean   @default(true)
+  steamLibrarySyncedAt DateTime?
+  activeProfileFrame  String    @default("classic")
+  activeProfileEffect String    @default("none")
+  plan                String    @default("free")
+  iyzicoCustomerRef   String?   @unique
+  iyzicoSubscriptionRef String? @unique
+  planExpiresAt       DateTime?
+  createdAt           DateTime  @default(now())
+  updatedAt           DateTime  @updatedAt
 }
 
 model PushSubscription {
@@ -165,4 +178,66 @@ model MagicLinkToken {
 
   @@index([email])
   @@index([token])
+}
+
+model SteamOwnedGame {
+  id              String   @id @default(cuid())
+  sessionId       String
+  steamAppId      String
+  name            String?
+  playtimeMinutes Int      @default(0)
+  lastPlayedAt    DateTime?
+  syncedAt        DateTime @default(now())
+
+  @@unique([sessionId, steamAppId])
+  @@index([sessionId])
+}
+
+model FreeGameNotification {
+  id        String   @id @default(cuid())
+  gameId    String
+  platform  String
+  title     String
+  notifiedAt DateTime @default(now())
+
+  @@unique([gameId, platform])
+}
+
+model FriendRequest {
+  id            String   @id @default(cuid())
+  fromSessionId String
+  toSessionId   String
+  status        String   @default("pending")
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([fromSessionId, toSessionId])
+  @@index([toSessionId, status])
+  @@index([fromSessionId, status])
+}
+
+model UserCosmetic {
+  id        String   @id @default(cuid())
+  sessionId String
+  type      String
+  key       String
+  source    String   @default("manual")
+  createdAt DateTime @default(now())
+
+  @@unique([sessionId, type, key])
+  @@index([sessionId, type])
+}
+
+model UserNotification {
+  id        String    @id @default(cuid())
+  sessionId String
+  type      String
+  title     String
+  body      String
+  url       String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([sessionId, createdAt])
+  @@index([sessionId, readAt])
 }

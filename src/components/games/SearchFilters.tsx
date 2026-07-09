@@ -42,6 +42,15 @@ export function SearchFilters({ rawgEnabled = false }: SearchFiltersProps) {
       </div>
 
       <select
+        value={params.get("onSale") || ""}
+        onChange={(e) => update("onSale", e.target.value)}
+        className="px-3 py-2 rounded-lg bg-background border border-border text-sm focus:border-accent focus:outline-none"
+      >
+        <option value="">{t("search.allDeals")}</option>
+        <option value="1">{t("search.onSaleOnly")}</option>
+      </select>
+
+      <select
         value={params.get("sort") || "Deal Rating"}
         onChange={(e) => update("sort", e.target.value)}
         className="px-3 py-2 rounded-lg bg-background border border-border text-sm focus:border-accent focus:outline-none"

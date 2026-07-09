@@ -43,8 +43,19 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: "Missing fields" }, { status: 400 });
   }
 
-  const item = await addToWishlist(sessionId, cheapSharkGameId, gameTitle, imageUrl);
-  return NextResponse.json(item, { headers: response.headers });
+  try {
+    const item = await addToWishlist(sessionId, cheapSharkGameId, gameTitle, imageUrl);
+    return NextResponse.json(item, { headers: response.headers });
+  } catch (error) {
+    if (error instanceof Error && error.message === "wishlist_limit") {
+      const limit = (error as Error & { limit?: number }).limit ?? 5;
+      return NextResponse.json(
+        { error: "wishlist_limit", limit, upgradeUrl: "/pricing" },
+        { status: 403, headers: response.headers }
+      );
+    }
+    throw error;
+  }
 }
 
 export async function DELETE(request: NextRequest) {

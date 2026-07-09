@@ -109,6 +109,7 @@ function mapDealToDealOfDay(deal: CheapSharkDeal): DealOfTheDay {
   return {
     title: deal.title,
     gameId: deal.gameID,
+    steamAppId: deal.steamAppID || undefined,
     imageUrl: deal.thumb,
     normalPrice: parseFloat(deal.normalPrice),
     salePrice: parseFloat(deal.salePrice),

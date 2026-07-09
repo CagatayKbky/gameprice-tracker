@@ -6,8 +6,13 @@ import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { GameImage } from "@/components/ui/GameImage";
 import { CompareButton } from "./CompareButton";
 import { PlatformTags } from "./PlatformTags";
+import { HistoricalLowBadge } from "./HistoricalLowBadge";
+import { WorthItScoreBadge } from "./WorthItScoreBadge";
+import { OwnedBadge } from "./OwnedBadge";
 import { cn } from "@/lib/utils";
 import { resolveGameImage } from "@/lib/game-images";
+import { useOwnedGames } from "@/hooks/useOwnedGames";
+import { calculateWorthItScore } from "@/lib/worth-it-score";
 
 interface GameCardProps {
   game: SearchResult;
@@ -20,21 +25,42 @@ function metacriticColor(score: number) {
 }
 
 export function GameCard({ game }: GameCardProps) {
+  const { isOwned } = useOwnedGames();
   const imageUrl = resolveGameImage({
     imageUrl: game.imageUrl,
     steamAppId: game.steamAppId,
   });
+
+  const owned = isOwned(game.gameId, game.steamAppId);
+  const worthItScore =
+    game.worthItScore ??
+    (game.cheapestPrice !== undefined
+      ? calculateWorthItScore({
+          currentPrice: game.cheapestPrice,
+          historicalLow: game.historicalLow,
+          discount: game.maxDiscount,
+          metacritic: game.metacritic,
+        })
+      : undefined);
+
+  const showAtl =
+    game.isHistoricalLow ||
+    (game.historicalLow != null &&
+      game.cheapestPrice != null &&
+      game.cheapestPrice <= game.historicalLow * 1.05);
+
   return (
     <div className="group relative rounded-xl overflow-hidden bg-card border border-border hover:border-accent/50 transition-all duration-300 hover:shadow-lg hover:shadow-accent/5 hover:-translate-y-1">
       <Link href={`/game/${game.gameId}`} className="block">
-        <div className="relative aspect-[3/4] overflow-hidden bg-card-hover">
+        <div className="relative aspect-3/4 overflow-hidden bg-card-hover">
           <GameImage
             src={imageUrl}
             alt={game.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"
           />
-          {game.metacritic && game.metacritic > 0 && (
+          {owned && <OwnedBadge compact />}
+          {game.metacritic && game.metacritic > 0 && !owned && (
             <div
               className={cn(
                 "absolute top-2 left-2 px-1.5 py-0.5 rounded text-white text-xs font-bold",
@@ -47,6 +73,12 @@ export function GameCard({ game }: GameCardProps) {
           {game.maxDiscount && game.maxDiscount > 0 && (
             <div className="absolute top-2 right-2 px-2 py-1 rounded-lg bg-emerald-500/90 text-white text-xs font-bold">
               -%{game.maxDiscount}
+            </div>
+          )}
+          {showAtl && <HistoricalLowBadge compact />}
+          {worthItScore != null && worthItScore >= 70 && (
+            <div className="absolute bottom-2 left-2">
+              <WorthItScoreBadge score={worthItScore} compact />
             </div>
           )}
         </div>
@@ -62,9 +94,7 @@ export function GameCard({ game }: GameCardProps) {
               />
             )}
             {game.cheapestPlatform && (
-              <span className="text-xs text-muted truncate">
-                {game.cheapestPlatform}
-              </span>
+              <span className="text-xs text-muted truncate">{game.cheapestPlatform}</span>
             )}
           </div>
           <PlatformTags platformIds={game.platforms} />

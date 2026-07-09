@@ -1,4 +1,4 @@
-const DEFAULT_APP = "https://gameprice-tracker.vercel.app";
+const DEFAULT_APP = "https://gameprice.org";
 
 async function resolveAppUrl() {
   try {

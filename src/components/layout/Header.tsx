@@ -17,6 +17,8 @@ import {
   Package,
   User,
   MoreHorizontal,
+  Sparkles,
+  Users,
 } from "lucide-react";
 import { CurrencySwitcher } from "@/components/layout/CurrencySwitcher";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -38,6 +40,9 @@ const primaryNavItems = [
 const secondaryNavItems = [
   { href: "/bundles", labelKey: "nav.bundles", icon: Package },
   { href: "/compare", labelKey: "nav.compare", icon: GitCompareArrows },
+  { href: "/social", labelKey: "nav.social", icon: Users },
+  { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
+  { href: "/pricing", labelKey: "nav.premium", icon: Sparkles },
   { href: "/platforms", labelKey: "nav.platforms", icon: Store },
 ];
 
@@ -45,11 +50,12 @@ const allNavItems = [...primaryNavItems, ...secondaryNavItems];
 
 function getBadge(
   href: string,
-  counts: { wishlist: number; alerts: number },
+  counts: { wishlist: number; alerts: number; notifications: number },
   compareCount: number
 ) {
   if (href === "/wishlist") return counts.wishlist;
   if (href === "/alerts") return counts.alerts;
+  if (href === "/notifications") return counts.notifications;
   if (href === "/compare") return compareCount;
   return 0;
 }
@@ -59,20 +65,22 @@ export function Header() {
   const { t } = useLocale();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
-  const [counts, setCounts] = useState({ wishlist: 0, alerts: 0 });
+  const [counts, setCounts] = useState({ wishlist: 0, alerts: 0, notifications: 0 });
   const { games: compareGames } = useCompare();
 
   useEffect(() => {
     Promise.all([
       fetch("/api/wishlist").then((r) => r.json()),
       fetch("/api/alerts").then((r) => r.json()),
+      fetch("/api/notifications").then((r) => r.json()),
     ])
-      .then(([wishlist, alerts]) => {
+      .then(([wishlist, alerts, notifications]) => {
         setCounts({
           wishlist: Array.isArray(wishlist) ? wishlist.length : 0,
           alerts: Array.isArray(alerts)
             ? alerts.filter((a: { isActive: boolean }) => a.isActive).length
             : 0,
+          notifications: notifications?.unread || 0,
         });
       })
       .catch(() => {});

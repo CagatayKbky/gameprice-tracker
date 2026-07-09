@@ -12,6 +12,7 @@ import { SearchResult } from "@/types";
 import { ChevronLeft, ChevronRight, Library } from "lucide-react";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
 
 interface BrowsePageProps {
   searchParams: Promise<{
@@ -19,6 +20,11 @@ interface BrowsePageProps {
     page?: string;
     platform?: string;
   }>;
+}
+
+export async function generateMetadata() {
+  const locale = await getServerLocale();
+  return buildPageMetadata("browse", locale, { path: "/browse" });
 }
 
 function browseHref(letter: string, page?: number, platform?: string) {

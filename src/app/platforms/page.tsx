@@ -4,6 +4,12 @@ import { PLATFORMS } from "@/lib/platforms";
 import { PlatformGrid } from "@/components/games/PlatformGrid";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
+
+export async function generateMetadata() {
+  const locale = await getServerLocale();
+  return buildPageMetadata("platforms", locale, { path: "/platforms" });
+}
 
 export default async function PlatformsPage() {
   const locale = await getServerLocale();

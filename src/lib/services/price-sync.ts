@@ -7,6 +7,7 @@ import { getProfileEmail } from "@/lib/services/profile";
 import { sendPriceAlertPush } from "@/lib/services/push";
 import { sendDiscordPriceAlert } from "@/lib/services/discord";
 import { sendTelegramAlert } from "@/lib/services/telegram";
+import { createUserNotification } from "@/lib/services/notifications";
 
 interface DiscountSnapshotRow {
   recordedAt: Date;
@@ -230,6 +231,15 @@ export async function checkAndTriggerAlerts() {
           type: "price_alert",
         });
       }
+
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+      await createUserNotification({
+        sessionId: alert.sessionId,
+        type: "price_alert",
+        title: "Fiyat alarmı tetiklendi",
+        body: `${alert.gameTitle} — $${currentPrice.toFixed(2)} (hedef: $${alert.targetPrice.toFixed(2)})`,
+        url: `${appUrl}/game/${alert.cheapSharkGameId}`,
+      });
     }
   }
 

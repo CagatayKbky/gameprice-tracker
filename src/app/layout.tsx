@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
+import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo/constants";
 import { Header } from "@/components/layout/Header";
 import { Footer } from "@/components/layout/Footer";
 import { CurrencyProvider } from "@/components/providers/CurrencyProvider";
@@ -9,10 +10,12 @@ import { CompareProvider } from "@/components/providers/CompareProvider";
 import { RecentlyViewedProvider } from "@/components/providers/RecentlyViewedProvider";
 import { ThemeProvider } from "@/components/providers/ThemeProvider";
 import { LocaleProvider } from "@/components/providers/LocaleProvider";
+import { PremiumProvider } from "@/components/providers/PremiumProvider";
 import { CompareFloatingBar } from "@/components/games/CompareFloatingBar";
 import { PwaRegister } from "@/components/pwa/PwaRegister";
 import { PwaInstallPrompt } from "@/components/pwa/PwaInstallPrompt";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
+import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -20,6 +23,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: {
     default: "GamePrice — Oyun Fiyat Takip",
     template: "%s | GamePrice",
@@ -35,29 +39,53 @@ export const metadata: Metadata = {
     "fiyat takip",
     "oyun indirim",
     "türkiye steam fiyat",
+    "oyun fiyat karşılaştırma",
+    "steam fiyat takip",
   ],
+  applicationName: SITE_NAME,
+  authors: [{ name: SITE_NAME, url: SITE_URL }],
+  creator: SITE_NAME,
+  publisher: SITE_NAME,
+  formatDetection: { email: false, address: false, telephone: false },
   icons: {
     icon: "/icon-192.png",
     apple: "/icon-192.png",
   },
   alternates: {
+    canonical: SITE_URL,
     types: {
-      "application/rss+xml": [
-        { url: "/feed.xml", title: "GamePrice İndirimleri" },
-      ],
+      "application/rss+xml": [{ url: "/feed.xml", title: "GamePrice İndirimleri" }],
     },
   },
   openGraph: {
     type: "website",
     locale: "tr_TR",
-    siteName: "GamePrice",
+    alternateLocale: ["en_US"],
+    siteName: SITE_NAME,
     title: "GamePrice — Oyun Fiyat Takip",
     description:
       "Tüm platformlarda en ucuz oyun fiyatını bul. İndirim takibi ve fiyat alarmları.",
+    url: SITE_URL,
+    images: [{ url: DEFAULT_OG_IMAGE, width: 1200, height: 630, alt: SITE_NAME }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "GamePrice — Oyun Fiyat Takip",
+    description: "Steam, Epic, Xbox fiyat karşılaştırması ve indirim takibi.",
+    images: [DEFAULT_OG_IMAGE],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: { index: true, follow: true, "max-image-preview": "large" },
+  },
+  verification: {
+    google: process.env.GOOGLE_SITE_VERIFICATION,
+    yandex: process.env.YANDEX_SITE_VERIFICATION,
   },
   appleWebApp: {
     capable: true,
-    title: "GamePrice",
+    title: SITE_NAME,
     statusBarStyle: "black-translucent",
   },
   other: {
@@ -79,6 +107,7 @@ export default function RootLayout({
       <body className={`${inter.variable} min-h-screen flex flex-col`}>
         <ThemeProvider>
         <LocaleProvider>
+        <PremiumProvider>
         <CurrencyProvider>
           <CompareProvider>
             <RecentlyViewedProvider>
@@ -91,10 +120,12 @@ export default function RootLayout({
               <CompareFloatingBar />
               <PwaRegister />
               <PwaInstallPrompt />
+              <OnboardingModal />
             </ToastProvider>
             </RecentlyViewedProvider>
           </CompareProvider>
         </CurrencyProvider>
+        </PremiumProvider>
         </LocaleProvider>
         </ThemeProvider>
       </body>

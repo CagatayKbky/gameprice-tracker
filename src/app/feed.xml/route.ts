@@ -1,4 +1,5 @@
 import { getDealsFiltered, enrichDealsWithHistoricalLow } from "@/lib/api/deals";
+import { SITE_URL } from "@/lib/seo/constants";
 
 function escapeXml(value: string) {
   return value
@@ -9,7 +10,7 @@ function escapeXml(value: string) {
 }
 
 export async function GET() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+  const baseUrl = SITE_URL;
   const rawDeals = await getDealsFiltered({
     minDiscount: 40,
     sortBy: "Savings",

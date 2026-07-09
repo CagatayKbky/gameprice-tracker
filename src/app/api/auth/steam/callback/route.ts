@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
 import { SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
+import { fetchSteamCommunityProfile } from "@/lib/api/steam-profile";
+import { resolveUniqueProfileSlug } from "@/lib/profile/profile-slug-service";
 
 const STEAM_OPENID = "https://steamcommunity.com/openid/login";
 
@@ -49,19 +51,14 @@ export async function GET(request: NextRequest) {
 
     const sessionId = request.cookies.get(SESSION_COOKIE)?.value || randomUUID();
 
-    const personaRes = await fetch(
-      `https://steamcommunity.com/profiles/${steamId}/?xml=1`,
-      { headers: { Accept: "application/xml" } }
-    );
-    const personaXml = await personaRes.text();
-    const nameMatch = personaXml.match(/<steamID><!\[CDATA\[(.*?)\]\]><\/steamID>/);
-    const avatarMatch = personaXml.match(/<avatarFull><!\[CDATA\[(.*?)\]\]><\/avatarFull>/);
-    const steamPersona = nameMatch?.[1] || `Steam User ${steamId.slice(-4)}`;
-    const steamAvatar = avatarMatch?.[1] || null;
+    const steam = await fetchSteamCommunityProfile(steamId);
+    const steamPersona = steam?.persona || `Steam User ${steamId.slice(-4)}`;
+    const steamAvatar = steam?.avatarFull || null;
+    const profileSlug = await resolveUniqueProfileSlug(steamPersona, sessionId);
 
     await prisma.userProfile.updateMany({
       where: { steamId, NOT: { sessionId } },
-      data: { steamId: null, steamPersona: null, steamAvatar: null },
+      data: { steamId: null, steamPersona: null, steamAvatar: null, profileSlug: null },
     });
 
     await prisma.userProfile.upsert({
@@ -71,16 +68,23 @@ export async function GET(request: NextRequest) {
         steamId,
         steamPersona,
         steamAvatar,
+        profileSlug,
         name: steamPersona,
       },
       update: {
         steamId,
         steamPersona,
         steamAvatar,
+        profileSlug,
         name: steamPersona,
         updatedAt: new Date(),
       },
     });
+
+    if (process.env.STEAM_API_KEY) {
+      const { syncSteamLibrary } = await import("@/lib/services/steam-library");
+      syncSteamLibrary(sessionId).catch(() => {});
+    }
 
     const response = NextResponse.redirect(`${getAppUrl()}/profile?steam=ok`);
     response.cookies.set(SESSION_COOKIE, sessionId, {

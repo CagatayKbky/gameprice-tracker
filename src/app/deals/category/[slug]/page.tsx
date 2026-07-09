@@ -6,6 +6,7 @@ import { enrichDealsWithHistoricalLow } from "@/lib/api/deals";
 import { ChevronLeft } from "lucide-react";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
 
 interface CategoryPageProps {
   params: Promise<{ slug: string }>;
@@ -14,13 +15,17 @@ interface CategoryPageProps {
 export const dynamic = "force-dynamic";
 
 export async function generateMetadata({ params }: CategoryPageProps) {
+  const locale = await getServerLocale();
   const { slug } = await params;
   const meta = getCategoryMeta(slug);
   if (!meta) return { title: "Kategori Bulunamadı" };
-  return {
-    title: `${meta.title} — Oyun İndirimleri`,
-    description: meta.subtitle,
-  };
+  const path = `/deals/category/${slug}`;
+  return buildPageMetadata("deals", locale, {
+    path,
+    canonicalPath: path,
+    titleOverride: `${meta.title} — ${locale === "tr" ? "Oyun İndirimleri" : "Game Deals"}`,
+    descriptionOverride: meta.subtitle,
+  });
 }
 
 export default async function DealCategoryPage({ params }: CategoryPageProps) {

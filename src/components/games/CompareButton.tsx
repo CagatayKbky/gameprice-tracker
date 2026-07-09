@@ -1,8 +1,11 @@
 "use client";
 
 import { GitCompareArrows } from "lucide-react";
+import Link from "next/link";
 import { useCompare } from "@/components/providers/CompareProvider";
 import { useToast } from "@/components/providers/ToastProvider";
+import { useLocale } from "@/components/providers/LocaleProvider";
+import { usePremium } from "@/components/providers/PremiumProvider";
 
 interface CompareButtonProps {
   gameId: string;
@@ -17,8 +20,10 @@ export function CompareButton({
   imageUrl,
   variant = "full",
 }: CompareButtonProps) {
-  const { addGame, removeGame, isInCompare, games } = useCompare();
+  const { addGame, removeGame, isInCompare, games, maxCompare } = useCompare();
   const { addToast } = useToast();
+  const { t } = useLocale();
+  const { isPro } = usePremium();
   const active = isInCompare(gameId);
 
   const toggle = () => {
@@ -30,16 +35,21 @@ export function CompareButton({
     if (!ok) {
       addToast({
         type: "deal",
-        title: "Karşılaştırma limiti",
-        message: "En fazla 3 oyun karşılaştırabilirsiniz.",
-        href: "/compare",
+        title: t("premium.compareLimitTitle"),
+        message: isPro
+          ? t("premium.compareLimitPro", { max: String(maxCompare) })
+          : t("premium.compareLimitFree", { max: String(maxCompare) }),
+        href: isPro ? "/compare" : "/pricing",
       });
       return;
     }
     addToast({
       type: "deal",
-      title: "Karşılaştırmaya eklendi",
-      message: `${gameTitle} eklendi (${games.length + 1}/3)`,
+      title: t("premium.compareAdded"),
+      message: t("premium.compareCount", {
+        count: String(games.length + 1),
+        max: String(maxCompare),
+      }),
       href: "/compare",
     });
   };
@@ -53,7 +63,7 @@ export function CompareButton({
             ? "bg-accent/20 text-accent"
             : "hover:bg-card-hover text-muted hover:text-foreground"
         }`}
-        title={active ? "Karşılaştırmadan çıkar" : "Karşılaştırmaya ekle"}
+        title={active ? t("premium.compareRemove") : t("premium.compareAdd")}
       >
         <GitCompareArrows className="w-4 h-4" />
       </button>
@@ -70,7 +80,7 @@ export function CompareButton({
       }`}
     >
       <GitCompareArrows className="w-4 h-4" />
-      {active ? "Karşılaştırmada" : "Karşılaştır"}
+      {active ? t("premium.compareActive") : t("premium.compareAdd")}
     </button>
   );
 }

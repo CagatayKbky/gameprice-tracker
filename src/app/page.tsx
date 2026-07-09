@@ -12,11 +12,21 @@ import { HomeCtaBanner } from "@/components/home/HomeCtaBanner";
 import { RecentlyViewedSection } from "@/components/home/RecentlyViewedSection";
 import { TrendingSearches } from "@/components/home/TrendingSearches";
 import { SteamSaleBanner } from "@/components/deals/SteamSaleBanner";
+import { PersonalizedHomeSection } from "@/components/home/PersonalizedHomeSection";
+import { HomeLiveStats } from "@/components/home/HomeLiveStats";
 import { EpicFreeSection } from "@/components/home/EpicFreeSection";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { buildPageMetadata } from "@/lib/seo/page-metadata";
+import { buildSiteJsonLd } from "@/lib/seo/site-schemas";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
 
 export const revalidate = 300;
+
+export async function generateMetadata() {
+  const locale = await getServerLocale();
+  return buildPageMetadata("home", locale, { path: "" });
+}
 
 export default async function HomePage() {
   const locale = await getServerLocale();
@@ -47,14 +57,21 @@ export default async function HomePage() {
 
   return (
     <div>
+      {buildSiteJsonLd().map((schema, i) => (
+        <JsonLd key={i} data={schema} />
+      ))}
       <HomeHero
         catalogCount={data.catalogCount}
         platformCount={data.platformCount}
       />
 
+      <HomeLiveStats />
+
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SteamSaleBanner />
       </div>
+
+      <PersonalizedHomeSection />
 
       <HomeStats
         catalogCount={data.catalogCount}

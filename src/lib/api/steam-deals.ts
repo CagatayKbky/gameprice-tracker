@@ -1,10 +1,11 @@
 import { DealOfTheDay } from "@/types";
 import { cached } from "@/lib/cache";
 import { getSteamStoreUrl } from "@/lib/api/steam";
+import { getExchangeRates } from "@/lib/currency";
 
 const STEAM_CC = "TR";
 const STEAM_LANG = "turkish";
-const TRY_TO_USD = 34.5;
+const SEARCH_CURRENCY = "TRY";
 
 interface SteamFeaturedItem {
   id: number;
@@ -28,13 +29,17 @@ interface ParsedSteamRow {
   imageUrl?: string;
 }
 
-function centsToUsd(cents: number, currency?: string): number {
+async function centsToUsd(cents: number, currency?: string): Promise<number> {
   const amount = cents / 100;
-  if (currency === "TRY") return Math.round((amount / TRY_TO_USD) * 100) / 100;
+  if (currency === "TRY") {
+    const rates = await getExchangeRates();
+    const tryRate = rates.TRY || 34.5;
+    return Math.round((amount / tryRate) * 100) / 100;
+  }
   return amount;
 }
 
-function toDeal(
+async function toDeal(
   appId: string,
   title: string,
   discount: number,
@@ -42,11 +47,11 @@ function toDeal(
   originalCents: number,
   imageUrl?: string,
   currency = "USD"
-): DealOfTheDay {
-  const salePrice = centsToUsd(finalCents, currency);
+): Promise<DealOfTheDay> {
+  const salePrice = await centsToUsd(finalCents, currency);
   const normalPrice =
     originalCents > 0
-      ? centsToUsd(originalCents, currency)
+      ? await centsToUsd(originalCents, currency)
       : discount > 0
         ? Math.round((salePrice / (1 - discount / 100)) * 100) / 100
         : salePrice;
@@ -54,6 +59,7 @@ function toDeal(
   return {
     title,
     gameId: `steam-${appId}`,
+    steamAppId: appId,
     imageUrl,
     normalPrice,
     salePrice,
@@ -63,7 +69,7 @@ function toDeal(
   };
 }
 
-function mapFeaturedItem(item: SteamFeaturedItem): DealOfTheDay | null {
+async function mapFeaturedItem(item: SteamFeaturedItem): Promise<DealOfTheDay | null> {
   if (!item.id || !item.name || !item.discounted) return null;
   const discount = item.discount_percent ?? 0;
   const finalCents = item.final_price ?? 0;
@@ -113,7 +119,7 @@ async function fetchFeaturedCategories(): Promise<DealOfTheDay[]> {
 
   for (const key of ["specials", "top_sellers", "new_releases", "coming_soon"]) {
     for (const item of data[key]?.items ?? []) {
-      const deal = mapFeaturedItem(item);
+      const deal = await mapFeaturedItem(item);
       if (!deal || seen.has(deal.gameId)) continue;
       seen.add(deal.gameId);
       deals.push(deal);
@@ -135,8 +141,11 @@ async function fetchSteamSearchPage(page: number): Promise<DealOfTheDay[]> {
   if (!res.ok) return [];
 
   const html = await res.text();
-  return parseSteamSearchHtml(html).map((row) =>
-    toDeal(row.appId, row.title, row.discount, row.finalCents, 0, row.imageUrl, "USD")
+  const rows = parseSteamSearchHtml(html);
+  return Promise.all(
+    rows.map((row) =>
+      toDeal(row.appId, row.title, row.discount, row.finalCents, 0, row.imageUrl, SEARCH_CURRENCY)
+    )
   );
 }
 
@@ -168,9 +177,10 @@ export async function getSteamFreeGames(): Promise<DealOfTheDay[]> {
   if (!res.ok) return [];
 
   const html = await res.text();
-  return parseSteamSearchHtml(html)
-    .filter((r) => r.finalCents === 0)
-    .map((row) => toDeal(row.appId, row.title, 100, 0, 0, row.imageUrl));
+  const rows = parseSteamSearchHtml(html).filter((r) => r.finalCents === 0);
+  return Promise.all(
+    rows.map((row) => toDeal(row.appId, row.title, 100, 0, 0, row.imageUrl, SEARCH_CURRENCY))
+  );
 }
 
 export async function getSteamMegaDeals(): Promise<DealOfTheDay[]> {
@@ -183,6 +193,33 @@ export async function getSteamUnderPriceDeals(maxUsd: number): Promise<DealOfThe
   return deals.filter((d) => d.salePrice <= maxUsd && d.discount >= 30);
 }
 
+/** Only return a sale end when many specials share the same expiry (major sale, not per-game). */
+function detectMajorSaleEnd(items: SteamFeaturedItem[]): string | undefined {
+  const nowSec = Math.floor(Date.now() / 1000);
+  const counts = new Map<number, number>();
+
+  for (const item of items) {
+    const exp = item.discount_expiration;
+    if (!exp || exp <= nowSec || !item.discounted) continue;
+    counts.set(exp, (counts.get(exp) ?? 0) + 1);
+  }
+
+  let bestExp = 0;
+  let bestCount = 0;
+  for (const [exp, count] of counts) {
+    if (count > bestCount) {
+      bestCount = count;
+      bestExp = exp;
+    }
+  }
+
+  // Require several games with the same end time — signals a platform-wide sale.
+  if (bestCount >= 5 && bestExp > nowSec) {
+    return new Date(bestExp * 1000).toISOString();
+  }
+  return undefined;
+}
+
 export async function getSteamSaleEndIso(): Promise<string | undefined> {
   return cached("steam-sale-end", 30 * 60 * 1000, async () => {
     try {
@@ -193,16 +230,8 @@ export async function getSteamSaleEndIso(): Promise<string | undefined> {
       if (!res.ok) return undefined;
 
       const data = (await res.json()) as Record<string, { items?: SteamFeaturedItem[] }>;
-      let maxExp = 0;
-      for (const key of Object.keys(data)) {
-        for (const item of data[key]?.items ?? []) {
-          if (item.discount_expiration && item.discount_expiration > maxExp) {
-            maxExp = item.discount_expiration;
-          }
-        }
-      }
-      if (maxExp > 0) return new Date(maxExp * 1000).toISOString();
-      return undefined;
+      const specials = data.specials?.items ?? [];
+      return detectMajorSaleEnd(specials);
     } catch {
       return undefined;
     }
