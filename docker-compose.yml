@@ -1,0 +1,15 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: gameprice
+      POSTGRES_PASSWORD: gameprice
+      POSTGRES_DB: gameprice
+    volumes:
+      - gameprice_pg:/var/lib/postgresql/data
+
+volumes:
+  gameprice_pg:

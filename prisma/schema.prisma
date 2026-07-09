@@ -1,0 +1,168 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model TrackedGame {
+  id               String   @id @default(cuid())
+  cheapSharkGameId String   @unique
+  title            String
+  imageUrl         String?
+  steamAppId       String?
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  snapshots PriceSnapshot[]
+}
+
+model PriceSnapshot {
+  id            String   @id @default(cuid())
+  trackedGameId String
+  platformId    String
+  price         Float
+  normalPrice   Float
+  discount      Int      @default(0)
+  currency      String   @default("USD")
+  dealUrl       String?
+  isOnSale      Boolean  @default(false)
+  recordedAt    DateTime @default(now())
+
+  trackedGame TrackedGame @relation(fields: [trackedGameId], references: [id], onDelete: Cascade)
+
+  @@index([trackedGameId, platformId, recordedAt])
+}
+
+model UserProfile {
+  id                  String   @id @default(cuid())
+  sessionId           String   @unique
+  email               String?
+  name                String?
+  emailNotifications  Boolean  @default(true)
+  weeklyDigest        Boolean  @default(true)
+  pushNotifications   Boolean  @default(true)
+  wishlistDealAlerts  Boolean  @default(true)
+  discordWebhook      String?
+  telegramChatId      String?
+  steamId             String?  @unique
+  steamPersona        String?
+  steamAvatar         String?
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+}
+
+model PushSubscription {
+  id        String   @id @default(cuid())
+  sessionId String
+  endpoint  String   @unique
+  p256dh    String
+  auth      String
+  createdAt DateTime @default(now())
+
+  @@index([sessionId])
+}
+
+model WishlistItem {
+  id                 String    @id @default(cuid())
+  sessionId          String
+  cheapSharkGameId   String
+  gameTitle          String
+  imageUrl           String?
+  lastKnownPrice     Float?
+  lastKnownDiscount  Int?
+  dealNotifiedAt     DateTime?
+  addedAt            DateTime  @default(now())
+
+  @@unique([sessionId, cheapSharkGameId])
+  @@index([sessionId])
+}
+
+model SearchLog {
+  id        String   @id @default(cuid())
+  query     String
+  queryNorm String
+  sessionId String?
+  createdAt DateTime @default(now())
+
+  @@index([queryNorm, createdAt])
+  @@index([createdAt])
+}
+
+model PriceAlert {
+  id               String    @id @default(cuid())
+  sessionId        String
+  cheapSharkGameId String
+  gameTitle        String
+  targetPrice      Float
+  currentPrice     Float?
+  platformId       String?
+  isActive         Boolean   @default(true)
+  emailNotify      Boolean   @default(true)
+  notifiedAt       DateTime?
+  triggeredAt      DateTime?
+  createdAt        DateTime  @default(now())
+
+  @@index([sessionId, isActive])
+  @@index([cheapSharkGameId, isActive])
+}
+
+model CatalogGame {
+  id           String   @id @default(cuid())
+  slug         String   @unique
+  title        String
+  titleNorm    String
+  letter       String
+  imageUrl     String?
+  steamAppId   String?
+  rawgId       Int?
+  cheapSharkId String?
+  platforms    String   @default("[]")
+  source       String
+  metacritic   Int?
+  released     String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([titleNorm])
+  @@index([letter, titleNorm])
+  @@index([title])
+}
+
+model CatalogSyncState {
+  id         String   @id @default("main")
+  steamDone  Boolean  @default(false)
+  rawgPage   Int      @default(1)
+  rawgDone   Boolean  @default(false)
+  totalGames Int      @default(0)
+  updatedAt  DateTime @updatedAt
+}
+
+model JobLog {
+  id         String    @id @default(cuid())
+  type       String
+  status     String
+  meta       String?
+  result     String?
+  error      String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+
+  @@index([type, startedAt])
+  @@index([startedAt])
+}
+
+model MagicLinkToken {
+  id        String   @id @default(cuid())
+  email     String
+  token     String   @unique
+  sessionId String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime @default(now())
+
+  @@index([email])
+  @@index([token])
+}
