@@ -113,12 +113,22 @@ export function ProfileCosmeticsPanel({
   const items = tab === "frame" ? frames : tab === "effect" ? effects : [];
   const activeId = tab === "frame" ? equipped.frame : tab === "effect" ? equipped.effect : "";
 
+  const previewItem = (itemId: string) => {
+    if (tab === "frame") setPreviewFrame(itemId);
+    else if (tab === "effect") setPreviewEffect(itemId);
+  };
+
+  const resetPreview = () => {
+    setPreviewFrame(equipped.frame);
+    setPreviewEffect(equipped.effect);
+  };
+
   return (
-    <section className="mb-8 overflow-hidden rounded-2xl border border-[#2a475e]/50 bg-[#0e1419]">
+    <section className="mb-6 sm:mb-8 overflow-hidden rounded-2xl border border-[#2a475e]/50 bg-[#0e1419]">
       <button
         type="button"
         onClick={() => setOpen((value) => !value)}
-        className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left hover:bg-[#1b2838]/40 transition-colors"
+        className="flex w-full items-center justify-between gap-3 px-4 py-4 text-left hover:bg-[#1b2838]/40 transition-colors sm:gap-4 sm:px-5"
       >
         <div className="flex items-center gap-3 min-w-0">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1b2838] border border-[#2a475e]/60">
@@ -135,9 +145,9 @@ export function ProfileCosmeticsPanel({
       </button>
 
       {open && (
-        <div className="border-t border-[#2a475e]/40 px-5 pb-5 pt-4">
-          <div className="grid gap-6 lg:grid-cols-[220px_minmax(0,1fr)]">
-            <div className="flex flex-col items-center justify-center rounded-xl border border-[#2a475e]/40 bg-[#1b2838]/50 py-6">
+        <div className="border-t border-[#2a475e]/40 px-4 pb-4 pt-4 sm:px-5 sm:pb-5">
+          <div className="flex flex-col gap-5 lg:grid lg:grid-cols-[220px_minmax(0,1fr)] lg:gap-6">
+            <div className="flex flex-col items-center justify-center rounded-xl border border-[#2a475e]/40 bg-[#1b2838]/50 py-5 sm:py-6">
               <ProfileAvatarFrame
                 avatarUrl={avatarUrl}
                 displayName={displayName}
@@ -155,7 +165,7 @@ export function ProfileCosmeticsPanel({
                     key={key}
                     type="button"
                     onClick={() => setTab(key)}
-                    className={`flex-1 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                    className={`flex-1 rounded-md px-2 py-2 text-[11px] font-medium transition-colors sm:px-3 sm:text-sm ${
                       tab === key
                         ? "bg-[#2a475e] text-white"
                         : "text-[#8f98a0] hover:text-white"
@@ -218,14 +228,10 @@ export function ProfileCosmeticsPanel({
                       key={item.id}
                       type="button"
                       disabled={locked || busy !== null}
-                      onMouseEnter={() => {
-                        if (tab === "frame") setPreviewFrame(item.id);
-                        else setPreviewEffect(item.id);
-                      }}
-                      onMouseLeave={() => {
-                        setPreviewFrame(equipped.frame);
-                        setPreviewEffect(equipped.effect);
-                      }}
+                      onMouseEnter={() => previewItem(item.id)}
+                      onMouseLeave={resetPreview}
+                      onTouchStart={() => previewItem(item.id)}
+                      onTouchEnd={resetPreview}
                       onClick={() => void equip(tab, item.id)}
                       className={`flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors ${
                         activeNow

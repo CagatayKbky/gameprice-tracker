@@ -19,6 +19,7 @@ import {
   MoreHorizontal,
   Sparkles,
   Users,
+  BookOpen,
 } from "lucide-react";
 import { CurrencySwitcher } from "@/components/layout/CurrencySwitcher";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -42,6 +43,7 @@ const secondaryNavItems = [
   { href: "/compare", labelKey: "nav.compare", icon: GitCompareArrows },
   { href: "/social", labelKey: "nav.social", icon: Users },
   { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
+  { href: "/guides", labelKey: "nav.guides", icon: BookOpen },
   { href: "/pricing", labelKey: "nav.premium", icon: Sparkles },
   { href: "/platforms", labelKey: "nav.platforms", icon: Store },
 ];
@@ -185,6 +187,14 @@ export function Header() {
           </nav>
 
           <div className="flex items-center gap-0.5 sm:gap-1 shrink-0 ml-auto">
+            <Link
+              href="/notifications"
+              className="relative p-2 rounded-lg text-muted hover:text-foreground hover:bg-card-hover transition-colors md:hidden"
+              title={t("nav.notifications")}
+            >
+              <Bell className="w-4 h-4" />
+              <NavBadgeInline count={counts.notifications} className="absolute -top-0.5 -right-0.5" />
+            </Link>
             <Link
               href="/profile"
               className="p-2 rounded-lg text-muted hover:text-foreground hover:bg-card-hover transition-colors hidden sm:block"

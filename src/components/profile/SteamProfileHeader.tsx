@@ -36,21 +36,33 @@ export function SteamProfileHeader({
   const frame = getFrameDefinition(frameId);
 
   return (
-    <section className={`overflow-hidden rounded-2xl border ${frame.cardClass}`}>
-      <div className={`h-28 sm:h-32 ${frame.bannerClass}`} />
-      <div className="relative px-5 pb-5 sm:px-6 sm:pb-6">
-        <div className="-mt-14 sm:-mt-16 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
-          <div className="flex flex-col gap-4 sm:flex-row sm:items-end">
-            <ProfileAvatarFrame
-              avatarUrl={avatarUrl}
-              displayName={displayName}
-              frameId={frameId}
-              effectId={effectId}
-              size="xl"
-              showSteamBadge={showSteamBadge}
-            />
-            <div className="min-w-0 pb-1">
-              <h1 className="truncate text-2xl font-bold text-white sm:text-3xl">{displayName}</h1>
+    <section className={`mb-6 overflow-hidden rounded-2xl border ${frame.cardClass}`}>
+      <div className={`h-24 sm:h-32 ${frame.bannerClass}`} />
+      <div className="relative px-4 pb-4 sm:px-6 sm:pb-6">
+        <div className="-mt-12 sm:-mt-16 flex flex-col gap-4">
+          <div className="flex items-end gap-3 sm:gap-4">
+            <div className="sm:hidden">
+              <ProfileAvatarFrame
+                avatarUrl={avatarUrl}
+                displayName={displayName}
+                frameId={frameId}
+                effectId={effectId}
+                size="md"
+                showSteamBadge={showSteamBadge}
+              />
+            </div>
+            <div className="hidden sm:block">
+              <ProfileAvatarFrame
+                avatarUrl={avatarUrl}
+                displayName={displayName}
+                frameId={frameId}
+                effectId={effectId}
+                size="xl"
+                showSteamBadge={showSteamBadge}
+              />
+            </div>
+            <div className="min-w-0 flex-1 pb-1">
+              <h1 className="truncate text-xl font-bold text-white sm:text-3xl">{displayName}</h1>
               {subtitle}
               {badges.length > 0 && (
                 <div className="mt-2 flex flex-wrap gap-1.5">
@@ -64,12 +76,16 @@ export function SteamProfileHeader({
                   ))}
                 </div>
               )}
-              {meta && <div className="mt-3 text-sm text-[#acb2b8]">{meta}</div>}
             </div>
           </div>
-          {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
+
+          {meta && <div className="text-sm text-[#acb2b8]">{meta}</div>}
+
+          {actions && (
+            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">{actions}</div>
+          )}
         </div>
-        {children && <div className="mt-6">{children}</div>}
+        {children && <div className="mt-5 sm:mt-6">{children}</div>}
       </div>
     </section>
   );

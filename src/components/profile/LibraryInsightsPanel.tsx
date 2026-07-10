@@ -71,12 +71,12 @@ export function LibraryInsightsPanel({ steamConnected }: { steamConnected: boole
 
   return (
     <section className="mb-8 rounded-2xl border border-[#2a475e]/50 bg-[#0e1419] p-5">
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="min-w-0">
           <h2 className="font-semibold text-white">{t("libraryInsights.title")}</h2>
           <p className="text-sm text-[#8f98a0]">{t("libraryInsights.subtitle")}</p>
         </div>
-        <Link href="/profile/library" className="text-sm text-[#66c0f4] hover:underline">
+        <Link href="/profile/library" className="shrink-0 text-sm text-[#66c0f4] hover:underline">
           {t("libraryInsights.viewLibrary")}
         </Link>
       </div>

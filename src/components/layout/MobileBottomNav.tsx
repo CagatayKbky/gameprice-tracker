@@ -2,14 +2,14 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, TrendingDown, Search, Heart, User } from "lucide-react";
+import { Home, TrendingDown, Heart, User, Users } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
 const links = [
   { href: "/", icon: Home, labelKey: "nav.home" },
   { href: "/deals", icon: TrendingDown, labelKey: "nav.deals" },
-  { href: "/search", icon: Search, labelKey: "search.title" },
   { href: "/wishlist", icon: Heart, labelKey: "nav.wishlist" },
+  { href: "/social", icon: Users, labelKey: "nav.social" },
   { href: "/profile", icon: User, labelKey: "nav.profile" },
 ] as const;
 

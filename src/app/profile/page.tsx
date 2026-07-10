@@ -222,7 +222,7 @@ function ProfileContent() {
       ].filter(Boolean) as Array<{ id: string; label: string; cls: string }>;
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
+    <div className="max-w-4xl mx-auto px-3 py-6 sm:px-6 sm:py-8">
       {steamBanner && (
         <div className="mb-6 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-3 text-sm text-emerald-300">
           {steamBanner}
@@ -276,24 +276,24 @@ function ProfileContent() {
                 href={steam.profileUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 rounded-lg bg-[#2a475e] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[#3d6b8c]"
+                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#2a475e] px-3 py-2.5 text-xs sm:text-sm font-medium text-white transition-colors hover:bg-[#3d6b8c] sm:px-4"
               >
-                {t("profile.steamProfile")}
-                <ExternalLink className="h-3.5 w-3.5" />
+                <span className="truncate">{t("profile.steamProfile")}</span>
+                <ExternalLink className="h-3.5 w-3.5 shrink-0" />
               </a>
             )}
             <Link
               href="/settings"
-              className="inline-flex items-center gap-2 rounded-lg border border-[#66c0f4]/30 bg-[#1b2838] px-4 py-2 text-sm font-medium text-[#66c0f4] transition-colors hover:bg-[#2a475e]"
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#66c0f4]/30 bg-[#1b2838] px-3 py-2.5 text-xs sm:text-sm font-medium text-[#66c0f4] transition-colors hover:bg-[#2a475e] sm:px-4"
             >
-              <Settings className="h-4 w-4" />
-              {t("profile.edit")}
+              <Settings className="h-4 w-4 shrink-0" />
+              <span className="truncate">{t("profile.edit")}</span>
             </Link>
             {isSteamConnected && (
               <button
                 onClick={handleDisconnect}
                 disabled={disconnecting}
-                className="inline-flex items-center gap-2 rounded-lg border border-red-400/20 px-4 py-2 text-sm text-red-300 transition-colors hover:border-red-400/40 disabled:opacity-50"
+                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-lg border border-red-400/20 px-3 py-2.5 text-xs sm:text-sm text-red-300 transition-colors hover:border-red-400/40 disabled:opacity-50 sm:col-span-1 sm:px-4"
               >
                 {disconnecting ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
@@ -345,7 +345,7 @@ function ProfileContent() {
         </div>
       </div>
 
-      <section className="mb-8 rounded-2xl border border-[#2a475e]/50 bg-[#0e1419] p-5">
+      <section className="mb-6 rounded-2xl border border-[#2a475e]/50 bg-[#0e1419] p-4 sm:mb-8 sm:p-5">
         <h2 className="mb-1 font-semibold text-white">{t("buyWait.title")}</h2>
         <p className="mb-4 text-sm text-[#8f98a0]">{t("buyWait.subtitle")}</p>
         <BuyWaitPanel compact />

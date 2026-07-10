@@ -22,6 +22,7 @@ const tr: TranslationDict = {
   "nav.settings": "Ayarlar",
   "nav.premium": "Pro",
   "nav.social": "Sosyal",
+  "nav.guides": "Rehberler",
 
   // ── Theme & Language ────────────────────────────────────────────────────
   "theme.light": "Açık tema",
@@ -791,6 +792,7 @@ const en: TranslationDict = {
   "nav.settings": "Settings",
   "nav.premium": "Pro",
   "nav.social": "Social",
+  "nav.guides": "Guides",
 
   // ── Theme & Language ────────────────────────────────────────────────────
   "theme.light": "Light theme",

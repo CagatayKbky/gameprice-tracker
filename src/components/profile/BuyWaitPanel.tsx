@@ -93,30 +93,32 @@ export function BuyWaitPanel({ compact = false }: { compact?: boolean }) {
             <Link
               key={item.gameId}
               href={`/game/${item.gameId}`}
-              className="flex items-center gap-3 rounded-xl border border-[#2a475e]/50 bg-[#1b2838]/60 p-3 transition-colors hover:border-[#66c0f4]/30"
+              className="flex flex-col gap-2 rounded-xl border border-[#2a475e]/50 bg-[#1b2838]/60 p-3 transition-colors hover:border-[#66c0f4]/30 sm:flex-row sm:items-center sm:gap-3"
             >
-              <GameImage
-                src={item.imageUrl}
-                alt={item.title}
-                className="h-14 w-10 shrink-0 rounded object-cover"
-              />
-              <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-medium text-white">{item.title}</p>
-                <p className="text-xs text-[#8f98a0]">
-                  {t(item.reasonKey, item.reasonParams)}
-                </p>
-                <div className="mt-1 flex items-center gap-2 text-xs">
-                  <PriceDisplay amount={item.price} className="text-[#66c0f4] font-medium" />
-                  {item.discount > 0 && (
-                    <span className="text-emerald-400">-{item.discount}%</span>
-                  )}
-                  {item.isHistoricalLow && (
-                    <span className="text-amber-300">{t("buyWait.historicalLow")}</span>
-                  )}
+              <div className="flex min-w-0 flex-1 items-center gap-3">
+                <GameImage
+                  src={item.imageUrl}
+                  alt={item.title}
+                  className="h-14 w-10 shrink-0 rounded object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-medium text-white">{item.title}</p>
+                  <p className="line-clamp-2 text-xs text-[#8f98a0] sm:line-clamp-1">
+                    {t(item.reasonKey, item.reasonParams)}
+                  </p>
+                  <div className="mt-1 flex flex-wrap items-center gap-2 text-xs">
+                    <PriceDisplay amount={item.price} className="text-[#66c0f4] font-medium" />
+                    {item.discount > 0 && (
+                      <span className="text-emerald-400">-{item.discount}%</span>
+                    )}
+                    {item.isHistoricalLow && (
+                      <span className="text-amber-300">{t("buyWait.historicalLow")}</span>
+                    )}
+                  </div>
                 </div>
               </div>
               <span
-                className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase ${style.cls}`}
+                className={`inline-flex w-fit shrink-0 items-center gap-1 self-start rounded-full border px-2.5 py-1 text-[10px] font-semibold uppercase sm:self-center ${style.cls}`}
               >
                 <Icon className="h-3 w-3" />
                 {t(style.labelKey)}
