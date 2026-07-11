@@ -18,6 +18,7 @@ export async function getLibraryInsights(sessionId: string) {
       unplayedCount: 0,
       staleBacklogCount: 0,
       backlogScore: 0,
+      avgPlaytimeHours: 0,
       topUnplayed: [] as Array<{ steamAppId: string; name: string | null }>,
     };
   }
@@ -55,6 +56,7 @@ export async function getLibraryInsights(sessionId: string) {
     unplayedCount,
     staleBacklogCount,
     backlogScore,
+    avgPlaytimeHours: Math.round(totalPlaytimeMinutes / games.length / 60),
     topUnplayed: unplayedGames.slice(0, 5).map((g) => ({
       steamAppId: g.steamAppId,
       name: g.name,

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
@@ -11,6 +12,22 @@ import { SteamProfileHeader } from "@/components/profile/SteamProfileHeader";
 
 interface PublicProfilePageProps {
   params: Promise<{ steamId: string }>;
+}
+
+export async function generateMetadata({ params }: PublicProfilePageProps): Promise<Metadata> {
+  const { steamId } = await params;
+  const data = await getPublicProfileBySlug(steamId, null);
+  if (!data) return { title: "Profile" };
+  const name = data.profile.steamPersona || data.profile.name || "Player";
+  return {
+    title: `${name} — GamePrice Profili`,
+    description: `${name} GamePrice profili — wishlist, kütüphane ve rozetler.`,
+    openGraph: {
+      title: `${name} — GamePrice`,
+      description: "Oyun wishlist ve Steam profili",
+      type: "profile",
+    },
+  };
 }
 
 const badgeClass: Record<string, string> = {
@@ -55,7 +72,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
           <PublicProfileActions relationship={data.relationship} sessionId={data.sessionId} />
         }
       >
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3 sm:grid-cols-4">
           <StatCard icon={Heart} label="Wishlist" value={String(data.stats.wishlistCount)} />
           <StatCard icon={Library} label="Library" value={String(data.stats.libraryCount)} />
           <StatCard icon={Users} label="Friend" value={data.isFriend ? "Yes" : "No"} />
@@ -156,7 +173,7 @@ function StatCard({
   return (
     <div className="rounded-xl border border-[#2a475e]/60 bg-[#1b2838] p-4">
       <Icon className="mb-2 h-4 w-4 text-[#66c0f4]" />
-      <p className="text-xs text-[#acb2b8]">{label}</p>
+      <p className="text-xs text-[#acb2b8] leading-snug line-clamp-2">{label}</p>
       <p className="mt-1 text-xl font-bold text-white">{value}</p>
     </div>
   );

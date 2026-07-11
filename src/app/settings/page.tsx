@@ -111,7 +111,7 @@ export default function SettingsPage() {
 
       <form onSubmit={handleSave} className="space-y-6">
         <div className="rounded-2xl border border-accent/30 bg-accent/5 p-6 space-y-3">
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
             <h2 className="font-semibold flex items-center gap-2">
               <Crown className="w-4 h-4 text-accent" />
               {t("premium.settings.title")}

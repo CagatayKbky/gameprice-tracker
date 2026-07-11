@@ -156,9 +156,30 @@ export async function checkAndTriggerAlerts() {
     where: { isActive: true },
   });
 
+  const sessionIds = [...new Set(activeAlerts.map((a) => a.sessionId))];
+  const profiles = sessionIds.length
+    ? await prisma.userProfile.findMany({
+        where: { sessionId: { in: sessionIds } },
+        select: { sessionId: true, plan: true, planExpiresAt: true },
+      })
+    : [];
+  const planMap = new Map(
+    profiles.map((p) => [
+      p.sessionId,
+      p.plan === "pro" && (!p.planExpiresAt || p.planExpiresAt > new Date()),
+    ])
+  );
+
+  activeAlerts.sort((a, b) => {
+    const aPro = planMap.get(a.sessionId) ? 1 : 0;
+    const bPro = planMap.get(b.sessionId) ? 1 : 0;
+    return bPro - aPro;
+  });
+
   let triggered = 0;
 
   for (const alert of activeAlerts) {
+    const isPro = planMap.get(alert.sessionId) ?? false;
     const game = await resolveGame(alert.cheapSharkGameId);
     if (!game?.cheapestStore || game.cheapestStore.price <= 0) continue;
 
@@ -205,6 +226,17 @@ export async function checkAndTriggerAlerts() {
         currentPrice,
         alert.cheapSharkGameId
       );
+
+      if (isPro) {
+        const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+        await createUserNotification({
+          sessionId: alert.sessionId,
+          type: "price_alert_instant",
+          title: "⚡ Öncelikli fiyat alarmı",
+          body: `${alert.gameTitle} — $${currentPrice.toFixed(2)}`,
+          url: `${appUrl}/game/${alert.cheapSharkGameId}`,
+        });
+      }
 
       const profileForDiscord = await prisma.userProfile.findUnique({
         where: { sessionId: alert.sessionId },

@@ -41,7 +41,7 @@ export function LibraryQuickActions({
   };
 
   return (
-    <div className="flex items-center gap-2 mt-2">
+    <div className="flex flex-wrap items-center gap-2 mt-2">
       <button
         type="button"
         onClick={(e) => {
@@ -50,7 +50,7 @@ export function LibraryQuickActions({
           void addWishlist();
         }}
         disabled={loading || saved}
-        className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-border text-xs hover:border-pink-400/30 hover:text-pink-300 disabled:opacity-60"
+        className="inline-flex items-center gap-1.5 px-2 sm:px-2.5 py-1.5 rounded-lg border border-border text-[10px] sm:text-xs hover:border-pink-400/30 hover:text-pink-300 disabled:opacity-60"
       >
         {loading ? (
           <Loader2 className="w-3 h-3 animate-spin" />

@@ -24,6 +24,12 @@ export async function GET(request: NextRequest) {
   const sessionId =
     request.cookies.get(SESSION_COOKIE)?.value ?? ensureSession(request, response);
 
+  const refCookie = request.cookies.get("gp-ref")?.value;
+  if (refCookie) {
+    const { applyReferralCode } = await import("@/lib/services/referral");
+    await applyReferralCode(sessionId, refCookie).catch(() => {});
+  }
+
   const profile = await getProfile(sessionId);
   const premium = await getPremiumStatus(sessionId);
   const cosmetics = await getUnlockedCosmetics(sessionId);

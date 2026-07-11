@@ -25,6 +25,8 @@ import { LibraryInsightsPanel } from "@/components/profile/LibraryInsightsPanel"
 import { ProfileCosmeticsPanel } from "@/components/profile/ProfileCosmeticsPanel";
 import { BuyWaitPanel } from "@/components/profile/BuyWaitPanel";
 import { SteamProfileHeader } from "@/components/profile/SteamProfileHeader";
+import { ShareProfileButton } from "@/components/profile/ShareProfileButton";
+import { ReferralPanel } from "@/components/social/ReferralPanel";
 
 interface ProfileData {
   email: string | null;
@@ -41,6 +43,7 @@ interface ProfileData {
   plan?: string;
   limits?: { wishlist: number };
   usage?: { wishlist: number };
+  profileSlug?: string | null;
   activeProfileFrame?: string;
   activeProfileEffect?: string;
 }
@@ -282,6 +285,9 @@ function ProfileContent() {
                 <ExternalLink className="h-3.5 w-3.5 shrink-0" />
               </a>
             )}
+            {isSteamConnected && steamId && (
+              <ShareProfileButton slug={profile?.profileSlug || steamId} displayName={displayName} />
+            )}
             <Link
               href="/settings"
               className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#66c0f4]/30 bg-[#1b2838] px-3 py-2.5 text-xs sm:text-sm font-medium text-[#66c0f4] transition-colors hover:bg-[#2a475e] sm:px-4"
@@ -351,6 +357,8 @@ function ProfileContent() {
         <BuyWaitPanel compact />
       </section>
 
+      <ReferralPanel />
+
       {cosmetics && (
         <ProfileCosmeticsPanel
           frames={cosmetics.cosmetics.frames}
@@ -379,7 +387,7 @@ function ProfileContent() {
 
       {steamData?.wishlist && steamData.wishlist.items.length > 0 && (
         <section className="mb-8">
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between mb-4">
             <h2 className="font-semibold text-lg">{t("profile.steamWishlistPreview")}</h2>
             <span className="text-sm text-muted">
               {t("profile.steamWishlistCount", { count: String(steamData.wishlist.count) })}

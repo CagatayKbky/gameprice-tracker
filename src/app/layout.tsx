@@ -114,7 +114,7 @@ export default function RootLayout({
             <ToastProvider>
               <AlertChecker />
               <Header />
-              <main className="flex-1 pb-16 md:pb-0">{children}</main>
+              <main className="flex-1 pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">{children}</main>
               <Footer />
               <MobileBottomNav />
               <CompareFloatingBar />

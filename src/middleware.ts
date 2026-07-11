@@ -28,6 +28,15 @@ export function middleware(request: NextRequest) {
     });
   }
 
+  const ref = request.nextUrl.searchParams.get("ref");
+  if (ref && !request.cookies.get("gp-ref")) {
+    response.cookies.set("gp-ref", ref.toUpperCase(), {
+      path: "/",
+      maxAge: 60 * 60 * 24 * 30,
+      sameSite: "lax",
+    });
+  }
+
   return response;
 }
 

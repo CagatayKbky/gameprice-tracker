@@ -3,6 +3,7 @@ import { prisma } from "@/lib/db";
 import { getHistoricalLowDeals } from "@/lib/api/deals";
 import { notifyFreeGames } from "@/lib/services/free-game-notify";
 import { sendWeeklyDigestEmail } from "@/lib/services/email";
+import { getPersonalizedDigestDeals } from "@/lib/services/weekly-digest";
 import { authorizeCron } from "@/lib/cron-auth";
 import { logJobFinish, logJobStart } from "@/lib/services/job-log";
 
@@ -30,10 +31,11 @@ async function runWeeklyDigest() {
 
   for (const profile of subscribers) {
     if (!profile.email) continue;
+    const userDeals = await getPersonalizedDigestDeals(profile.sessionId, topDeals);
     const ok = await sendWeeklyDigestEmail({
       to: profile.email,
-      userName: profile.name || undefined,
-      deals: topDeals,
+      userName: profile.name || profile.steamPersona || undefined,
+      deals: userDeals,
     });
     if (ok) sent++;
     else failed++;

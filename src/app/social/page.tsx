@@ -5,6 +5,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { Check, Search, UserPlus, Users, X } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { LeaderboardPanel } from "@/components/social/LeaderboardPanel";
+import { ReferralPanel } from "@/components/social/ReferralPanel";
 
 interface SocialProfile {
   sessionId: string;
@@ -98,6 +100,9 @@ export default function SocialPage() {
         </div>
       </div>
 
+      <LeaderboardPanel />
+      <ReferralPanel />
+
       <div className="rounded-2xl border border-border bg-card p-4 mb-8">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
@@ -116,7 +121,7 @@ export default function SocialPage() {
           <h2 className="font-semibold mb-4">{t("social.activity")}</h2>
           <div className="grid gap-3">
             {activity.map((item) => (
-              <div key={item.id} className="rounded-xl border border-border bg-card p-4 flex items-center gap-4">
+              <div key={item.id} className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
                 {item.profile.steamAvatar ? (
                   <Image
                     src={item.profile.steamAvatar}
@@ -152,7 +157,7 @@ export default function SocialPage() {
                   <p className="text-xs text-muted mt-1">{formatRelative(item.at, t)}</p>
                 </div>
                 {item.gameId && (
-                  <Link href={`/game/${item.gameId}`} className="text-xs text-accent hover:underline shrink-0">
+                  <Link href={`/game/${item.gameId}`} className="text-xs text-accent hover:underline shrink-0 self-start sm:self-center">
                     {t("social.activityViewGame")}
                   </Link>
                 )}
@@ -169,14 +174,14 @@ export default function SocialPage() {
             <p className="text-sm text-muted">{t("social.noRequests")}</p>
           ) : (
             incoming.map((item) => (
-              <div key={item.id} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between gap-3">
+              <div key={item.id} className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <ProfileLine profile={item.profile} />
-                <div className="flex items-center gap-2">
-                  <button onClick={() => void respond(item.id, "accept")} className="px-3 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-300 text-sm">
+                <div className="flex items-center gap-2 shrink-0 self-stretch sm:self-auto">
+                  <button onClick={() => void respond(item.id, "accept")} className="flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-lg bg-emerald-500/15 text-emerald-300 text-xs sm:text-sm">
                     <Check className="w-4 h-4 inline mr-1" />
                     {t("social.accept")}
                   </button>
-                  <button onClick={() => void respond(item.id, "reject")} className="px-3 py-1.5 rounded-lg bg-red-500/15 text-red-300 text-sm">
+                  <button onClick={() => void respond(item.id, "reject")} className="flex-1 sm:flex-none px-2.5 sm:px-3 py-1.5 rounded-lg bg-red-500/15 text-red-300 text-xs sm:text-sm">
                     <X className="w-4 h-4 inline mr-1" />
                     {t("social.reject")}
                   </button>
@@ -209,11 +214,11 @@ export default function SocialPage() {
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {discover.map((profile) => (
-              <div key={profile.sessionId} className="rounded-xl border border-border bg-card p-4 flex items-center justify-between gap-3">
+              <div key={profile.sessionId} className="rounded-xl border border-border bg-card p-4 flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                 <ProfileLine profile={profile} />
                 <button
                   onClick={() => void sendRequest(profile.sessionId)}
-                  className="px-3 py-1.5 rounded-lg bg-accent text-white text-sm"
+                  className="shrink-0 self-stretch sm:self-auto px-3 py-2 rounded-lg bg-accent text-white text-xs sm:text-sm"
                 >
                   <UserPlus className="w-4 h-4 inline mr-1" />
                   {t("social.add")}

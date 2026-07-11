@@ -63,8 +63,12 @@ model UserProfile {
   iyzicoCustomerRef   String?   @unique
   iyzicoSubscriptionRef String? @unique
   planExpiresAt       DateTime?
+  referralCode        String?   @unique
+  referredBySessionId String?
   createdAt           DateTime  @default(now())
   updatedAt           DateTime  @updatedAt
+
+  @@index([referredBySessionId])
 }
 
 model PushSubscription {

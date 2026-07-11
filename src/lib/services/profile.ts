@@ -20,6 +20,7 @@ export interface UserProfileData {
   steamLibrarySyncedAt?: Date | null;
   activeProfileFrame?: string;
   activeProfileEffect?: string;
+  profileSlug?: string | null;
 }
 
 export async function getProfile(sessionId: string): Promise<UserProfileData | null> {
@@ -45,6 +46,7 @@ export async function getProfile(sessionId: string): Promise<UserProfileData | n
     steamLibrarySyncedAt: profile.steamLibrarySyncedAt,
     activeProfileFrame: profile.activeProfileFrame,
     activeProfileEffect: profile.activeProfileEffect,
+    profileSlug: profile.profileSlug,
   };
 }
 

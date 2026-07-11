@@ -2,7 +2,10 @@ export type GuideSlug =
   | "sale-calendar"
   | "price-alerts"
   | "steam-turkey-prices"
-  | "when-to-buy";
+  | "when-to-buy"
+  | "epic-free-games"
+  | "bundle-guide"
+  | "steam-deck-prices";
 
 export interface GuideEntry {
   slug: GuideSlug;
@@ -45,6 +48,30 @@ export const GUIDE_CATALOG: GuideEntry[] = [
     descriptionKey: "guides.whenToBuy.cardDesc",
     readMinutes: 4,
     tagKeys: ["guides.tags.strategy", "guides.tags.deals"],
+  },
+  {
+    slug: "epic-free-games",
+    titleKey: "guides.epicFree.cardTitle",
+    subtitleKey: "guides.epicFree.cardSubtitle",
+    descriptionKey: "guides.epicFree.cardDesc",
+    readMinutes: 3,
+    tagKeys: ["guides.tags.epic", "guides.tags.deals"],
+  },
+  {
+    slug: "bundle-guide",
+    titleKey: "guides.bundles.cardTitle",
+    subtitleKey: "guides.bundles.cardSubtitle",
+    descriptionKey: "guides.bundles.cardDesc",
+    readMinutes: 4,
+    tagKeys: ["guides.tags.bundles", "guides.tags.deals"],
+  },
+  {
+    slug: "steam-deck-prices",
+    titleKey: "guides.steamDeck.cardTitle",
+    subtitleKey: "guides.steamDeck.cardSubtitle",
+    descriptionKey: "guides.steamDeck.cardDesc",
+    readMinutes: 4,
+    tagKeys: ["guides.tags.steam", "guides.tags.strategy"],
   },
 ];
 

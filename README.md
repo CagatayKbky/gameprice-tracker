@@ -9,9 +9,13 @@ Türkçe/İngilizce çoklu platform oyun fiyat takip uygulaması. Steam, Epic, G
 - **İstek listesi & alarmlar** — E-posta, web push, Discord, Telegram bildirimleri
 - **Steam OpenID + magic link** girişi
 - **TR/EN i18n**, açık/koyu tema, USD/TRY/EUR
-- **PWA** — offline önbellek, ana ekrana ekleme
-- **Admin paneli** — katalog/fiyat senkronu, job logları
-- **SEO** — sitemap, RSS, JSON-LD
+- **PWA** — offline önbellek, ana ekrana ekleme (iOS rehberi dahil)
+- **Sosyal** — arkadaşlar, liderlik tablosu, referral, public profil paylaşımı
+- **Pro** — öncelikli alarmlar, kişiselleştirilmiş haftalık özet
+- **Rehberler** — SEO odaklı 7 rehber (indirim takvimi, Epic ücretsiz, bundle, Steam Deck)
+- **Chrome extension 2.0** — Steam + Epic fiyat + wishlist butonu
+- **Admin paneli** — katalog/fiyat senkronu, Pro/davet analitiği, job logları
+- **SEO** — sitemap, RSS, JSON-LD, DLC/sürüm karşılaştırma
 
 ## Hızlı Başlangıç
 

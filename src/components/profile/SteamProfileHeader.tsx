@@ -40,7 +40,7 @@ export function SteamProfileHeader({
       <div className={`h-24 sm:h-32 ${frame.bannerClass}`} />
       <div className="relative px-4 pb-4 sm:px-6 sm:pb-6">
         <div className="-mt-12 sm:-mt-16 flex flex-col gap-4">
-          <div className="flex items-end gap-3 sm:gap-4">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:gap-4">
             <div className="sm:hidden">
               <ProfileAvatarFrame
                 avatarUrl={avatarUrl}
@@ -82,7 +82,7 @@ export function SteamProfileHeader({
           {meta && <div className="text-sm text-[#acb2b8]">{meta}</div>}
 
           {actions && (
-            <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap">{actions}</div>
+            <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-2 sm:flex sm:flex-wrap">{actions}</div>
           )}
         </div>
         {children && <div className="mt-5 sm:mt-6">{children}</div>}

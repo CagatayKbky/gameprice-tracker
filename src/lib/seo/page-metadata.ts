@@ -16,7 +16,10 @@ type PageSeoKey =
   | "guidesHub"
   | "priceAlertsGuide"
   | "steamTurkeyGuide"
-  | "whenToBuyGuide";
+  | "whenToBuyGuide"
+  | "epicFreeGuide"
+  | "bundleGuide"
+  | "steamDeckGuide";
 
 const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: string; keywords: string[] }>> = {
   tr: {
@@ -109,6 +112,21 @@ const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: 
         "Tarihsel dip, indirim dönemleri ve wishlist stratejisi ile oyunu ne zaman alacağını öğren.",
       keywords: ["oyun ne zaman alınır", "steam indirim bekle", "tarihsel dip"],
     },
+    epicFreeGuide: {
+      title: "Epic Games Ücretsiz Oyunlar Rehberi",
+      description: "Epic'teki haftalık ücretsiz oyunları kaçırmama ve bildirim alma rehberi.",
+      keywords: ["epic ücretsiz oyun", "epic games free", "ücretsiz oyun"],
+    },
+    bundleGuide: {
+      title: "Oyun Bundle Rehberi — Humble ve Paket İndirimleri",
+      description: "Bundle alırken nelere dikkat etmeli, hangi paketler değerli?",
+      keywords: ["oyun bundle", "humble bundle rehberi", "oyun paketi"],
+    },
+    steamDeckGuide: {
+      title: "Steam Deck İçin Oyun Fiyatları Rehberi",
+      description: "Steam Deck uyumlu oyunları en ucuz nereden alırsın?",
+      keywords: ["steam deck fiyat", "steam deck oyun", "deck verified"],
+    },
   },
   en: {
     home: {
@@ -183,6 +201,21 @@ const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: 
       title: "When to Buy Games — Buy vs Wait Guide",
       description: "Learn when to buy using historical lows, sale seasons, and wishlist strategy.",
       keywords: ["when to buy games", "wait for steam sale", "historical low"],
+    },
+    epicFreeGuide: {
+      title: "Epic Games Free Games Guide",
+      description: "Never miss Epic's weekly free games — alerts and tracking tips.",
+      keywords: ["epic free games", "epic games weekly free"],
+    },
+    bundleGuide: {
+      title: "Game Bundle Buying Guide",
+      description: "How to evaluate Humble bundles and multi-game packs.",
+      keywords: ["game bundles", "humble bundle guide"],
+    },
+    steamDeckGuide: {
+      title: "Steam Deck Game Prices Guide",
+      description: "Find the cheapest verified Steam Deck games.",
+      keywords: ["steam deck prices", "deck verified games"],
     },
   },
 };

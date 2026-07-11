@@ -62,7 +62,7 @@ export default function NotificationsPage() {
 
   return (
     <div className="mx-auto max-w-2xl px-4 py-8 sm:px-6">
-      <div className="mb-6 flex items-center justify-between gap-4">
+      <div className="mb-6 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#1b2838] border border-[#2a475e]/60">
             <Bell className="h-5 w-5 text-[#66c0f4]" />
@@ -79,7 +79,7 @@ export default function NotificationsPage() {
             type="button"
             onClick={() => void markAllRead()}
             disabled={busy}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-[#2a475e] px-3 py-2 text-xs text-[#66c0f4] hover:bg-[#1b2838] disabled:opacity-50"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-[#2a475e] px-3 py-2 text-xs text-[#66c0f4] hover:bg-[#1b2838] disabled:opacity-50 self-start sm:self-auto whitespace-normal sm:whitespace-nowrap"
           >
             {busy ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : <CheckCheck className="h-3.5 w-3.5" />}
             {t("notifications.markAllRead")}

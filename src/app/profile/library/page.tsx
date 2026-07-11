@@ -136,7 +136,7 @@ export default function ProfileLibraryPage() {
         </section>
       )}
 
-      <div className="rounded-2xl border border-border bg-card p-4 mb-6 flex flex-col sm:flex-row gap-3">
+      <div className="rounded-2xl border border-border bg-card p-4 mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-[minmax(0,1fr)_auto_auto_auto] lg:items-center">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted" />
           <input
@@ -149,7 +149,7 @@ export default function ProfileLibraryPage() {
         <select
           value={sort}
           onChange={(e) => setSort(e.target.value as "playtime" | "recent" | "name")}
-          className="px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm"
+          className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm min-w-0"
         >
           <option value="playtime">{t("profile.librarySortPlaytime")}</option>
           <option value="recent">{t("profile.librarySortRecent")}</option>
@@ -158,7 +158,7 @@ export default function ProfileLibraryPage() {
         <select
           value={String(minHours)}
           onChange={(e) => setMinHours(parseInt(e.target.value, 10))}
-          className="px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm"
+          className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm min-w-0"
         >
           <option value="0">{t("profile.libraryMinHoursAny")}</option>
           <option value="1">{t("profile.libraryMinHours1")}</option>

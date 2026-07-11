@@ -30,7 +30,7 @@ export function Footer() {
   ];
 
   return (
-    <footer className="border-t border-border bg-card/50 mt-auto">
+    <footer className="border-t border-border bg-card/50 mt-auto pb-[calc(3.5rem+env(safe-area-inset-bottom,0px))] md:pb-0">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-2">

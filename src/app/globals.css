@@ -95,6 +95,10 @@
     background: conic-gradient(from 0deg, #22d3ee, #a855f7, #f472b6, #fbbf24, #22d3ee);
   }
 
+  .profile-ring-summer-sale {
+    background: conic-gradient(from 0deg, #14532d, #facc15, #fb923c, #22c55e, #14532d);
+  }
+
   .profile-ring-spin {
     animation: profile-ring-spin 4s linear infinite;
   }

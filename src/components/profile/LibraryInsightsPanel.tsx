@@ -11,6 +11,7 @@ interface InsightsData {
   unplayedCount: number;
   staleBacklogCount: number;
   backlogScore: number;
+  avgPlaytimeHours?: number;
   topUnplayed: Array<{ steamAppId: string; name: string | null }>;
 }
 
@@ -93,6 +94,12 @@ export function LibraryInsightsPanel({ steamConnected }: { steamConnected: boole
           </div>
         ))}
       </div>
+
+      {data.avgPlaytimeHours !== undefined && data.totalGames > 0 && (
+        <p className="mb-3 text-sm text-[#8f98a0]">
+          {t("libraryInsights.avgPlaytime", { hours: String(data.avgPlaytimeHours) })}
+        </p>
+      )}
 
       {data.staleBacklogCount > 0 && (
         <p className="mb-3 text-sm text-[#8f98a0]">

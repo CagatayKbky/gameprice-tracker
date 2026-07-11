@@ -50,7 +50,7 @@ export async function GuideLayout({
         <p className="mt-2 text-sm text-[#8f98a0]">{subtitle}</p>
       </header>
 
-      <article className="prose prose-invert max-w-none space-y-4 text-sm leading-relaxed text-[#c6d4df]">
+      <article className="prose prose-invert max-w-none break-words overflow-x-auto space-y-4 text-sm leading-relaxed text-[#c6d4df]">
         {children}
       </article>
 

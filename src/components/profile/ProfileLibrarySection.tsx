@@ -54,13 +54,13 @@ export function ProfileLibrarySection({ steamConnected }: { steamConnected: bool
 
   return (
     <section className="mb-8">
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between mb-4">
         <h2 className="font-semibold text-lg flex items-center gap-2">
           <Library className="w-5 h-5 text-[#66c0f4]" />
           {t("profile.libraryTitle")}
           {count > 0 && <span className="text-sm text-muted font-normal">({count})</span>}
         </h2>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           {count > 0 && (
             <Link
               href="/profile/library"

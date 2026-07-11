@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   const usersQuery = request.nextUrl.searchParams.get("users");
   const users = usersQuery ? await searchUserProfiles(usersQuery) : undefined;
 
-  const [syncStatus, trackedGames, activeAlerts, wishlistItems, profiles, jobLogs] =
+  const [syncStatus, trackedGames, activeAlerts, wishlistItems, profiles, jobLogs, proUsers, notifications7d, referrals] =
     await Promise.all([
       getCatalogSyncStatus(),
       prisma.trackedGame.count(),
@@ -36,6 +36,11 @@ export async function GET(request: NextRequest) {
       prisma.wishlistItem.count(),
       prisma.userProfile.count(),
       getRecentJobLogs(15),
+      prisma.userProfile.count({ where: { plan: "pro" } }),
+      prisma.userNotification.count({
+        where: { createdAt: { gte: new Date(Date.now() - 7 * 86400000) } },
+      }),
+      prisma.userProfile.count({ where: { referredBySessionId: { not: null } } }),
     ]);
 
   return NextResponse.json({
@@ -45,6 +50,9 @@ export async function GET(request: NextRequest) {
       activeAlerts,
       wishlistItems,
       profiles,
+      proUsers,
+      notifications7d,
+      referrals,
     },
     env: {
       rawgEnabled: Boolean(process.env.RAWG_API_KEY),

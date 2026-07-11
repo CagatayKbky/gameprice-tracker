@@ -48,7 +48,7 @@ export function ComparePageContent() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-8">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-accent/10 flex items-center justify-center">
             <GitCompareArrows className="w-5 h-5 text-accent" />
@@ -62,7 +62,7 @@ export function ComparePageContent() {
         </div>
         <button
           onClick={clearAll}
-          className="flex items-center gap-2 px-4 py-2 rounded-xl border border-border hover:border-red-500/30 hover:text-red-400 text-sm transition-colors"
+          className="flex items-center justify-center gap-2 px-4 py-2 rounded-xl border border-border hover:border-red-500/30 hover:text-red-400 text-sm transition-colors w-full sm:w-auto"
         >
           <Trash2 className="w-4 h-4" />
           {t("compare.clear")}

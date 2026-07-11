@@ -2,7 +2,9 @@ import { prisma } from "@/lib/db";
 
 export type NotificationType =
   | "price_alert"
+  | "price_alert_instant"
   | "wishlist_deal"
+  | "buy_wait"
   | "friend_deal"
   | "system";
 

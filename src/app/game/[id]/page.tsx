@@ -31,6 +31,7 @@ import { getRegionalSteamPrices } from "@/lib/api/steam-regional";
 import { RegionalPriceCompare } from "@/components/games/RegionalPriceCompare";
 import { PricePrediction } from "@/components/games/PricePrediction";
 import { DlcBadge } from "@/components/games/DlcBadge";
+import { EditionCompare } from "@/components/games/EditionCompare";
 import { predictBuyTiming } from "@/lib/game-utils";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
@@ -168,6 +169,8 @@ export default async function GamePage({ params }: GamePageProps) {
       </div>
 
       {steamDetails && <GameInfo steam={steamDetails} />}
+
+      <EditionCompare title={game.title} currentGameId={game.gameId} />
 
       {steamDetails?.screenshots && steamDetails.screenshots.length > 0 && (
         <ScreenshotGallery

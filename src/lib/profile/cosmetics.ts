@@ -93,6 +93,18 @@ export const PROFILE_FRAMES: CosmeticFrameDefinition[] = [
     bannerClass: "steam-profile-banner",
     cardClass: "border-cyan-300/35 bg-[#0b1218]",
   },
+  {
+    id: "summer-sale",
+    type: "frame",
+    label: "Summer Sale",
+    description: "Seasonal green-gold ring for deal hunters.",
+    tier: "special",
+    ringClass: "profile-ring-summer-sale",
+    ringSpinClass: "profile-ring-spin",
+    ringWidth: 5,
+    bannerClass: "steam-profile-banner",
+    cardClass: "border-emerald-400/35 bg-[#0b1410]",
+  },
 ];
 
 export const PROFILE_EFFECTS: CosmeticEffectDefinition[] = [

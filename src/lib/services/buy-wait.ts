@@ -127,3 +127,45 @@ export async function getBuyWaitRecommendations(sessionId: string, limit = 12) {
 
   return { items: items.slice(0, limit), summary };
 }
+
+export async function notifyBuyWaitSignals(sessionId: string) {
+  const { items } = await getBuyWaitRecommendations(sessionId, 6);
+  const buyItems = items.filter((i) => i.verdict === "buy");
+  if (buyItems.length === 0) return 0;
+
+  const appUrl = process.env.NEXT_PUBLIC_APP_URL || "";
+  const { createUserNotification } = await import("@/lib/services/notifications");
+  const { sendPushToSession } = await import("@/lib/services/push");
+
+  let sent = 0;
+  for (const item of buyItems.slice(0, 3)) {
+    await createUserNotification({
+      sessionId,
+      type: "buy_wait",
+      title: "Şimdi al önerisi",
+      body: `${item.title} — $${item.price.toFixed(2)}`,
+      url: `${appUrl}/game/${item.gameId}`,
+    });
+    await sendPushToSession(sessionId, {
+      title: "Şimdi al önerisi",
+      body: `${item.title} — $${item.price.toFixed(2)}`,
+      url: `${appUrl}/game/${item.gameId}`,
+    });
+    sent++;
+  }
+  return sent;
+}
+
+export async function notifyAllBuyWaitSignals() {
+  const sessions = await prisma.wishlistItem.findMany({
+    distinct: ["sessionId"],
+    select: { sessionId: true },
+    take: 50,
+  });
+
+  let notified = 0;
+  for (const { sessionId } of sessions) {
+    notified += await notifyBuyWaitSignals(sessionId);
+  }
+  return { sessions: sessions.length, notified };
+}

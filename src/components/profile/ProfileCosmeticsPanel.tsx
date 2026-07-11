@@ -165,7 +165,7 @@ export function ProfileCosmeticsPanel({
                     key={key}
                     type="button"
                     onClick={() => setTab(key)}
-                    className={`flex-1 rounded-md px-2 py-2 text-[11px] font-medium transition-colors sm:px-3 sm:text-sm ${
+                    className={`flex-1 rounded-md px-1.5 py-2 text-[10px] font-medium transition-colors truncate sm:px-3 sm:text-sm ${
                       tab === key
                         ? "bg-[#2a475e] text-white"
                         : "text-[#8f98a0] hover:text-white"

@@ -40,6 +40,9 @@ interface AdminData {
     activeAlerts: number;
     wishlistItems: number;
     profiles: number;
+    proUsers?: number;
+    notifications7d?: number;
+    referrals?: number;
   };
   env: {
     rawgEnabled: boolean;
@@ -257,11 +260,17 @@ export default function AdminPage() {
         </div>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
         <StatCard label={t("admin.stat.catalog")} value={data.sync.totalGames.toLocaleString(numberLocale)} />
         <StatCard label={t("admin.stat.tracked")} value={String(data.stats.trackedGames)} />
         <StatCard label={t("admin.stat.alerts")} value={String(data.stats.activeAlerts)} />
         <StatCard label={t("admin.stat.wishlist")} value={String(data.stats.wishlistItems)} />
+      </div>
+
+      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+        <StatCard label={t("admin.stat.proUsers")} value={String(data.stats.proUsers ?? 0)} />
+        <StatCard label={t("admin.stat.notifications7d")} value={String(data.stats.notifications7d ?? 0)} />
+        <StatCard label={t("admin.stat.referrals")} value={String(data.stats.referrals ?? 0)} />
       </div>
 
       <div className="rounded-2xl bg-card border border-border p-6 mb-6">
@@ -290,7 +299,7 @@ export default function AdminPage() {
           <h2 className="font-semibold mb-4">{t("admin.jobLogs")}</h2>
           <div className="space-y-2 text-sm max-h-64 overflow-y-auto">
             {data.jobLogs.map((job) => (
-              <div key={job.id} className="flex items-center justify-between gap-2 py-1 border-b border-border/50 last:border-0">
+              <div key={job.id} className="flex flex-col gap-1 py-2 border-b border-border/50 last:border-0 sm:flex-row sm:items-center sm:justify-between sm:gap-2">
                 <span className="font-mono text-xs">{job.type}</span>
                 <span className={job.status === "success" ? "text-emerald-400" : job.status === "error" ? "text-red-400" : "text-amber-400"}>
                   {job.status}
@@ -402,7 +411,7 @@ export default function AdminPage() {
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap gap-2">
+                    <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full lg:w-auto">
                       <MiniAction
                         label={user.isAdmin ? t("admin.users.revokeAdmin") : t("admin.users.grantAdmin")}
                         loading={actionLoading === `user-access:${user.sessionId}:admin:${!user.isAdmin}`}
@@ -491,7 +500,7 @@ function MiniAction({
     <button
       onClick={onClick}
       disabled={loading}
-      className="inline-flex items-center gap-2 px-3 py-2 rounded-lg border border-border text-sm hover:border-accent/30 disabled:opacity-50"
+      className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border text-xs sm:text-sm hover:border-accent/30 disabled:opacity-50"
     >
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
       {label}

@@ -1,11 +1,12 @@
 {
   "manifest_version": 3,
   "name": "GamePrice — Fiyat Karşılaştır",
-  "version": "1.0.0",
-  "description": "Steam mağaza sayfalarında GamePrice fiyat karşılaştırması",
+  "version": "2.0.0",
+  "description": "Steam ve Epic mağazalarında GamePrice fiyat karşılaştırması + wishlist",
   "permissions": ["activeTab", "storage"],
   "host_permissions": [
     "https://store.steampowered.com/*",
+    "https://store.epicgames.com/*",
     "http://localhost:3000/*",
     "https://*/*"
   ],
@@ -16,6 +17,11 @@
   "content_scripts": [
     {
       "matches": ["https://store.steampowered.com/app/*"],
+      "js": ["content.js"],
+      "css": ["content.css"]
+    },
+    {
+      "matches": ["https://store.epicgames.com/*/p/*"],
       "js": ["content.js"],
       "css": ["content.css"]
     }
