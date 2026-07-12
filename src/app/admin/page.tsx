@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
+import { AdminCharts } from "@/components/admin/AdminCharts";
 
 interface AdminUser {
   sessionId: string;
@@ -278,6 +279,8 @@ export default function AdminPage() {
           {error}
         </p>
       )}
+
+      <AdminCharts />
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
         <StatCard label={t("admin.stat.catalog")} value={data.sync.totalGames.toLocaleString(numberLocale)} />

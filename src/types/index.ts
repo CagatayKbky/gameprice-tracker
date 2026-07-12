@@ -74,6 +74,8 @@ export interface BundleDeal {
   platformName: string;
   dealUrl: string;
   store: string;
+  estimatedGameCount?: number;
+  pricePerGame?: number;
 }
 
 export interface SearchResult {

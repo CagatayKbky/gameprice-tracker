@@ -6,6 +6,7 @@ import { GameImage } from "@/components/ui/GameImage";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
 import { buildPageMetadata } from "@/lib/seo/page-metadata";
+import { BundleComparePanel } from "@/components/bundles/BundleComparePanel";
 
 export async function generateMetadata() {
   const locale = await getServerLocale();
@@ -29,6 +30,8 @@ export default async function BundlesPage() {
           </p>
         </div>
       </div>
+
+      <BundleComparePanel bundles={bundles} />
 
       {bundles.length > 0 ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -55,9 +58,14 @@ export default async function BundlesPage() {
                   {bundle.title}
                 </h3>
                 <p className="text-xs text-muted mt-1">{bundle.platformName}</p>
-                <div className="mt-2 flex items-baseline gap-2">
+                <div className="mt-2 flex items-baseline gap-2 flex-wrap">
                   <PriceDisplay amount={bundle.salePrice} className="text-lg font-bold text-emerald-400" />
                   <PriceDisplay amount={bundle.normalPrice} className="text-sm text-muted line-through" />
+                  {bundle.pricePerGame != null && (
+                    <span className="text-xs text-muted">
+                      ≈ <PriceDisplay amount={bundle.pricePerGame} className="inline" /> / {t(locale, "bundles.perGame")}
+                    </span>
+                  )}
                 </div>
                 <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
                   {bundle.store}

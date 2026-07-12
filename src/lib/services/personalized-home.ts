@@ -86,9 +86,8 @@ export async function getPersonalizedHomeData(sessionId: string | null) {
     const friendWishlist = await prisma.wishlistItem.findMany({
       where: { sessionId: { in: friendSessions } },
     });
-    const grouped = new Map<string, { title: string; imageUrl?: string | null; friends: Set<string> }>();
+    const grouped = new Map<string, { title: string; imageUrl?: string | null; friends: Set<string>; onMyList: boolean }>();
     for (const item of friendWishlist) {
-      if (!myWishlistIds.has(item.cheapSharkGameId)) continue;
       const existing = grouped.get(item.cheapSharkGameId);
       if (existing) {
         existing.friends.add(item.sessionId);
@@ -97,11 +96,17 @@ export async function getPersonalizedHomeData(sessionId: string | null) {
           title: item.gameTitle,
           imageUrl: item.imageUrl,
           friends: new Set([item.sessionId]),
+          onMyList: myWishlistIds.has(item.cheapSharkGameId),
         });
       }
     }
 
-    for (const [gameId, meta] of grouped) {
+    const entries = [...grouped.entries()].sort((a, b) => {
+      if (a[1].onMyList !== b[1].onMyList) return a[1].onMyList ? -1 : 1;
+      return b[1].friends.size - a[1].friends.size;
+    });
+
+    for (const [gameId, meta] of entries) {
       try {
         const game = await resolveGame(gameId);
         const store = game?.cheapestStore;
@@ -144,7 +149,7 @@ export async function getPersonalizedHomeData(sessionId: string | null) {
     wishlistOnSale: wishlistDeals.length,
     totalSavings: Math.round(totalSavings * 100) / 100,
     deals: wishlistDeals.slice(0, 6),
-    friendDeals: friendDeals.slice(0, 4),
+    friendDeals: friendDeals.slice(0, 6),
     ownedAppIds: Array.from(ownedIds),
   };
 }

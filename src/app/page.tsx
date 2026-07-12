@@ -13,6 +13,7 @@ import { RecentlyViewedSection } from "@/components/home/RecentlyViewedSection";
 import { TrendingSearches } from "@/components/home/TrendingSearches";
 import { SteamSaleBanner } from "@/components/deals/SteamSaleBanner";
 import { PersonalizedHomeSection } from "@/components/home/PersonalizedHomeSection";
+import { FriendActivityStrip } from "@/components/home/FriendActivityStrip";
 import { HomeLiveStats } from "@/components/home/HomeLiveStats";
 import { EpicFreeSection } from "@/components/home/EpicFreeSection";
 import { JsonLd } from "@/components/seo/JsonLd";
@@ -72,6 +73,8 @@ export default async function HomePage() {
       </div>
 
       <PersonalizedHomeSection />
+
+      <FriendActivityStrip />
 
       <HomeStats
         catalogCount={data.catalogCount}

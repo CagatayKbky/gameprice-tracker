@@ -494,6 +494,39 @@ const tr: TranslationDict = {
   "bundles.title": "Bundle & Paket Fırsatları",
   "bundles.subtitle": "Humble, Steam ve diğer mağazalardaki paket indirimleri",
   "bundles.empty": "Şu an bundle indirimi bulunamadı.",
+  "bundles.perGame": "oyun",
+  "bundles.compareTitle": "Bundle Karşılaştır",
+  "bundles.compareHint": "Karşılaştırmak için en fazla 4 bundle seçin.",
+  "bundles.compareBundle": "Bundle",
+  "bundles.comparePrice": "Fiyat",
+  "bundles.compareDiscount": "İndirim",
+  "bundles.comparePerGame": "Oyun başı",
+  "bundles.compareStore": "Mağaza",
+  "bundles.compareNeedMore": "Karşılaştırmak için en az 2 bundle seçin.",
+
+  // ── Home friend activity ──────────────────────────────────────────────────
+  "home.friendActivity.title": "Arkadaş aktivitesi",
+  "home.friendActivity.seeAll": "Tümünü gör",
+
+  // ── Admin charts ──────────────────────────────────────────────────────────
+  "admin.charts.title": "Son 30 gün",
+  "admin.charts.signups": "Kayıtlar",
+  "admin.charts.notifications": "Bildirimler",
+  "admin.charts.referrals": "Referanslar",
+
+  // ── Manual library ──────────────────────────────────────────────────────
+  "library.manual.import": "İçe aktar",
+  "library.manual.importHint": "Her satıra bir oyun adı yazın veya yapıştırın.",
+  "library.manual.placeholder": "Cyberpunk 2077\nHades\n...",
+  "library.manual.imported": "{count} oyun eklendi",
+  "library.manual.importError": "İçe aktarma başarısız",
+  "library.manual.epicTitle": "Epic Games kütüphanesi",
+  "library.manual.gogTitle": "GOG kütüphanesi",
+  "library.manual.empty": "Henüz oyun eklenmedi",
+  "library.tab.steam": "Steam",
+  "library.tab.epic": "Epic",
+  "library.tab.gog": "GOG",
+  "library.manual.count": "{count} oyun",
 
   // ── Platforms ─────────────────────────────────────────────────────────────
   "platforms.title": "Platformlar",
@@ -1413,6 +1446,39 @@ const en: TranslationDict = {
   "bundles.title": "Bundle & Package Deals",
   "bundles.subtitle": "Bundle discounts from Humble, Steam, and other stores",
   "bundles.empty": "No bundle deals found right now.",
+  "bundles.perGame": "game",
+  "bundles.compareTitle": "Compare Bundles",
+  "bundles.compareHint": "Select up to 4 bundles to compare.",
+  "bundles.compareBundle": "Bundle",
+  "bundles.comparePrice": "Price",
+  "bundles.compareDiscount": "Discount",
+  "bundles.comparePerGame": "Per game",
+  "bundles.compareStore": "Store",
+  "bundles.compareNeedMore": "Select at least 2 bundles to compare.",
+
+  // ── Home friend activity ──────────────────────────────────────────────────
+  "home.friendActivity.title": "Friend activity",
+  "home.friendActivity.seeAll": "See all",
+
+  // ── Admin charts ──────────────────────────────────────────────────────────
+  "admin.charts.title": "Last 30 days",
+  "admin.charts.signups": "Signups",
+  "admin.charts.notifications": "Notifications",
+  "admin.charts.referrals": "Referrals",
+
+  // ── Manual library ──────────────────────────────────────────────────────
+  "library.manual.import": "Import",
+  "library.manual.importHint": "Enter or paste one game title per line.",
+  "library.manual.placeholder": "Cyberpunk 2077\nHades\n...",
+  "library.manual.imported": "{count} games added",
+  "library.manual.importError": "Import failed",
+  "library.manual.epicTitle": "Epic Games library",
+  "library.manual.gogTitle": "GOG library",
+  "library.manual.empty": "No games added yet",
+  "library.tab.steam": "Steam",
+  "library.tab.epic": "Epic",
+  "library.tab.gog": "GOG",
+  "library.manual.count": "{count} games",
 
   // ── Platforms ───────────────────────────────────────────────────────────
   "platforms.title": "Platforms",

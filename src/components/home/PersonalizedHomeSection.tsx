@@ -128,15 +128,33 @@ export function PersonalizedHomeSection() {
               <Link
                 key={`friend-${deal.gameId}`}
                 href={`/game/${deal.gameId}`}
-                className="rounded-xl border border-border bg-card p-4 hover:border-accent/40 transition-colors"
+                className="group rounded-xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
               >
-                <p className="text-sm font-medium line-clamp-2">{deal.title}</p>
-                <p className="text-xs text-muted mt-2">
-                  {t("home.personalized.friendAlsoWants", {
-                    count: String(deal.friendCount),
-                  })}
-                </p>
-                <PriceDisplay amount={deal.price} className="text-sm font-bold text-emerald-400 mt-2" />
+                <div className="relative aspect-[16/9] bg-background">
+                  {deal.imageUrl ? (
+                    <Image
+                      src={deal.imageUrl}
+                      alt={deal.title}
+                      fill
+                      className="object-cover group-hover:scale-105 transition-transform"
+                      sizes="200px"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-muted">
+                      <Heart className="w-8 h-8" />
+                    </div>
+                  )}
+                  <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded bg-sky-500/90 text-white text-[10px] font-bold">
+                    -%{deal.discount}
+                  </div>
+                </div>
+                <div className="p-3">
+                  <p className="text-sm font-medium line-clamp-2">{deal.title}</p>
+                  <p className="text-xs text-muted mt-1">
+                    {t("home.personalized.friendAlsoWants", { count: String(deal.friendCount) })}
+                  </p>
+                  <PriceDisplay amount={deal.price} className="text-sm font-bold text-emerald-400 mt-2" />
+                </div>
               </Link>
             ))}
           </div>

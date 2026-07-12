@@ -186,6 +186,18 @@ model SteamOwnedGame {
   @@index([sessionId])
 }
 
+model ManualOwnedGame {
+  id         String   @id @default(cuid())
+  sessionId  String
+  platform   String
+  title      String
+  externalId String?
+  createdAt  DateTime @default(now())
+
+  @@unique([sessionId, platform, title])
+  @@index([sessionId, platform])
+}
+
 model FreeGameNotification {
   id        String   @id @default(cuid())
   gameId    String

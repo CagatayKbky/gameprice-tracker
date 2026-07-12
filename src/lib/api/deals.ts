@@ -386,16 +386,24 @@ export async function getBundleDeals(): Promise<BundleDeal[]> {
         if (seen.has(key)) continue;
         seen.add(key);
         const platform = getPlatformByCheapSharkId(parseInt(deal.storeID));
+        const countMatch = deal.title.match(/(\d+)\s*game/i);
+        const estimatedGameCount = countMatch ? parseInt(countMatch[1], 10) : undefined;
+        const salePrice = parseFloat(deal.salePrice);
         results.push({
           title: deal.title,
           gameId: deal.gameID,
           imageUrl: deal.thumb,
-          salePrice: parseFloat(deal.salePrice),
+          salePrice,
           normalPrice: parseFloat(deal.normalPrice),
           discount: Math.round(parseFloat(deal.savings)),
           platformName: platform?.name || "Unknown",
           dealUrl: `https://www.cheapshark.com/redirect?dealID=${deal.dealID}`,
           store: platform?.shortName || "Store",
+          estimatedGameCount,
+          pricePerGame:
+            estimatedGameCount && estimatedGameCount > 0
+              ? Math.round((salePrice / estimatedGameCount) * 100) / 100
+              : undefined,
         });
       }
     } catch {

@@ -1,12 +1,13 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Library, Loader2, Search, ArrowLeft, Clock3 } from "lucide-react";
+import { Library, Loader2, Search, ArrowLeft, Clock3, Trash2 } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { getSteamAppHeaderUrl } from "@/lib/api/steam-profile";
 import { LibraryQuickActions } from "@/components/profile/LibraryQuickActions";
+import { ManualLibraryImport } from "@/components/profile/ManualLibraryImport";
 
 interface LibraryGame {
   steamAppId: string;
@@ -15,11 +16,21 @@ interface LibraryGame {
   lastPlayedAt?: string | null;
 }
 
+interface ManualGame {
+  id: string;
+  platform: string;
+  title: string;
+}
+
+type LibraryTab = "steam" | "epic" | "gog";
+
 const PER_PAGE = 24;
 
 export default function ProfileLibraryPage() {
   const { t } = useLocale();
+  const [tab, setTab] = useState<LibraryTab>("steam");
   const [games, setGames] = useState<LibraryGame[]>([]);
+  const [manualGames, setManualGames] = useState<ManualGame[]>([]);
   const [count, setCount] = useState(0);
   const [filteredCount, setFilteredCount] = useState(0);
   const [recentPlayed, setRecentPlayed] = useState<LibraryGame[]>([]);
@@ -30,7 +41,21 @@ export default function ProfileLibraryPage() {
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
 
+  const loadManualGames = useCallback(() => {
+    if (tab === "steam") return;
+    setLoading(true);
+    fetch(`/api/library/manual?platform=${tab}`)
+      .then((r) => r.json())
+      .then((data) => setManualGames(Array.isArray(data.games) ? data.games : []))
+      .catch(() => setManualGames([]))
+      .finally(() => setLoading(false));
+  }, [tab]);
+
   useEffect(() => {
+    if (tab !== "steam") {
+      loadManualGames();
+      return;
+    }
     setLoading(true);
     const params = new URLSearchParams({
       mode: "all",
@@ -57,24 +82,42 @@ export default function ProfileLibraryPage() {
         setRecentPlayed([]);
       })
       .finally(() => setLoading(false));
-  }, [minHours, page, query, recentOnly, sort]);
+  }, [loadManualGames, minHours, page, query, recentOnly, sort, tab]);
 
   useEffect(() => {
     setPage(1);
-  }, [query, sort, minHours, recentOnly]);
+  }, [query, sort, minHours, recentOnly, tab]);
 
-  const subtitle = useMemo(
-    () =>
-      query.trim() || minHours > 0 || recentOnly
-        ? t("profile.libraryResults", {
-            shown: String(filteredCount),
-            total: String(count),
-          })
-        : t("profile.libraryCountFull", { count: String(count) }),
-    [count, filteredCount, minHours, query, recentOnly, t]
-  );
+  const filteredManual = useMemo(() => {
+    const q = query.trim().toLowerCase();
+    if (!q) return manualGames;
+    return manualGames.filter((g) => g.title.toLowerCase().includes(q));
+  }, [manualGames, query]);
+
+  const subtitle = useMemo(() => {
+    if (tab !== "steam") {
+      return t("library.manual.count", { count: String(filteredManual.length) });
+    }
+    return query.trim() || minHours > 0 || recentOnly
+      ? t("profile.libraryResults", {
+          shown: String(filteredCount),
+          total: String(count),
+        })
+      : t("profile.libraryCountFull", { count: String(count) });
+  }, [count, filteredCount, filteredManual.length, minHours, query, recentOnly, t, tab]);
 
   const totalPages = Math.max(1, Math.ceil(filteredCount / PER_PAGE));
+
+  const deleteManual = async (id: string) => {
+    await fetch(`/api/library/manual?id=${id}`, { method: "DELETE" });
+    loadManualGames();
+  };
+
+  const tabs: { id: LibraryTab; label: string }[] = [
+    { id: "steam", label: t("library.tab.steam") },
+    { id: "epic", label: t("library.tab.epic") },
+    { id: "gog", label: t("library.tab.gog") },
+  ];
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8">
@@ -98,7 +141,28 @@ export default function ProfileLibraryPage() {
         </div>
       </div>
 
-      {recentPlayed.length > 0 && !query.trim() && !recentOnly && (
+      <div className="flex gap-2 mb-6">
+        {tabs.map((item) => (
+          <button
+            key={item.id}
+            type="button"
+            onClick={() => setTab(item.id)}
+            className={`px-4 py-2 rounded-xl text-sm font-medium border transition-colors ${
+              tab === item.id
+                ? "bg-accent text-white border-accent"
+                : "border-border text-muted hover:text-foreground"
+            }`}
+          >
+            {item.label}
+          </button>
+        ))}
+      </div>
+
+      {tab !== "steam" && (
+        <ManualLibraryImport platform={tab} onImported={loadManualGames} />
+      )}
+
+      {tab === "steam" && recentPlayed.length > 0 && !query.trim() && !recentOnly && (
         <section className="mb-6">
           <div className="flex items-center gap-2 mb-3">
             <Clock3 className="w-4 h-4 text-accent" />
@@ -146,41 +210,70 @@ export default function ProfileLibraryPage() {
             className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm"
           />
         </div>
-        <select
-          value={sort}
-          onChange={(e) => setSort(e.target.value as "playtime" | "recent" | "name")}
-          className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm min-w-0"
-        >
-          <option value="playtime">{t("profile.librarySortPlaytime")}</option>
-          <option value="recent">{t("profile.librarySortRecent")}</option>
-          <option value="name">{t("profile.librarySortName")}</option>
-        </select>
-        <select
-          value={String(minHours)}
-          onChange={(e) => setMinHours(parseInt(e.target.value, 10))}
-          className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm min-w-0"
-        >
-          <option value="0">{t("profile.libraryMinHoursAny")}</option>
-          <option value="1">{t("profile.libraryMinHours1")}</option>
-          <option value="5">{t("profile.libraryMinHours5")}</option>
-          <option value="20">{t("profile.libraryMinHours20")}</option>
-          <option value="50">{t("profile.libraryMinHours50")}</option>
-        </select>
-        <label className="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl bg-background border border-border text-sm">
-          <input
-            type="checkbox"
-            checked={recentOnly}
-            onChange={(e) => setRecentOnly(e.target.checked)}
-            className="w-4 h-4 rounded accent-accent"
-          />
-          {t("profile.libraryRecentOnly")}
-        </label>
+        {tab === "steam" && (
+          <>
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as "playtime" | "recent" | "name")}
+              className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm min-w-0"
+            >
+              <option value="playtime">{t("profile.librarySortPlaytime")}</option>
+              <option value="recent">{t("profile.librarySortRecent")}</option>
+              <option value="name">{t("profile.librarySortName")}</option>
+            </select>
+            <select
+              value={String(minHours)}
+              onChange={(e) => setMinHours(parseInt(e.target.value, 10))}
+              className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm min-w-0"
+            >
+              <option value="0">{t("profile.libraryMinHoursAny")}</option>
+              <option value="1">{t("profile.libraryMinHours1")}</option>
+              <option value="5">{t("profile.libraryMinHours5")}</option>
+              <option value="20">{t("profile.libraryMinHours20")}</option>
+              <option value="50">{t("profile.libraryMinHours50")}</option>
+            </select>
+            <label className="inline-flex items-center gap-2 px-3 py-2.5 rounded-xl bg-background border border-border text-sm">
+              <input
+                type="checkbox"
+                checked={recentOnly}
+                onChange={(e) => setRecentOnly(e.target.checked)}
+                className="w-4 h-4 rounded accent-accent"
+              />
+              {t("profile.libraryRecentOnly")}
+            </label>
+          </>
+        )}
       </div>
 
       {loading ? (
         <div className="flex justify-center py-20">
           <Loader2 className="w-8 h-8 animate-spin text-muted" />
         </div>
+      ) : tab !== "steam" ? (
+        filteredManual.length === 0 ? (
+          <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center text-muted">
+            {t("library.manual.empty")}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+            {filteredManual.map((game) => (
+              <div
+                key={game.id}
+                className="flex items-center justify-between gap-3 rounded-2xl border border-border bg-card p-4"
+              >
+                <p className="font-medium text-sm line-clamp-2">{game.title}</p>
+                <button
+                  type="button"
+                  onClick={() => void deleteManual(game.id)}
+                  className="shrink-0 p-2 rounded-lg text-muted hover:text-red-400 hover:bg-red-400/10"
+                  aria-label="Remove"
+                >
+                  <Trash2 className="w-4 h-4" />
+                </button>
+              </div>
+            ))}
+          </div>
+        )
       ) : games.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center text-muted">
           {t("profile.libraryEmpty")}
@@ -226,7 +319,7 @@ export default function ProfileLibraryPage() {
         </div>
       )}
 
-      {!loading && totalPages > 1 && (
+      {tab === "steam" && !loading && totalPages > 1 && (
         <div className="flex items-center justify-center gap-3 mt-8">
           <button
             type="button"
