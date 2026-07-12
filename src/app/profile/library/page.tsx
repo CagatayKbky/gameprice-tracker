@@ -40,6 +40,20 @@ export default function ProfileLibraryPage() {
   const [recentOnly, setRecentOnly] = useState(false);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(true);
+  const [gogConnected, setGogConnected] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data) => setGogConnected(Boolean(data.gogConnected)))
+      .catch(() => setGogConnected(false));
+
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("gog") === "connected") {
+      setGogConnected(true);
+      window.history.replaceState({}, "", "/profile/library");
+    }
+  }, []);
 
   const loadManualGames = useCallback(() => {
     if (tab === "steam") return;
@@ -159,7 +173,11 @@ export default function ProfileLibraryPage() {
       </div>
 
       {tab !== "steam" && (
-        <ManualLibraryImport platform={tab} onImported={loadManualGames} />
+        <ManualLibraryImport
+          platform={tab}
+          gogConnected={gogConnected}
+          onImported={loadManualGames}
+        />
       )}
 
       {tab === "steam" && recentPlayed.length > 0 && !query.trim() && !recentOnly && (

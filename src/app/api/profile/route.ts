@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
 import { SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
 import { getProfile, upsertProfile } from "@/lib/services/profile";
+import { prisma } from "@/lib/db";
 import { getPremiumStatus, assertProFeature } from "@/lib/premium/access";
 import { buildProfileAppearance, getUnlockedCosmetics } from "@/lib/services/profile-cosmetics";
 
@@ -31,6 +32,10 @@ export async function GET(request: NextRequest) {
   }
 
   const profile = await getProfile(sessionId);
+  const gogMeta = await prisma.userProfile.findUnique({
+    where: { sessionId },
+    select: { gogRefreshToken: true, gogLibrarySyncedAt: true },
+  });
   const premium = await getPremiumStatus(sessionId);
   const cosmetics = await getUnlockedCosmetics(sessionId);
   const appearance = buildProfileAppearance({
@@ -71,6 +76,8 @@ export async function GET(request: NextRequest) {
         effects: cosmetics.effects,
         badges: cosmetics.badges,
       },
+      gogConnected: Boolean(gogMeta?.gogRefreshToken),
+      gogLibrarySyncedAt: gogMeta?.gogLibrarySyncedAt ?? null,
     },
     { headers: response.headers }
   );

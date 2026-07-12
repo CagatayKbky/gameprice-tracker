@@ -59,6 +59,12 @@ model UserProfile {
   freeGameNotify      Boolean   @default(true)
   hideOwnedGames      Boolean   @default(true)
   steamLibrarySyncedAt DateTime?
+  gogRefreshToken      String?
+  gogUserId            String?
+  gogLibrarySyncedAt   DateTime?
+  epicAccountId        String?
+  epicRefreshToken     String?
+  epicLibrarySyncedAt  DateTime?
   activeProfileFrame  String    @default("classic")
   activeProfileEffect String    @default("none")
   plan                String    @default("free")
@@ -245,4 +251,14 @@ model UserNotification {
 
   @@index([sessionId, createdAt])
   @@index([sessionId, readAt])
+}
+
+model FriendDealAlertLog {
+  id         String   @id @default(cuid())
+  sessionId  String
+  gameId     String
+  notifiedAt DateTime @default(now())
+
+  @@unique([sessionId, gameId])
+  @@index([sessionId])
 }
