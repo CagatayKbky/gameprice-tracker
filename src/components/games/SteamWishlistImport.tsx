@@ -1,16 +1,26 @@
 "use client";
 
 import { useState } from "react";
-import { Download, Loader2, CheckCircle2 } from "lucide-react";
+import { Download, Loader2, CheckCircle2, RefreshCw } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
 interface SteamWishlistImportProps {
   onImported: () => void;
   defaultProfile?: string;
+  variant?: "wishlist" | "profile";
+  steamId?: string;
+  steamWishlistCount?: number;
 }
 
-export function SteamWishlistImport({ onImported, defaultProfile }: SteamWishlistImportProps) {
+export function SteamWishlistImport({
+  onImported,
+  defaultProfile,
+  variant = "wishlist",
+  steamId,
+  steamWishlistCount,
+}: SteamWishlistImportProps) {
   const { t } = useLocale();
+  const isProfile = variant === "profile";
   const [profile, setProfile] = useState(defaultProfile || "");
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{
@@ -29,7 +39,7 @@ export function SteamWishlistImport({ onImported, defaultProfile }: SteamWishlis
       const res = await fetch("/api/steam/wishlist", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(profile.trim() ? { profile: profile.trim() } : {}),
+        body: JSON.stringify(isProfile || !profile.trim() ? {} : { profile: profile.trim() }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -45,30 +55,8 @@ export function SteamWishlistImport({ onImported, defaultProfile }: SteamWishlis
     }
   };
 
-  return (
-    <div className="rounded-2xl bg-card border border-border p-6 mb-8">
-      <div className="flex items-center gap-2 mb-3">
-        <Download className="w-5 h-5 text-accent" />
-        <h2 className="font-semibold">{t("wishlist.steamImportTitle")}</h2>
-      </div>
-      <p className="text-sm text-muted mb-4">{t("wishlist.steamImportDesc")}</p>
-      <div className="flex flex-col sm:flex-row gap-3">
-        <input
-          type="text"
-          value={profile}
-          onChange={(e) => setProfile(e.target.value)}
-          placeholder={t("wishlist.steamImportPlaceholder")}
-          className="flex-1 px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm"
-        />
-        <button
-          onClick={handleImport}
-          disabled={loading || (!profile.trim() && !defaultProfile)}
-          className="px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50 flex items-center justify-center gap-2"
-        >
-          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
-          {t("wishlist.importSteam")}
-        </button>
-      </div>
+  const resultBlock = (result || error) && (
+    <>
       {error && <p className="text-sm text-red-400 mt-3">{error}</p>}
       {result && (
         <div className="mt-3 flex items-start gap-2 text-sm text-emerald-400">
@@ -86,6 +74,72 @@ export function SteamWishlistImport({ onImported, defaultProfile }: SteamWishlis
           </p>
         </div>
       )}
+    </>
+  );
+
+  if (isProfile) {
+    return (
+      <div className="rounded-2xl bg-card border border-[#1b2838]/40 p-5">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h3 className="font-semibold flex items-center gap-2">
+              <RefreshCw className="w-4 h-4 text-[#66c0f4]" />
+              {t("profile.steamWishlistSync")}
+            </h3>
+            <p className="text-sm text-muted mt-1">
+              {steamWishlistCount != null && steamWishlistCount > 0
+                ? t("profile.steamWishlistCount", { count: String(steamWishlistCount) })
+                : t("profile.steamWishlistSyncDesc")}
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={() => void handleImport()}
+            disabled={loading}
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1b2838] text-white text-sm font-medium hover:bg-[#2a475e] disabled:opacity-50 shrink-0"
+          >
+            {loading ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <Download className="w-4 h-4" />
+            )}
+            {t("profile.steamWishlistImport")}
+          </button>
+        </div>
+        {resultBlock}
+        {steamId && (
+          <p className="text-xs text-muted mt-3 font-mono truncate">ID: {steamId}</p>
+        )}
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-2xl bg-card border border-border p-6 mb-8">
+      <div className="flex items-center gap-2 mb-3">
+        <Download className="w-5 h-5 text-accent" />
+        <h2 className="font-semibold">{t("wishlist.steamImportTitle")}</h2>
+      </div>
+      <p className="text-sm text-muted mb-4">{t("wishlist.steamImportDesc")}</p>
+      <div className="flex flex-col sm:flex-row gap-3">
+        <input
+          type="text"
+          value={profile}
+          onChange={(e) => setProfile(e.target.value)}
+          placeholder={t("wishlist.steamImportPlaceholder")}
+          className="flex-1 px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm"
+        />
+        <button
+          type="button"
+          onClick={() => void handleImport()}
+          disabled={loading || (!profile.trim() && !defaultProfile)}
+          className="px-5 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50 flex items-center justify-center gap-2"
+        >
+          {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Download className="w-4 h-4" />}
+          {t("wishlist.importSteam")}
+        </button>
+      </div>
+      {resultBlock}
     </div>
   );
 }

@@ -13,20 +13,18 @@ import {
   Mail,
   Crown,
   ExternalLink,
-  LogOut,
   Sparkles,
 } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { useRecentlyViewed } from "@/components/providers/RecentlyViewedProvider";
-import { SteamLoginButton } from "@/components/auth/SteamLoginButton";
-import { SteamWishlistSync } from "@/components/profile/SteamWishlistSync";
+import { getPublicProfilePath } from "@/lib/profile/profile-slug";
+import { SteamWishlistImport } from "@/components/games/SteamWishlistImport";
 import { ProfileLibrarySection } from "@/components/profile/ProfileLibrarySection";
 import { LibraryInsightsPanel } from "@/components/profile/LibraryInsightsPanel";
 import { ProfileCosmeticsPanel } from "@/components/profile/ProfileCosmeticsPanel";
 import { BuyWaitPanel } from "@/components/profile/BuyWaitPanel";
 import { SteamProfileHeader } from "@/components/profile/SteamProfileHeader";
 import { ShareProfileButton } from "@/components/profile/ShareProfileButton";
-import { ReferralPanel } from "@/components/social/ReferralPanel";
 
 interface ProfileData {
   email: string | null;
@@ -39,6 +37,8 @@ interface ProfileData {
   steamId: string | null;
   steamPersona: string | null;
   steamAvatar: string | null;
+  googleId?: string | null;
+  googleAvatar?: string | null;
   isPro?: boolean;
   plan?: string;
   limits?: { wishlist: number };
@@ -141,7 +141,6 @@ function ProfileContent() {
   const [cosmetics, setCosmetics] = useState<CosmeticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [steamBanner, setSteamBanner] = useState<string | null>(null);
-  const [disconnecting, setDisconnecting] = useState(false);
 
   const loadData = useCallback(async () => {
     const [prof, wishlist, alerts, steam, cosmeticsData] = await Promise.all([
@@ -169,24 +168,15 @@ function ProfileContent() {
   }, [loadData]);
 
   useEffect(() => {
-    if (searchParams.get("steam") === "ok") {
-      setSteamBanner(t("profile.steamConnected"));
+    const auth = searchParams.get("steam") === "ok" ? "steam" : searchParams.get("google") === "ok" ? "google" : null;
+    if (auth) {
+      setSteamBanner(auth === "steam" ? t("profile.steamConnected") : t("profile.googleConnected"));
       const url = new URL(window.location.href);
-      url.searchParams.delete("steam");
+      url.searchParams.delete(auth === "steam" ? "steam" : "google");
       window.history.replaceState({}, "", url.pathname);
+      if (auth === "google") void loadData();
     }
-  }, [searchParams, t]);
-
-  const handleDisconnect = async () => {
-    if (!confirm(t("profile.steamDisconnectConfirm"))) return;
-    setDisconnecting(true);
-    try {
-      await fetch("/api/auth/steam/disconnect", { method: "POST" });
-      await loadData();
-    } finally {
-      setDisconnecting(false);
-    }
-  };
+  }, [searchParams, t, loadData]);
 
   if (loading) {
     return (
@@ -201,9 +191,17 @@ function ProfileContent() {
     steam?.steamPersona ||
     profile?.name ||
     (profile?.email ? profile.email.split("@")[0] : t("profile.guestName"));
-  const avatarUrl = steam?.steamAvatar || profile?.steamAvatar;
+  const avatarUrl = steam?.steamAvatar || profile?.steamAvatar || profile?.googleAvatar;
   const isSteamConnected = Boolean(profile?.steamId || steam?.steamId);
+  const isGoogleConnected = Boolean(profile?.googleId);
   const steamId = profile?.steamId || steam?.steamId || "";
+  const publicPath = getPublicProfilePath({
+    steamId: profile?.steamId,
+    profileSlug: profile?.profileSlug,
+    steamPersona: profile?.steamPersona || steam?.steamPersona,
+    name: profile?.name,
+  });
+  const shareSlug = publicPath?.replace("/u/", "") || "";
   const badges = cosmetics?.cosmetics.badgeCatalog
     ? [
         ...cosmetics.cosmetics.badgeCatalog.statusBadges.filter((b) => b.unlocked),
@@ -217,6 +215,7 @@ function ProfileContent() {
         profile?.isAdmin ? { id: "admin", label: "Admin", cls: "bg-red-500/15 text-red-300 border-red-500/30" } : null,
         profile?.isPro ? { id: "pro", label: "Pro", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" } : null,
         isSteamConnected ? { id: "steam", label: "Steam", cls: "bg-sky-500/15 text-sky-300 border-sky-500/30" } : null,
+        isGoogleConnected ? { id: "google", label: "Google", cls: "bg-white/10 text-white border-white/20" } : null,
         ...(cosmetics?.cosmetics.badges || []).map((badge) => ({
           id: badge.id,
           label: badge.label,
@@ -243,11 +242,11 @@ function ProfileContent() {
           profile?.isPro ? (
             <span className="mt-1 inline-flex items-center gap-1 text-sm text-amber-300">
               <Crown className="h-3.5 w-3.5" />
-              Pro Member
+              {t("profile.proMember")}
             </span>
           ) : (
             <Link href="/pricing" className="mt-1 inline-block text-sm text-[#66c0f4] hover:underline">
-              Free plan
+              {t("profile.freePlan")}
             </Link>
           )
         }
@@ -285,8 +284,8 @@ function ProfileContent() {
                 <ExternalLink className="h-3.5 w-3.5 shrink-0" />
               </a>
             )}
-            {isSteamConnected && steamId && (
-              <ShareProfileButton slug={profile?.profileSlug || steamId} displayName={displayName} />
+            {shareSlug && (
+              <ShareProfileButton slug={shareSlug} displayName={displayName} />
             )}
             <Link
               href="/settings"
@@ -295,30 +294,22 @@ function ProfileContent() {
               <Settings className="h-4 w-4 shrink-0" />
               <span className="truncate">{t("profile.edit")}</span>
             </Link>
-            {isSteamConnected && (
-              <button
-                onClick={handleDisconnect}
-                disabled={disconnecting}
-                className="col-span-2 inline-flex items-center justify-center gap-2 rounded-lg border border-red-400/20 px-3 py-2.5 text-xs sm:text-sm text-red-300 transition-colors hover:border-red-400/40 disabled:opacity-50 sm:col-span-1 sm:px-4"
-              >
-                {disconnecting ? (
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                ) : (
-                  <LogOut className="h-4 w-4" />
-                )}
-                {t("profile.steamDisconnect")}
-              </button>
-            )}
           </>
         }
       />
 
-      {!isSteamConnected && (
+      {!isSteamConnected && !isGoogleConnected && (
         <div className="rounded-2xl border border-dashed border-[#66c0f4]/30 bg-steam/10 p-6 mb-8 text-center">
           <Sparkles className="w-8 h-8 text-[#66c0f4] mx-auto mb-3" />
-          <h2 className="font-semibold text-lg mb-1">{t("profile.steamConnectTitle")}</h2>
-          <p className="text-sm text-muted mb-4 max-w-md mx-auto">{t("profile.steamConnectDesc")}</p>
-          <SteamLoginButton />
+          <h2 className="font-semibold text-lg mb-1">{t("profile.connectAccountsTitle")}</h2>
+          <p className="text-sm text-muted mb-4 max-w-md mx-auto">{t("profile.connectAccountsDesc")}</p>
+          <Link
+            href="/settings"
+            className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#1b2838] text-white text-sm font-medium hover:bg-[#2a475e]"
+          >
+            <Settings className="w-4 h-4" />
+            {t("profile.connectAccountsCta")}
+          </Link>
         </div>
       )}
 
@@ -357,8 +348,6 @@ function ProfileContent() {
         <BuyWaitPanel compact />
       </section>
 
-      <ReferralPanel />
-
       {cosmetics && (
         <ProfileCosmeticsPanel
           frames={cosmetics.cosmetics.frames}
@@ -374,7 +363,8 @@ function ProfileContent() {
 
       {isSteamConnected && steamId && (
         <div className="mb-8">
-          <SteamWishlistSync
+          <SteamWishlistImport
+            variant="profile"
             steamId={steamId}
             steamWishlistCount={steamData?.wishlist?.count}
             onImported={loadData}
@@ -446,7 +436,7 @@ function ProfileContent() {
         </section>
       )}
 
-      {!profile?.email && !isSteamConnected && (
+      {!profile?.email && !isSteamConnected && !isGoogleConnected && (
         <p className="text-center text-sm text-muted mt-8">{t("profile.empty")}</p>
       )}
     </div>

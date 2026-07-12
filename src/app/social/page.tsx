@@ -7,6 +7,7 @@ import { Check, Search, UserPlus, Users, X } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { LeaderboardPanel } from "@/components/social/LeaderboardPanel";
 import { ReferralPanel } from "@/components/social/ReferralPanel";
+import { getPublicProfilePath } from "@/lib/profile/profile-slug";
 
 interface SocialProfile {
   sessionId: string;
@@ -136,7 +137,7 @@ export default function SocialPage() {
                 <div className="min-w-0 flex-1">
                   <p className="text-sm">
                     <Link
-                      href={`/u/${item.profile.profileSlug || item.profile.steamId}`}
+                      href={getPublicProfilePath(item.profile) || "#"}
                       className="font-medium hover:text-accent"
                     >
                       {item.profile.steamPersona || "Player"}
@@ -267,7 +268,7 @@ function ProfileLine({ profile }: { profile: SocialProfile | null }) {
           </div>
           {profile.steamId ? (
             <Link
-              href={`/u/${profile.profileSlug || profile.steamId}`}
+              href={getPublicProfilePath(profile) || "#"}
               className="text-xs text-muted hover:text-accent"
             >
               {t("social.publicProfile")}

@@ -114,7 +114,7 @@ export async function PUT(request: NextRequest) {
       );
     }
   }
-  const profile = await upsertProfile(sessionId, {
+  await upsertProfile(sessionId, {
     email: email || null,
     name: name || null,
     emailNotifications: emailNotifications !== false,
@@ -128,6 +128,13 @@ export async function PUT(request: NextRequest) {
     ...(hideOwnedGames !== undefined ? { hideOwnedGames: hideOwnedGames !== false } : {}),
     ...(publicProfile !== undefined ? { publicProfile: publicProfile !== false } : {}),
   });
+
+  if (name) {
+    const { syncProfileSlugFromProfile } = await import("@/lib/profile/profile-slug-service");
+    await syncProfileSlugFromProfile(sessionId).catch(() => {});
+  }
+
+  const profile = await getProfile(sessionId);
 
   return NextResponse.json(profile, { headers: response.headers });
 }

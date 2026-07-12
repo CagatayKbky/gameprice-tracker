@@ -39,16 +39,6 @@ const primaryNavItems = [
   { href: "/alerts", labelKey: "nav.alerts", icon: Bell },
 ];
 
-const secondaryNavItemsBase = [
-  { href: "/bundles", labelKey: "nav.bundles", icon: Package },
-  { href: "/compare", labelKey: "nav.compare", icon: GitCompareArrows },
-  { href: "/social", labelKey: "nav.social", icon: Users },
-  { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
-  { href: "/guides", labelKey: "nav.guides", icon: BookOpen },
-  { href: "/pricing", labelKey: "nav.premium", icon: Sparkles },
-  { href: "/platforms", labelKey: "nav.platforms", icon: Store },
-];
-
 function getBadge(
   href: string,
   counts: { wishlist: number; alerts: number; notifications: number },
@@ -94,7 +84,6 @@ export function Header() {
     { href: "/bundles", labelKey: "nav.bundles", icon: Package },
     { href: "/compare", labelKey: "nav.compare", icon: GitCompareArrows },
     { href: "/social", labelKey: "nav.social", icon: Users },
-    { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
     { href: "/guides", labelKey: "nav.guides", icon: BookOpen },
     { href: "/pricing", labelKey: "nav.premium", icon: Sparkles },
     { href: "/platforms", labelKey: "nav.platforms", icon: Store },

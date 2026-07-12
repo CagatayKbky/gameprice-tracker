@@ -7,12 +7,12 @@ Türkçe/İngilizce çoklu platform oyun fiyat takip uygulaması. Steam, Epic, G
 - **135.000+ oyun kataloğu** — Steam listesi + opsiyonel RAWG zenginleştirme
 - **Çoklu platform fiyatları** — Steam TR, CheapShark, Epic/GOG API, Xbox/PS/Nintendo
 - **İstek listesi & alarmlar** — E-posta, web push, Discord, Telegram bildirimleri
-- **Steam OpenID + Google OAuth + magic link** girişi
+- **Steam OpenID + Google OAuth** girişi
 - **TR/EN i18n**, açık/koyu tema, USD/TRY/EUR
 - **PWA** — offline önbellek, ana ekrana ekleme (iOS rehberi dahil)
 - **Sosyal** — arkadaşlar, liderlik tablosu, referral, public profil paylaşımı
 - **Pro** — öncelikli alarmlar, kişiselleştirilmiş haftalık özet
-- **Rehberler** — SEO odaklı 7 rehber (indirim takvimi, Epic ücretsiz, bundle, Steam Deck)
+- **Rehberler** — SEO odaklı 10 rehber (indirim takvimi, Epic ücretsiz, bundle, Steam Deck)
 - **Chrome extension 2.0** — Steam + Epic fiyat + wishlist butonu
 - **Admin paneli** — Google kullanıcı listesi, katalog/fiyat senkronu, Pro/davet analitiği
 - **SEO** — sitemap, RSS, JSON-LD, DLC/sürüm karşılaştırma
@@ -38,7 +38,8 @@ Uygulama: http://localhost:3000
 | `CRON_SECRET` | **Production'da zorunlu** — cron endpoint auth |
 | `GOOGLE_CLIENT_ID` / `GOOGLE_CLIENT_SECRET` | Google ile giriş |
 | `GOOGLE_ADMIN_EMAILS` | Virgülle ayrılmış admin e-postaları (Google girişinde otomatik admin) |
-| `RESEND_API_KEY` | E-posta (alarmlar, magic link, haftalık özet) |
+| `GOOGLE_SITE_VERIFICATION` | Google Search Console HTML tag doğrulama kodu |
+| `RESEND_API_KEY` | E-posta (alarmlar, haftalık özet) |
 | `NEXT_PUBLIC_VAPID_*` | Web push (`npm run vapid:generate`) |
 | `TELEGRAM_BOT_TOKEN` | Telegram bildirimleri |
 | `SENTRY_DSN` | Hata izleme |
@@ -58,9 +59,18 @@ npm run catalog:sync
 `vercel.json` cron job'ları:
 - Fiyat senkronu: 6 saatte bir
 - Haftalık özet: Pazartesi 09:00 UTC
-- İstek listesi indirimleri: 4 saatte bir
+- İstek listesi indirimleri: günlük 08:00 UTC
+- Ücretsiz oyun bildirimi: Perşembe 10:00 UTC
 
 Cron çağrıları `Authorization: Bearer $CRON_SECRET` gerektirir (production).
+
+## Google Search Console
+
+1. [Google Search Console](https://search.google.com/search-console) → mülk ekle → `https://gameprice.org`
+2. Doğrulama yöntemi: **HTML tag**
+3. Meta etiketindeki `content` değerini kopyala → Vercel env: `GOOGLE_SITE_VERIFICATION=...`
+4. Redeploy sonrası doğrula
+5. Sitemap gönder: `https://gameprice.org/sitemap/0.xml`
 
 ## Sağlık Kontrolü
 

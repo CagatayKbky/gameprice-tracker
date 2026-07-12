@@ -2,10 +2,11 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, TrendingDown, Heart, User, Users } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Home, TrendingDown, Heart, User, Users, Shield } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
-const links = [
+const baseLinks = [
   { href: "/", icon: Home, labelKey: "nav.home" },
   { href: "/deals", icon: TrendingDown, labelKey: "nav.deals" },
   { href: "/wishlist", icon: Heart, labelKey: "nav.wishlist" },
@@ -16,6 +17,24 @@ const links = [
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { t } = useLocale();
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    fetch("/api/profile")
+      .then((r) => r.json())
+      .then((data) => setIsAdmin(Boolean(data?.isAdmin)))
+      .catch(() => {});
+  }, [pathname]);
+
+  const links = isAdmin
+    ? [
+        baseLinks[0],
+        baseLinks[1],
+        baseLinks[2],
+        { href: "/admin", icon: Shield, labelKey: "nav.admin" as const },
+        baseLinks[4],
+      ]
+    : baseLinks;
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-border bg-card/95 backdrop-blur-lg pb-[env(safe-area-inset-bottom)]">

@@ -238,13 +238,13 @@ export function getProfileBadges(params: {
   return badges;
 }
 
-export async function getPublicProfileBySteamId(
-  steamId: string,
+export async function getPublicProfileBySessionId(
+  sessionId: string,
   viewerSessionId?: string | null
 ) {
   const profile = await prisma.userProfile.findFirst({
     where: {
-      steamId,
+      sessionId,
       publicProfile: true,
     },
     select: {
@@ -252,7 +252,9 @@ export async function getPublicProfileBySteamId(
       steamId: true,
       steamPersona: true,
       steamAvatar: true,
+      googleAvatar: true,
       name: true,
+      profileSlug: true,
       isAdmin: true,
       plan: true,
       createdAt: true,
@@ -350,7 +352,7 @@ export async function getPublicProfileBySteamId(
     badges: getProfileBadges({
       isAdmin: profile.isAdmin,
       isPro: profile.plan === "pro",
-      steamConnected: true,
+      steamConnected: Boolean(profile.steamId),
       libraryCount,
       wishlistCount: wishlist.length,
     }),
@@ -376,8 +378,8 @@ export async function getPublicProfileBySlug(
   viewerSessionId?: string | null
 ) {
   const profile = await findPublicProfileBySlug(slug);
-  if (!profile?.steamId) return null;
-  return getPublicProfileBySteamId(profile.steamId, viewerSessionId);
+  if (!profile) return null;
+  return getPublicProfileBySessionId(profile.sessionId, viewerSessionId);
 }
 
 export async function getSocialActivityFeed(sessionId: string) {

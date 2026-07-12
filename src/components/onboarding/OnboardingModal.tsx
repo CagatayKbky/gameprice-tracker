@@ -2,11 +2,12 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { X, Gamepad2, Heart, Bell, Library } from "lucide-react";
+import { X, Settings, LogIn, Heart, Bell } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
 const STEPS = [
-  { icon: Gamepad2, titleKey: "onboarding.step1.title", descKey: "onboarding.step1.desc", href: "/api/auth/steam" },
+  { icon: Settings, titleKey: "onboarding.step1.title", descKey: "onboarding.step1.desc", href: "/settings" },
+  { icon: LogIn, titleKey: "onboarding.stepGoogle.title", descKey: "onboarding.stepGoogle.desc", href: "/api/auth/google", external: true },
   { icon: Heart, titleKey: "onboarding.step2.title", descKey: "onboarding.step2.desc", href: "/wishlist" },
   { icon: Bell, titleKey: "onboarding.step3.title", descKey: "onboarding.step3.desc", href: "/alerts" },
 ] as const;
@@ -42,7 +43,7 @@ export function OnboardingModal() {
 
   const current = STEPS[step];
   const Icon = current.icon;
-  const isExternal = current.href.startsWith("/api/");
+  const isExternal = "external" in current && current.external;
 
   return (
     <div className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
@@ -95,6 +96,24 @@ export function OnboardingModal() {
               </Link>
             )}
           </div>
+          {step === 0 && (
+            <Link
+              href="/settings"
+              onClick={dismiss}
+              className="block w-full mt-2 py-2.5 rounded-xl border border-border text-sm font-medium text-center hover:border-accent/30"
+            >
+              {t("onboarding.step1.cta")}
+            </Link>
+          )}
+          {step === 1 && (
+            <Link
+              href="/settings"
+              onClick={dismiss}
+              className="block w-full mt-2 py-2.5 rounded-xl border border-border text-sm font-medium text-center hover:border-accent/30"
+            >
+              {t("onboarding.stepGoogle.alt")}
+            </Link>
+          )}
           <button onClick={dismiss} className="w-full mt-3 text-xs text-muted hover:text-foreground">
             {t("onboarding.skip")}
           </button>

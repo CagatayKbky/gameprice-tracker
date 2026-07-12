@@ -86,9 +86,19 @@ function CheckoutForm() {
         ← {t("premium.checkout.back")}
       </button>
       <h1 className="text-2xl font-bold mb-2">{t("premium.checkout.title")}</h1>
-      <p className="text-sm text-muted mb-6">
+      <p className="text-sm text-muted mb-2">
         {interval === "yearly" ? t("premium.ctaYearly") : t("premium.ctaMonthly")}
       </p>
+      <p className="text-xs text-muted mb-6">{t("premium.checkout.trust")}</p>
+
+      <div className="flex gap-2 mb-6">
+        <span className="flex-1 rounded-lg bg-accent/15 border border-accent/30 px-3 py-2 text-xs font-medium text-accent text-center">
+          1. {t("premium.checkout.stepInfo")}
+        </span>
+        <span className="flex-1 rounded-lg bg-card border border-border px-3 py-2 text-xs text-muted text-center">
+          2. {t("premium.checkout.stepPay")}
+        </span>
+      </div>
 
       <form onSubmit={handleSubmit} className="space-y-4 rounded-2xl border border-border bg-card p-6">
         <div className="grid grid-cols-2 gap-3">

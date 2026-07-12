@@ -18,8 +18,10 @@ export function getPublicProfilePath(profile: {
   steamId?: string | null;
   profileSlug?: string | null;
   steamPersona?: string | null;
+  name?: string | null;
 }): string | null {
-  const slug = profile.profileSlug || toProfileSlug(profile.steamPersona);
+  const slug =
+    profile.profileSlug || toProfileSlug(profile.steamPersona) || toProfileSlug(profile.name);
   if (slug) return `/u/${slug}`;
   if (profile.steamId) return `/u/${profile.steamId}`;
   return null;

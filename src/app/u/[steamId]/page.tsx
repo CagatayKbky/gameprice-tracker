@@ -9,22 +9,25 @@ import { getPublicProfileBySlug } from "@/lib/services/social";
 import { getSteamAppHeaderUrl } from "@/lib/api/steam-profile";
 import { PublicProfileActions } from "@/components/social/PublicProfileActions";
 import { SteamProfileHeader } from "@/components/profile/SteamProfileHeader";
+import { getServerLocale } from "@/lib/i18n/server";
+import { t } from "@/lib/i18n/translations";
 
 interface PublicProfilePageProps {
   params: Promise<{ steamId: string }>;
 }
 
 export async function generateMetadata({ params }: PublicProfilePageProps): Promise<Metadata> {
+  const locale = await getServerLocale();
   const { steamId } = await params;
   const data = await getPublicProfileBySlug(steamId, null);
-  if (!data) return { title: "Profile" };
-  const name = data.profile.steamPersona || data.profile.name || "Player";
+  if (!data) return { title: t(locale, "publicProfile.notFound") };
+  const name = data.profile.steamPersona || data.profile.name || t(locale, "profile.guestName");
   return {
-    title: `${name} — GamePrice Profili`,
-    description: `${name} GamePrice profili — wishlist, kütüphane ve rozetler.`,
+    title: `${name} — ${t(locale, "publicProfile.metaTitle")}`,
+    description: t(locale, "publicProfile.metaDesc", { name }),
     openGraph: {
       title: `${name} — GamePrice`,
-      description: "Oyun wishlist ve Steam profili",
+      description: t(locale, "publicProfile.metaDesc", { name }),
       type: "profile",
     },
   };
@@ -39,12 +42,15 @@ const badgeClass: Record<string, string> = {
 };
 
 export default async function PublicProfilePage({ params }: PublicProfilePageProps) {
+  const locale = await getServerLocale();
   const { steamId } = await params;
   const viewerSessionId = (await cookies()).get(SESSION_COOKIE)?.value ?? null;
   const data = await getPublicProfileBySlug(steamId, viewerSessionId);
   if (!data) notFound();
 
-  const displayName = data.profile.steamPersona || data.profile.name || "Player";
+  const displayName =
+    data.profile.steamPersona || data.profile.name || t(locale, "profile.guestName");
+  const avatarUrl = data.profile.steamAvatar || data.profile.googleAvatar;
   const headerBadges = [
     ...data.badges.map((badge) => ({
       id: badge.id,
@@ -62,23 +68,41 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
     <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
       <SteamProfileHeader
         displayName={displayName}
-        avatarUrl={data.profile.steamAvatar}
+        avatarUrl={avatarUrl}
         frameId={data.appearance.frameId}
         effectId={data.appearance.effectId}
         badges={headerBadges}
-        showSteamBadge
-        meta={<p>Steam ID: {data.profile.steamId}</p>}
+        showSteamBadge={Boolean(data.profile.steamId)}
+        meta={
+          data.profile.steamId ? (
+            <p>{t(locale, "publicProfile.steamId", { id: data.profile.steamId })}</p>
+          ) : (
+            <p>{t(locale, "publicProfile.gamepriceMember")}</p>
+          )
+        }
         actions={
           <PublicProfileActions relationship={data.relationship} sessionId={data.sessionId} />
         }
       >
         <div className="grid grid-cols-1 min-[400px]:grid-cols-2 gap-3 sm:grid-cols-4">
-          <StatCard icon={Heart} label="Wishlist" value={String(data.stats.wishlistCount)} />
-          <StatCard icon={Library} label="Library" value={String(data.stats.libraryCount)} />
-          <StatCard icon={Users} label="Friend" value={data.isFriend ? "Yes" : "No"} />
+          <StatCard
+            icon={Heart}
+            label={t(locale, "publicProfile.statWishlist")}
+            value={String(data.stats.wishlistCount)}
+          />
+          <StatCard
+            icon={Library}
+            label={t(locale, "publicProfile.statLibrary")}
+            value={String(data.stats.libraryCount)}
+          />
+          <StatCard
+            icon={Users}
+            label={t(locale, "publicProfile.statFriend")}
+            value={data.isFriend ? t(locale, "publicProfile.yes") : t(locale, "publicProfile.no")}
+          />
           <StatCard
             icon={Gamepad2}
-            label="Owned from wishlist"
+            label={t(locale, "publicProfile.statOwnedFromWishlist")}
             value={String(data.stats.viewerOwnsFromWishlist)}
           />
         </div>
@@ -88,7 +112,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       {data.commonWishlist.length > 0 && (
         <section className="mb-8">
-          <h2 className="font-semibold text-lg mb-4">Common wishlist games</h2>
+          <h2 className="font-semibold text-lg mb-4">{t(locale, "publicProfile.commonWishlist")}</h2>
           <div className="flex flex-wrap gap-2">
             {data.commonWishlist.map((title) => (
               <span key={title} className="px-3 py-1.5 rounded-full bg-card border border-border text-sm">
@@ -101,7 +125,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
 
       {data.commonLibrary.length > 0 && (
         <section className="mb-8">
-          <h2 className="font-semibold text-lg mb-4">Common library games</h2>
+          <h2 className="font-semibold text-lg mb-4">{t(locale, "publicProfile.commonLibrary")}</h2>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
             {data.commonLibrary.map((game) => (
               <Link
@@ -128,9 +152,9 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
       {data.wishlistPreview.length > 0 && (
         <section>
           <div className="flex items-center justify-between mb-4">
-            <h2 className="font-semibold text-lg">Wishlist preview</h2>
+            <h2 className="font-semibold text-lg">{t(locale, "publicProfile.wishlistPreview")}</h2>
             <Link href="/social" className="text-sm text-accent hover:underline">
-              Back to social
+              {t(locale, "publicProfile.backSocial")}
             </Link>
           </div>
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">

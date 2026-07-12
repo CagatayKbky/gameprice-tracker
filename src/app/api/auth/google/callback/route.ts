@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { prisma } from "@/lib/db";
 import { SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
 import { getGoogleOAuthConfig, isGoogleAdminEmail } from "@/lib/auth/admin";
+import { syncProfileSlug } from "@/lib/profile/profile-slug-service";
 
 function getAppUrl() {
   return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -96,6 +97,8 @@ export async function GET(request: NextRequest) {
         updatedAt: new Date(),
       },
     });
+
+    await syncProfileSlug(sessionId, name);
 
     const response = NextResponse.redirect(`${getAppUrl()}/profile?google=ok`);
     response.cookies.set(SESSION_COOKIE, sessionId, {

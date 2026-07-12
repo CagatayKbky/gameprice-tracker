@@ -8,7 +8,6 @@ import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { GameImage } from "@/components/ui/GameImage";
 import { SteamWishlistImport } from "@/components/games/SteamWishlistImport";
 import { WishlistSavingsBanner } from "@/components/wishlist/WishlistSavingsBanner";
-import { BuyWaitPanel } from "@/components/profile/BuyWaitPanel";
 import { BulkWishlistImport } from "@/components/games/BulkWishlistImport";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
@@ -104,14 +103,6 @@ export default function WishlistPage() {
 
       <WishlistSavingsBanner />
 
-      {items.length > 0 && (
-        <section className="mb-6 rounded-2xl border border-[#2a475e]/50 bg-[#0e1419] p-5">
-          <h2 className="mb-1 font-semibold text-white">{t("buyWait.title")}</h2>
-          <p className="mb-4 text-sm text-[#8f98a0]">{t("buyWait.subtitle")}</p>
-          <BuyWaitPanel compact />
-        </section>
-      )}
-
       <SteamWishlistImport onImported={load} defaultProfile={steamId || undefined} />
       <BulkWishlistImport onImported={load} />
 
@@ -122,15 +113,13 @@ export default function WishlistPage() {
       ) : items.length === 0 ? (
         <div className="text-center py-20">
           <Heart className="w-12 h-12 text-muted mx-auto mb-4" />
-          <p className="text-lg text-muted">İstek listeniz boş</p>
-          <p className="text-sm text-muted mt-2">
-            Oyun sayfalarından istek listesine ekleyebilirsiniz
-          </p>
+          <p className="text-lg text-muted">{t("wishlist.empty")}</p>
+          <p className="text-sm text-muted mt-2">{t("wishlist.emptyHint")}</p>
           <Link
             href="/search?q=game"
             className="inline-block mt-6 px-6 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent-hover transition-colors"
           >
-            Oyun Ara
+            {t("about.searchGames")}
           </Link>
         </div>
       ) : (

@@ -29,6 +29,15 @@ export async function syncProfileSlug(sessionId: string, persona: string | null)
   });
 }
 
+export async function syncProfileSlugFromProfile(sessionId: string) {
+  const profile = await prisma.userProfile.findUnique({
+    where: { sessionId },
+    select: { steamPersona: true, name: true },
+  });
+  const label = profile?.steamPersona || profile?.name || null;
+  return syncProfileSlug(sessionId, label);
+}
+
 export async function findPublicProfileBySlug(slug: string) {
   if (isSteamId64(slug)) {
     return prisma.userProfile.findFirst({
@@ -45,20 +54,25 @@ export async function findPublicProfileBySlug(slug: string) {
   const candidates = await prisma.userProfile.findMany({
     where: {
       publicProfile: true,
-      steamPersona: { not: null },
-      OR: [{ profileSlug: null }, { profileSlug: normalized }],
+      OR: [{ steamPersona: { not: null } }, { name: { not: null } }],
     },
     select: {
       sessionId: true,
       steamId: true,
       steamPersona: true,
       profileSlug: true,
+      name: true,
     },
-    take: 50,
+    take: 100,
   });
 
   return (
-    candidates.find((profile) => toProfileSlug(profile.steamPersona) === normalized) || null
+    candidates.find(
+      (profile) =>
+        profile.profileSlug === normalized ||
+        toProfileSlug(profile.steamPersona) === normalized ||
+        toProfileSlug(profile.name) === normalized
+    ) || null
   );
 }
 

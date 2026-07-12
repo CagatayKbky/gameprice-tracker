@@ -6,7 +6,6 @@ import Link from "next/link";
 import { PushNotificationToggle } from "@/components/settings/PushNotificationToggle";
 import { SteamLoginButton } from "@/components/auth/SteamLoginButton";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
-import { MagicLinkLogin } from "@/components/auth/MagicLinkLogin";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { usePremium } from "@/components/providers/PremiumProvider";
 import { ProBadge } from "@/components/premium/PricingPlans";
@@ -29,11 +28,24 @@ export default function SettingsPage() {
   const [steamPersona, setSteamPersona] = useState<string | null>(null);
   const [googleId, setGoogleId] = useState<string | null>(null);
   const [googleAvatar, setGoogleAvatar] = useState<string | null>(null);
-  const [librarySyncing, setLibrarySyncing] = useState(false);
-  const [libraryCount, setLibraryCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [authBanner, setAuthBanner] = useState<string | null>(null);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const google = params.get("google");
+    const steam = params.get("steam");
+    if (google === "error") setAuthBanner(t("auth.google.error"));
+    else if (steam === "error") setAuthBanner(t("auth.steam.error"));
+    if (google || steam) {
+      const url = new URL(window.location.href);
+      url.searchParams.delete("google");
+      url.searchParams.delete("steam");
+      window.history.replaceState({}, "", url.pathname);
+    }
+  }, [t]);
 
   useEffect(() => {
     fetch("/api/profile")
@@ -54,12 +66,6 @@ export default function SettingsPage() {
         setSteamPersona(data.steamPersona || null);
         setGoogleId(data.googleId || null);
         setGoogleAvatar(data.googleAvatar || null);
-        if (data.steamId) {
-          fetch("/api/steam/library")
-            .then((r) => r.json())
-            .then((lib) => setLibraryCount(lib.count ?? null))
-            .catch(() => {});
-        }
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -114,6 +120,12 @@ export default function SettingsPage() {
         </div>
       </div>
 
+      {authBanner && (
+        <p className="mb-6 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
+          {authBanner}
+        </p>
+      )}
+
       <form onSubmit={handleSave} className="space-y-6">
         <div className="rounded-2xl border border-accent/30 bg-accent/5 p-6 space-y-3">
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -157,15 +169,43 @@ export default function SettingsPage() {
           )}
         </div>
 
-        <MagicLinkLogin />
-
         <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
           <h2 className="font-semibold">{t("auth.loginTitle")}</h2>
           <GoogleLoginButton
             connected={Boolean(googleId)}
             displayName={name}
             avatarUrl={googleAvatar}
+            showDisconnect
+            onDisconnect={async () => {
+              await fetch("/api/auth/google/disconnect", { method: "POST" });
+              setGoogleId(null);
+              setGoogleAvatar(null);
+            }}
           />
+          <div className="border-t border-border pt-4">
+            <SteamLoginButton
+              connected={!!steamId}
+              steamPersona={steamPersona}
+              showDisconnect
+              onDisconnect={async () => {
+                await fetch("/api/auth/steam/disconnect", { method: "POST" });
+                setSteamId(null);
+                setSteamPersona(null);
+              }}
+            />
+            <p className="text-xs text-muted mt-2">{t("settings.steamHint")}</p>
+            {steamId && (
+              <label className="flex items-center gap-3 cursor-pointer mt-3">
+                <input
+                  type="checkbox"
+                  checked={hideOwnedGames}
+                  onChange={(e) => setHideOwnedGames(e.target.checked)}
+                  className="w-4 h-4 rounded accent-accent"
+                />
+                <span className="text-sm">{t("settings.hideOwned")}</span>
+              </label>
+            )}
+          </div>
         </div>
 
         <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
@@ -196,11 +236,12 @@ export default function SettingsPage() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
+              readOnly={Boolean(googleId)}
               placeholder={t("settings.emailPlaceholder")}
-              className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none"
+              className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none disabled:opacity-70"
             />
             <p className="text-xs text-muted mt-2">
-              {t("settings.emailHint")}
+              {googleId ? t("settings.emailFromGoogle") : t("settings.emailHint")}
             </p>
           </div>
 
@@ -256,55 +297,6 @@ export default function SettingsPage() {
               {" — "}
               {t("premium.upgrade.push.desc")}
             </p>
-          )}
-        </div>
-
-        <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
-          <h2 className="font-semibold">{t("settings.steam")}</h2>
-          <SteamLoginButton connected={!!steamId} steamPersona={steamPersona} />
-          <p className="text-xs text-muted">{t("settings.steamHint")}</p>
-          {steamId && (
-            <>
-              <div className="flex flex-wrap items-center gap-3">
-                <button
-                  type="button"
-                  disabled={librarySyncing}
-                  onClick={async () => {
-                    setLibrarySyncing(true);
-                    try {
-                      const res = await fetch("/api/steam/library", { method: "POST" });
-                      const data = await res.json();
-                      if (res.ok) setLibraryCount(data.synced);
-                      else alert(data.error || t("settings.librarySyncError"));
-                    } finally {
-                      setLibrarySyncing(false);
-                    }
-                  }}
-                  className="px-4 py-2 rounded-xl bg-[#1b2838] text-white text-sm font-medium hover:bg-[#2a475e] disabled:opacity-50"
-                >
-                  {librarySyncing ? t("settings.librarySyncing") : t("settings.librarySync")}
-                </button>
-                {libraryCount != null && (
-                  <span className="text-sm text-muted">
-                    {t("settings.libraryCount", { count: String(libraryCount) })}
-                  </span>
-                )}
-                {libraryCount && libraryCount > 0 && (
-                  <Link href="/profile/library" className="text-sm text-accent hover:underline">
-                    {t("profile.libraryViewAll")}
-                  </Link>
-                )}
-              </div>
-              <label className="flex items-center gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={hideOwnedGames}
-                  onChange={(e) => setHideOwnedGames(e.target.checked)}
-                  className="w-4 h-4 rounded accent-accent"
-                />
-                <span className="text-sm">{t("settings.hideOwned")}</span>
-              </label>
-            </>
           )}
         </div>
 
