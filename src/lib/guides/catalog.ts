@@ -5,7 +5,10 @@ export type GuideSlug =
   | "when-to-buy"
   | "epic-free-games"
   | "bundle-guide"
-  | "steam-deck-prices";
+  | "steam-deck-prices"
+  | "black-friday-games"
+  | "gog-vs-steam"
+  | "steam-deck-verified";
 
 export interface GuideEntry {
   slug: GuideSlug;
@@ -70,6 +73,30 @@ export const GUIDE_CATALOG: GuideEntry[] = [
     titleKey: "guides.steamDeck.cardTitle",
     subtitleKey: "guides.steamDeck.cardSubtitle",
     descriptionKey: "guides.steamDeck.cardDesc",
+    readMinutes: 4,
+    tagKeys: ["guides.tags.steam", "guides.tags.strategy"],
+  },
+  {
+    slug: "black-friday-games",
+    titleKey: "guides.blackFriday.cardTitle",
+    subtitleKey: "guides.blackFriday.cardSubtitle",
+    descriptionKey: "guides.blackFriday.cardDesc",
+    readMinutes: 5,
+    tagKeys: ["guides.tags.sales", "guides.tags.deals"],
+  },
+  {
+    slug: "gog-vs-steam",
+    titleKey: "guides.gogVsSteam.cardTitle",
+    subtitleKey: "guides.gogVsSteam.cardSubtitle",
+    descriptionKey: "guides.gogVsSteam.cardDesc",
+    readMinutes: 4,
+    tagKeys: ["guides.tags.steam", "guides.tags.strategy"],
+  },
+  {
+    slug: "steam-deck-verified",
+    titleKey: "guides.deckVerified.cardTitle",
+    subtitleKey: "guides.deckVerified.cardSubtitle",
+    descriptionKey: "guides.deckVerified.cardDesc",
     readMinutes: 4,
     tagKeys: ["guides.tags.steam", "guides.tags.strategy"],
   },

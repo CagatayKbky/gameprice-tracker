@@ -74,9 +74,10 @@ export function ReferralPanel() {
         </button>
       </div>
 
-      <p className="text-xs text-muted mb-4">
+      <p className="text-xs text-muted mb-1">
         {t("referral.stats", { code, count: String(count) })}
       </p>
+      <p className="text-xs text-muted mb-4">{t("referral.proReward")}</p>
 
       <div className="flex flex-col sm:flex-row gap-2">
         <input

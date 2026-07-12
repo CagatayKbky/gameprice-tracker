@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
+import Link from "next/link";
 import {
   Shield,
   Database,
@@ -12,8 +13,10 @@ import {
   Search,
   Crown,
   UserCog,
+  LogIn,
 } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 
 interface AdminUser {
   sessionId: string;
@@ -22,9 +25,12 @@ interface AdminUser {
   steamId: string | null;
   steamPersona: string | null;
   steamAvatar: string | null;
+  googleId: string | null;
+  googleAvatar: string | null;
   isAdmin: boolean;
   plan: string;
   planExpiresAt: string | null;
+  createdAt?: string;
 }
 
 interface AdminData {
@@ -43,6 +49,7 @@ interface AdminData {
     proUsers?: number;
     notifications7d?: number;
     referrals?: number;
+    googleUsers?: number;
   };
   env: {
     rawgEnabled: boolean;
@@ -52,6 +59,7 @@ interface AdminData {
     meiliEnabled?: boolean;
     databaseProvider: string;
   };
+  users?: AdminUser[];
   jobLogs?: {
     id: string;
     type: string;
@@ -65,48 +73,65 @@ interface AdminData {
 export default function AdminPage() {
   const { locale, t } = useLocale();
   const numberLocale = locale === "en" ? "en-US" : "tr-TR";
-  const [key, setKey] = useState("");
+  const [authorized, setAuthorized] = useState<boolean | null>(null);
   const [data, setData] = useState<AdminData | null>(null);
+  const [googleUsers, setGoogleUsers] = useState<AdminUser[]>([]);
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState<string | null>(null);
   const [userQuery, setUserQuery] = useState("");
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [userSearchLoading, setUserSearchLoading] = useState(false);
+  const [profile, setProfile] = useState<{
+    googleId?: string | null;
+    name?: string | null;
+    googleAvatar?: string | null;
+  }>({});
 
-  const fetchData = async (adminKey: string) => {
+  const fetchData = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
-      const res = await fetch(`/api/admin?key=${encodeURIComponent(adminKey)}`);
-      if (!res.ok) {
-        setError(t("admin.invalidKey"));
+      const [sessionRes, adminRes, googleRes] = await Promise.all([
+        fetch("/api/admin/session"),
+        fetch("/api/admin"),
+        fetch("/api/admin?google=1"),
+      ]);
+
+      if (sessionRes.status === 403 || sessionRes.status === 401) {
+        setAuthorized(false);
+        const prof = await fetch("/api/profile").then((r) => r.json()).catch(() => ({}));
+        setProfile(prof);
         setData(null);
         return;
       }
-      setData(await res.json());
-      sessionStorage.setItem("gp_admin_key", adminKey);
+
+      if (!adminRes.ok) {
+        setError(t("admin.connectionError"));
+        setAuthorized(false);
+        return;
+      }
+
+      setAuthorized(true);
+      setData(await adminRes.json());
+      const googleData = await googleRes.json();
+      setGoogleUsers(googleData.users || []);
     } catch {
       setError(t("admin.connectionError"));
+      setAuthorized(false);
     } finally {
       setLoading(false);
     }
-  };
+  }, [t]);
 
   useEffect(() => {
-    const stored = sessionStorage.getItem("gp_admin_key");
-    if (stored) {
-      setKey(stored);
-      fetchData(stored);
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    void fetchData();
+  }, [fetchData]);
 
   const runAction = async (action: string, extra?: Record<string, unknown>) => {
-    if (!key) return;
     setActionLoading(action);
     try {
-      const res = await fetch(`/api/admin?key=${encodeURIComponent(key)}`, {
+      const res = await fetch("/api/admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ action, ...extra }),
@@ -116,11 +141,10 @@ export default function AdminPage() {
         setError(result.error || t("admin.actionFailed"));
         return;
       }
-      await fetchData(key);
+      await fetchData();
       if (userQuery.trim()) {
         await searchUsers(userQuery);
       }
-      return result;
     } catch {
       setError(t("admin.actionFailed"));
     } finally {
@@ -129,25 +153,13 @@ export default function AdminPage() {
   };
 
   const searchUsers = async (query: string) => {
-    if (!key || !query.trim()) {
-      setUsers([]);
-      return;
-    }
     setUserSearchLoading(true);
     try {
-      const res = await fetch(`/api/admin?key=${encodeURIComponent(key)}`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ action: "search-users", query }),
-      });
-      const result = await res.json();
-      if (!res.ok) {
-        setError(result.error || t("admin.actionFailed"));
-        return;
+      const res = await fetch(`/api/admin?users=${encodeURIComponent(query)}`);
+      if (res.ok) {
+        const json = await res.json();
+        setUsers(json.users || []);
       }
-      setUsers(result.users || []);
-    } catch {
-      setError(t("admin.actionFailed"));
     } finally {
       setUserSearchLoading(false);
     }
@@ -157,13 +169,13 @@ export default function AdminPage() {
     user: AdminUser,
     access: { isAdmin?: boolean; isPro?: boolean }
   ) => {
-    const actionKey =
+    setActionLoading(
       access.isAdmin !== undefined
         ? `user-access:${user.sessionId}:admin:${access.isAdmin}`
-        : `user-access:${user.sessionId}:pro:${access.isPro}`;
-    setActionLoading(actionKey);
+        : `user-access:${user.sessionId}:pro:${access.isPro}`
+    );
     try {
-      const res = await fetch(`/api/admin?key=${encodeURIComponent(key)}`, {
+      const res = await fetch("/api/admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -173,24 +185,25 @@ export default function AdminPage() {
           ...access,
         }),
       });
-      const result = await res.json();
       if (!res.ok) {
-        setError(result.error || t("admin.actionFailed"));
+        setError(t("admin.actionFailed"));
         return;
       }
+      await fetchData();
       await searchUsers(userQuery);
-    } catch {
-      setError(t("admin.actionFailed"));
     } finally {
       setActionLoading(null);
     }
   };
 
-  const grantCosmetic = async (user: AdminUser, type: "badge" | "frame", key: string) => {
-    const actionKey = `grant-cosmetic:${user.sessionId}:${type}:${key}`;
-    setActionLoading(actionKey);
+  const grantCosmetic = async (
+    user: AdminUser,
+    type: "badge" | "frame" | "effect",
+    key: string
+  ) => {
+    setActionLoading(`grant-cosmetic:${user.sessionId}:${type}:${key}`);
     try {
-      const res = await fetch(`/api/admin?key=${encodeURIComponent(key)}`, {
+      const res = await fetch("/api/admin", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -200,52 +213,51 @@ export default function AdminPage() {
           key,
         }),
       });
-      const result = await res.json();
       if (!res.ok) {
-        setError(result.error || t("admin.actionFailed"));
+        setError(t("admin.actionFailed"));
         return;
       }
       await searchUsers(userQuery);
-    } catch {
-      setError(t("admin.actionFailed"));
     } finally {
       setActionLoading(null);
     }
   };
 
-  if (!data) {
+  if (authorized === null || loading) {
+    return (
+      <div className="flex justify-center py-20">
+        <Loader2 className="w-8 h-8 animate-spin text-accent" />
+      </div>
+    );
+  }
+
+  if (!authorized) {
     return (
       <div className="max-w-md mx-auto px-4 py-20">
-        <div className="rounded-2xl bg-card border border-border p-8">
-          <div className="flex items-center gap-2 mb-4">
-            <Shield className="w-5 h-5 text-accent" />
-            <h1 className="text-xl font-bold">{t("admin.title")}</h1>
+        <div className="rounded-2xl bg-card border border-border p-8 text-center">
+          <Shield className="w-10 h-10 text-accent mx-auto mb-4" />
+          <h1 className="text-xl font-bold mb-2">{t("admin.title")}</h1>
+          <p className="text-sm text-muted mb-6">{t("admin.sessionRequired")}</p>
+          <div className="flex flex-col items-center gap-3">
+            <GoogleLoginButton
+              connected={Boolean(profile.googleId)}
+              displayName={profile.name}
+              avatarUrl={profile.googleAvatar}
+            />
+            <Link href="/settings" className="text-sm text-accent hover:underline">
+              {t("admin.goSettings")}
+            </Link>
           </div>
-          <p className="text-sm text-muted mb-4">
-            {t("admin.loginHint")}
-          </p>
-          <input
-            type="password"
-            value={key}
-            onChange={(e) => setKey(e.target.value)}
-            placeholder={t("admin.keyPlaceholder")}
-            className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm mb-3"
-          />
-          <button
-            onClick={() => fetchData(key)}
-            disabled={loading || !key}
-            className="w-full px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50 flex items-center justify-center gap-2"
-          >
-            {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Shield className="w-4 h-4" />}
-            {t("admin.login")}
-          </button>
-          {error && (
-            <p className="text-sm text-red-400 mt-3 flex items-center gap-1">
-              <AlertTriangle className="w-4 h-4" />
-              {error}
-            </p>
-          )}
         </div>
+      </div>
+    );
+  }
+
+  if (!data) {
+    return (
+      <div className="max-w-md mx-auto px-4 py-20 text-center text-red-400">
+        <AlertTriangle className="w-8 h-8 mx-auto mb-2" />
+        {error || t("admin.connectionError")}
       </div>
     );
   }
@@ -260,6 +272,13 @@ export default function AdminPage() {
         </div>
       </div>
 
+      {error && (
+        <p className="mb-4 text-sm text-red-400 flex items-center gap-2">
+          <AlertTriangle className="w-4 h-4" />
+          {error}
+        </p>
+      )}
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-4">
         <StatCard label={t("admin.stat.catalog")} value={data.sync.totalGames.toLocaleString(numberLocale)} />
         <StatCard label={t("admin.stat.tracked")} value={String(data.stats.trackedGames)} />
@@ -267,10 +286,35 @@ export default function AdminPage() {
         <StatCard label={t("admin.stat.wishlist")} value={String(data.stats.wishlistItems)} />
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-8">
         <StatCard label={t("admin.stat.proUsers")} value={String(data.stats.proUsers ?? 0)} />
+        <StatCard label={t("admin.stat.googleUsers")} value={String(data.stats.googleUsers ?? 0)} />
         <StatCard label={t("admin.stat.notifications7d")} value={String(data.stats.notifications7d ?? 0)} />
         <StatCard label={t("admin.stat.referrals")} value={String(data.stats.referrals ?? 0)} />
+      </div>
+
+      <div className="rounded-2xl bg-card border border-border p-6 mb-6">
+        <h2 className="font-semibold mb-4 flex items-center gap-2">
+          <LogIn className="w-4 h-4" />
+          {t("admin.googleUsers.title")}
+        </h2>
+        <p className="text-sm text-muted mb-4">{t("admin.googleUsers.subtitle")}</p>
+        {googleUsers.length === 0 ? (
+          <p className="text-sm text-muted">{t("admin.googleUsers.empty")}</p>
+        ) : (
+          <div className="space-y-3 max-h-80 overflow-y-auto">
+            {googleUsers.map((user) => (
+              <UserRow
+                key={user.sessionId}
+                user={user}
+                t={t}
+                actionLoading={actionLoading}
+                onSetAccess={setUserAccess}
+                onGrantCosmetic={grantCosmetic}
+              />
+            ))}
+          </div>
+        )}
       </div>
 
       <div className="rounded-2xl bg-card border border-border p-6 mb-6">
@@ -312,36 +356,10 @@ export default function AdminPage() {
       )}
 
       <div className="flex flex-wrap gap-3 mb-8">
-        <ActionButton
-          label={t("admin.action.syncCatalog")}
-          loading={actionLoading === "sync-catalog"}
-          onClick={() => runAction("sync-catalog", { rawgPages: 5 })}
-        />
-        <ActionButton
-          label={t("admin.action.syncMeili")}
-          loading={actionLoading === "sync-meilisearch"}
-          onClick={() => runAction("sync-meilisearch")}
-        />
-        <ActionButton
-          label={t("admin.action.syncPrices")}
-          loading={actionLoading === "sync-prices"}
-          onClick={() => runAction("sync-prices")}
-        />
-        <ActionButton
-          label={t("admin.action.refresh")}
-          loading={loading}
-          onClick={() => fetchData(key)}
-        />
-        <ActionButton
-          label={t("admin.action.makeMeAdmin")}
-          loading={actionLoading === "make-me-admin"}
-          onClick={() => runAction("make-me-admin")}
-        />
-        <ActionButton
-          label={t("admin.action.makeMePro")}
-          loading={actionLoading === "make-me-pro"}
-          onClick={() => runAction("make-me-pro")}
-        />
+        <ActionButton label={t("admin.action.syncCatalog")} loading={actionLoading === "sync-catalog"} onClick={() => runAction("sync-catalog", { rawgPages: 5 })} />
+        <ActionButton label={t("admin.action.syncMeili")} loading={actionLoading === "sync-meilisearch"} onClick={() => runAction("sync-meilisearch")} />
+        <ActionButton label={t("admin.action.syncPrices")} loading={actionLoading === "sync-prices"} onClick={() => runAction("sync-prices")} />
+        <ActionButton label={t("admin.action.refresh")} loading={loading} onClick={() => fetchData()} />
       </div>
 
       <div className="rounded-2xl bg-card border border-border p-6">
@@ -376,69 +394,66 @@ export default function AdminPage() {
           <p className="text-sm text-muted">{t("admin.users.noResults")}</p>
         ) : (
           <div className="space-y-3">
-            {users.map((user) => {
-              const displayName = user.steamPersona || user.name || user.email || user.sessionId.slice(0, 8);
-              const isPro = user.plan === "pro";
-              return (
-                <div key={user.sessionId} className="rounded-xl border border-border bg-background p-4">
-                  <div className="flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
-                    <div className="flex items-center gap-3 min-w-0">
-                      {user.steamAvatar ? (
-                        <Image
-                          src={user.steamAvatar}
-                          alt={displayName}
-                          width={44}
-                          height={44}
-                          className="w-11 h-11 rounded-xl object-cover"
-                        />
-                      ) : (
-                        <div className="w-11 h-11 rounded-xl bg-accent/10" />
-                      )}
-                      <div className="min-w-0">
-                        <p className="font-medium truncate">{displayName}</p>
-                        <p className="text-xs text-muted truncate">
-                          {user.email || user.steamId || user.sessionId}
-                        </p>
-                        <div className="flex flex-wrap gap-2 mt-2 text-xs">
-                          <span className="px-2 py-0.5 rounded-full border border-border">
-                            {t("admin.users.plan")}: {user.plan}
-                          </span>
-                          <span className="px-2 py-0.5 rounded-full border border-border">
-                            {t("admin.users.admin")}: {user.isAdmin ? t("admin.users.yes") : t("admin.users.no")}
-                          </span>
-                          {isPro && <Crown className="w-4 h-4 text-amber-300" />}
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full lg:w-auto">
-                      <MiniAction
-                        label={user.isAdmin ? t("admin.users.revokeAdmin") : t("admin.users.grantAdmin")}
-                        loading={actionLoading === `user-access:${user.sessionId}:admin:${!user.isAdmin}`}
-                        onClick={() => void setUserAccess(user, { isAdmin: !user.isAdmin })}
-                      />
-                      <MiniAction
-                        label={isPro ? t("admin.users.revokePro") : t("admin.users.grantPro")}
-                        loading={actionLoading === `user-access:${user.sessionId}:pro:${!isPro}`}
-                        onClick={() => void setUserAccess(user, { isPro: !isPro })}
-                      />
-                      <MiniAction
-                        label={t("admin.users.grantFounder")}
-                        loading={actionLoading === `grant-cosmetic:${user.sessionId}:badge:founder`}
-                        onClick={() => void grantCosmetic(user, "badge", "founder")}
-                      />
-                      <MiniAction
-                        label={t("admin.users.grantProGold")}
-                        loading={actionLoading === `grant-cosmetic:${user.sessionId}:frame:pro-gold`}
-                        onClick={() => void grantCosmetic(user, "frame", "pro-gold")}
-                      />
-                    </div>
-                  </div>
-                </div>
-              );
-            })}
+            {users.map((user) => (
+              <UserRow
+                key={user.sessionId}
+                user={user}
+                t={t}
+                actionLoading={actionLoading}
+                onSetAccess={setUserAccess}
+                onGrantCosmetic={grantCosmetic}
+              />
+            ))}
           </div>
         )}
+      </div>
+    </div>
+  );
+}
+
+function UserRow({
+  user,
+  t,
+  actionLoading,
+  onSetAccess,
+  onGrantCosmetic,
+}: {
+  user: AdminUser;
+  t: (key: string) => string;
+  actionLoading: string | null;
+  onSetAccess: (user: AdminUser, access: { isAdmin?: boolean; isPro?: boolean }) => void;
+  onGrantCosmetic: (user: AdminUser, type: "badge" | "frame" | "effect", key: string) => void;
+}) {
+  const displayName = user.name || user.steamPersona || user.email || user.sessionId.slice(0, 8);
+  const avatar = user.googleAvatar || user.steamAvatar;
+  const isPro = user.plan === "pro";
+
+  return (
+    <div className="rounded-xl border border-border bg-background p-4">
+      <div className="flex flex-col lg:flex-row lg:items-center gap-4 justify-between">
+        <div className="flex items-center gap-3 min-w-0">
+          {avatar ? (
+            <Image src={avatar} alt={displayName} width={44} height={44} className="w-11 h-11 rounded-xl object-cover" />
+          ) : (
+            <div className="w-11 h-11 rounded-xl bg-accent/10" />
+          )}
+          <div className="min-w-0">
+            <p className="font-medium truncate">{displayName}</p>
+            <p className="text-xs text-muted truncate">{user.email || user.googleId || user.steamId || user.sessionId}</p>
+            <div className="flex flex-wrap gap-2 mt-2 text-xs">
+              {user.googleId && <span className="px-2 py-0.5 rounded-full border border-border text-sky-300">Google</span>}
+              {user.steamId && <span className="px-2 py-0.5 rounded-full border border-border">Steam</span>}
+              <span className="px-2 py-0.5 rounded-full border border-border">{t("admin.users.plan")}: {user.plan}</span>
+              {user.isAdmin && <span className="px-2 py-0.5 rounded-full bg-red-500/15 text-red-300">Admin</span>}
+              {isPro && <Crown className="w-4 h-4 text-amber-300" />}
+            </div>
+          </div>
+        </div>
+        <div className="flex flex-col sm:flex-row flex-wrap gap-2 w-full lg:w-auto">
+          <MiniAction label={user.isAdmin ? t("admin.users.revokeAdmin") : t("admin.users.grantAdmin")} loading={actionLoading === `user-access:${user.sessionId}:admin:${!user.isAdmin}`} onClick={() => onSetAccess(user, { isAdmin: !user.isAdmin })} />
+          <MiniAction label={isPro ? t("admin.users.revokePro") : t("admin.users.grantPro")} loading={actionLoading === `user-access:${user.sessionId}:pro:${!isPro}`} onClick={() => onSetAccess(user, { isPro: !isPro })} />
+          <MiniAction label={t("admin.users.grantFounder")} loading={actionLoading === `grant-cosmetic:${user.sessionId}:badge:founder`} onClick={() => onGrantCosmetic(user, "badge", "founder")} />
+        </div>
       </div>
     </div>
   );
@@ -456,52 +471,24 @@ function StatCard({ label, value }: { label: string; value: string }) {
 function StatusRow({ label, ok }: { label: string; ok: boolean }) {
   return (
     <div className="flex items-center gap-2">
-      {ok ? (
-        <CheckCircle2 className="w-4 h-4 text-emerald-400" />
-      ) : (
-        <AlertTriangle className="w-4 h-4 text-amber-400" />
-      )}
+      {ok ? <CheckCircle2 className="w-4 h-4 text-emerald-400" /> : <AlertTriangle className="w-4 h-4 text-amber-400" />}
       <span>{label}</span>
     </div>
   );
 }
 
-function ActionButton({
-  label,
-  loading,
-  onClick,
-}: {
-  label: string;
-  loading: boolean;
-  onClick: () => void;
-}) {
+function ActionButton({ label, loading, onClick }: { label: string; loading: boolean; onClick: () => void }) {
   return (
-    <button
-      onClick={onClick}
-      disabled={loading}
-      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50"
-    >
+    <button onClick={onClick} disabled={loading} className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-accent text-white text-sm font-medium hover:bg-accent-hover disabled:opacity-50">
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <RefreshCw className="w-4 h-4" />}
       {label}
     </button>
   );
 }
 
-function MiniAction({
-  label,
-  loading,
-  onClick,
-}: {
-  label: string;
-  loading: boolean;
-  onClick: () => void;
-}) {
+function MiniAction({ label, loading, onClick }: { label: string; loading: boolean; onClick: () => void }) {
   return (
-    <button
-      onClick={onClick}
-      disabled={loading}
-      className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border text-xs sm:text-sm hover:border-accent/30 disabled:opacity-50"
-    >
+    <button onClick={onClick} disabled={loading} className="inline-flex items-center justify-center gap-2 w-full sm:w-auto px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-lg border border-border text-xs sm:text-sm hover:border-accent/30 disabled:opacity-50">
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
       {label}
     </button>

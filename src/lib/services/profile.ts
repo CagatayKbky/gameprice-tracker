@@ -14,6 +14,8 @@ export interface UserProfileData {
   steamId?: string | null;
   steamPersona?: string | null;
   steamAvatar?: string | null;
+  googleId?: string | null;
+  googleAvatar?: string | null;
   onboardingDone?: boolean;
   freeGameNotify?: boolean;
   hideOwnedGames?: boolean;
@@ -40,6 +42,8 @@ export async function getProfile(sessionId: string): Promise<UserProfileData | n
     steamId: profile.steamId,
     steamPersona: profile.steamPersona,
     steamAvatar: profile.steamAvatar,
+    googleId: profile.googleId,
+    googleAvatar: profile.googleAvatar,
     onboardingDone: profile.onboardingDone,
     freeGameNotify: profile.freeGameNotify,
     hideOwnedGames: profile.hideOwnedGames,

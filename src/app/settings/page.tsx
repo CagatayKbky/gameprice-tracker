@@ -5,6 +5,7 @@ import { User, Mail, Bell, Save, Loader2, Newspaper, MessageSquare, Crown } from
 import Link from "next/link";
 import { PushNotificationToggle } from "@/components/settings/PushNotificationToggle";
 import { SteamLoginButton } from "@/components/auth/SteamLoginButton";
+import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { MagicLinkLogin } from "@/components/auth/MagicLinkLogin";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { usePremium } from "@/components/providers/PremiumProvider";
@@ -26,6 +27,8 @@ export default function SettingsPage() {
   const [publicProfile, setPublicProfile] = useState(true);
   const [steamId, setSteamId] = useState<string | null>(null);
   const [steamPersona, setSteamPersona] = useState<string | null>(null);
+  const [googleId, setGoogleId] = useState<string | null>(null);
+  const [googleAvatar, setGoogleAvatar] = useState<string | null>(null);
   const [librarySyncing, setLibrarySyncing] = useState(false);
   const [libraryCount, setLibraryCount] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
@@ -49,6 +52,8 @@ export default function SettingsPage() {
         setPublicProfile(data.publicProfile !== false);
         setSteamId(data.steamId || null);
         setSteamPersona(data.steamPersona || null);
+        setGoogleId(data.googleId || null);
+        setGoogleAvatar(data.googleAvatar || null);
         if (data.steamId) {
           fetch("/api/steam/library")
             .then((r) => r.json())
@@ -153,6 +158,15 @@ export default function SettingsPage() {
         </div>
 
         <MagicLinkLogin />
+
+        <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
+          <h2 className="font-semibold">{t("auth.loginTitle")}</h2>
+          <GoogleLoginButton
+            connected={Boolean(googleId)}
+            displayName={name}
+            avatarUrl={googleAvatar}
+          />
+        </div>
 
         <div className="rounded-2xl bg-card border border-border p-6 space-y-4">
           <h2 className="font-semibold flex items-center gap-2">

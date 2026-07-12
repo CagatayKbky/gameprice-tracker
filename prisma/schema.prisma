@@ -52,6 +52,8 @@ model UserProfile {
   steamId             String?   @unique
   steamPersona        String?
   steamAvatar         String?
+  googleId            String?   @unique
+  googleAvatar        String?
   profileSlug         String?   @unique
   onboardingDone      Boolean   @default(false)
   freeGameNotify      Boolean   @default(true)

@@ -2,7 +2,52 @@ import { prisma } from "@/lib/db";
 import { downgradeToFree, setProPlan } from "@/lib/premium/access";
 import { grantDefaultProfileCosmetics } from "@/lib/services/profile-cosmetics";
 
-export type UserIdentifierType = "sessionId" | "steamId" | "email";
+export type UserIdentifierType = "sessionId" | "steamId" | "email" | "googleId";
+
+const userSelect = {
+  sessionId: true,
+  email: true,
+  name: true,
+  steamId: true,
+  steamPersona: true,
+  steamAvatar: true,
+  googleId: true,
+  googleAvatar: true,
+  isAdmin: true,
+  plan: true,
+  planExpiresAt: true,
+  createdAt: true,
+  updatedAt: true,
+} as const;
+
+export async function listGoogleUsers(page = 1, perPage = 20) {
+  const skip = (page - 1) * perPage;
+  const [users, total] = await Promise.all([
+    prisma.userProfile.findMany({
+      where: { googleId: { not: null } },
+      select: userSelect,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: perPage,
+    }),
+    prisma.userProfile.count({ where: { googleId: { not: null } } }),
+  ]);
+  return { users, total, page, perPage };
+}
+
+export async function listAllUsers(page = 1, perPage = 20) {
+  const skip = (page - 1) * perPage;
+  const [users, total] = await Promise.all([
+    prisma.userProfile.findMany({
+      select: userSelect,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: perPage,
+    }),
+    prisma.userProfile.count(),
+  ]);
+  return { users, total, page, perPage };
+}
 
 export async function findUserProfile(identifier: string, type: UserIdentifierType) {
   const value = identifier.trim();
@@ -13,6 +58,9 @@ export async function findUserProfile(identifier: string, type: UserIdentifierTy
   }
   if (type === "steamId") {
     return prisma.userProfile.findFirst({ where: { steamId: value } });
+  }
+  if (type === "googleId") {
+    return prisma.userProfile.findFirst({ where: { googleId: value } });
   }
   return prisma.userProfile.findFirst({
     where: { email: { equals: value, mode: "insensitive" } },
@@ -33,18 +81,7 @@ export async function searchUserProfiles(query: string, limit = 12) {
         { steamPersona: { contains: q, mode: "insensitive" } },
       ],
     },
-    select: {
-      sessionId: true,
-      email: true,
-      name: true,
-      steamId: true,
-      steamPersona: true,
-      steamAvatar: true,
-      isAdmin: true,
-      plan: true,
-      planExpiresAt: true,
-      updatedAt: true,
-    },
+    select: userSelect,
     orderBy: { updatedAt: "desc" },
     take: limit,
   });

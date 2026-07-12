@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { grantUserCosmetic } from "@/lib/services/profile-cosmetics";
+import { setProPlan } from "@/lib/premium/access";
 
 function randomCode(): string {
   const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -8,6 +9,18 @@ function randomCode(): string {
     code += chars[Math.floor(Math.random() * chars.length)];
   }
   return code;
+}
+
+async function grantReferralProDays(sessionId: string, days: number) {
+  const profile = await prisma.userProfile.findUnique({ where: { sessionId } });
+  const now = new Date();
+  let expires: Date;
+  if (profile?.plan === "pro" && profile.planExpiresAt && profile.planExpiresAt > now) {
+    expires = new Date(profile.planExpiresAt.getTime() + days * 86_400_000);
+  } else {
+    expires = new Date(now.getTime() + days * 86_400_000);
+  }
+  await setProPlan(sessionId, { plan: "pro", planExpiresAt: expires });
 }
 
 export async function ensureReferralCode(sessionId: string): Promise<string> {
@@ -65,6 +78,10 @@ export async function applyReferralCode(sessionId: string, code: string) {
       key: "summer-sale",
       source: "referral",
     }).catch(() => {});
+  }
+
+  if (referralCount === 5) {
+    await grantReferralProDays(referrer.sessionId, 7).catch(() => {});
   }
 
   return { ok: true as const, referrerName: referrer.steamPersona || referrer.name || "Friend" };

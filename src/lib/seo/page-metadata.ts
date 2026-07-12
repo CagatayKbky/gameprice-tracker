@@ -12,6 +12,7 @@ type PageSeoKey =
   | "compare"
   | "pricing"
   | "about"
+  | "privacy"
   | "saleCalendar"
   | "guidesHub"
   | "priceAlertsGuide"
@@ -19,7 +20,10 @@ type PageSeoKey =
   | "whenToBuyGuide"
   | "epicFreeGuide"
   | "bundleGuide"
-  | "steamDeckGuide";
+  | "steamDeckGuide"
+  | "blackFridayGuide"
+  | "gogVsSteamGuide"
+  | "deckVerifiedGuide";
 
 const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: string; keywords: string[] }>> = {
   tr: {
@@ -82,6 +86,12 @@ const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: 
         "GamePrice; oyun fiyatlarını takip etmen, indirimleri yakalaman ve en ucuz mağazayı bulman için yapıldı.",
       keywords: ["gameprice", "oyun fiyat takip sitesi"],
     },
+    privacy: {
+      title: "Gizlilik Politikası — GamePrice",
+      description:
+        "GamePrice gizlilik politikası: hangi verileri topluyoruz, çerezler, Steam/Google girişi ve haklarınız.",
+      keywords: ["gameprice gizlilik", "çerez politikası", "kvkk"],
+    },
     saleCalendar: {
       title: "Steam ve Oyun İndirim Takvimi 2026",
       description:
@@ -126,6 +136,23 @@ const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: 
       title: "Steam Deck İçin Oyun Fiyatları Rehberi",
       description: "Steam Deck uyumlu oyunları en ucuz nereden alırsın?",
       keywords: ["steam deck fiyat", "steam deck oyun", "deck verified"],
+    },
+    blackFridayGuide: {
+      title: "Black Friday Oyun İndirimleri 2026 Rehberi",
+      description:
+        "Black Friday ve Kasım indirimlerinde Steam, Epic ve konsol fırsatlarını nasıl yakalarsın?",
+      keywords: ["black friday oyun", "black friday steam", "kasım indirimi oyun"],
+    },
+    gogVsSteamGuide: {
+      title: "GOG vs Steam — Hangi Mağazada Alınır?",
+      description: "DRM-free GOG ile Steam fiyatlarını karşılaştır; hangi oyunu nereden almalı?",
+      keywords: ["gog vs steam", "gog steam karşılaştırma", "drm free oyun"],
+    },
+    deckVerifiedGuide: {
+      title: "Steam Deck Verified Nedir? Rehber 2026",
+      description:
+        "Verified, Playable ve Unsupported rozetleri ne anlama gelir? Deck için doğru oyunu seç.",
+      keywords: ["steam deck verified", "deck playable", "steam deck uyumluluk"],
     },
   },
   en: {
@@ -176,6 +203,12 @@ const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: 
       description: "GamePrice helps you track game prices, catch deals, and find the cheapest store.",
       keywords: ["gameprice", "game deal tracker"],
     },
+    privacy: {
+      title: "Privacy Policy — GamePrice",
+      description:
+        "GamePrice privacy policy: what data we collect, cookies, Steam/Google sign-in, and your rights.",
+      keywords: ["gameprice privacy", "cookie policy", "gdpr"],
+    },
     saleCalendar: {
       title: "Steam & Game Sale Calendar 2026",
       description: "Steam Summer Sale, Black Friday, and major gaming sale dates.",
@@ -216,6 +249,21 @@ const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: 
       title: "Steam Deck Game Prices Guide",
       description: "Find the cheapest verified Steam Deck games.",
       keywords: ["steam deck prices", "deck verified games"],
+    },
+    blackFridayGuide: {
+      title: "Black Friday Game Deals 2026 Guide",
+      description: "Catch Steam, Epic, and console deals during Black Friday and November sales.",
+      keywords: ["black friday game deals", "black friday steam", "november game sales"],
+    },
+    gogVsSteamGuide: {
+      title: "GOG vs Steam — Where to Buy?",
+      description: "Compare DRM-free GOG with Steam prices and pick the right store.",
+      keywords: ["gog vs steam", "gog steam comparison", "drm free games"],
+    },
+    deckVerifiedGuide: {
+      title: "What Is Steam Deck Verified? 2026 Guide",
+      description: "Verified, Playable, and Unsupported badges explained for Deck buyers.",
+      keywords: ["steam deck verified", "deck playable", "steam deck compatibility"],
     },
   },
 };

@@ -17,9 +17,15 @@
     "vapid:generate": "npx tsx scripts/generate-vapid-keys.ts",
     "test:e2e": "playwright test",
     "test": "vitest run",
-    "deploy": "npx vercel deploy --prod --yes"
+    "deploy": "npx vercel deploy --prod --yes",
+    "cap:sync": "npx cap sync android",
+    "cap:open": "npx cap open android",
+    "android:apk": "cd android && ./gradlew assembleDebug"
   },
   "dependencies": {
+    "@capacitor/android": "^8.4.1",
+    "@capacitor/cli": "^8.4.1",
+    "@capacitor/core": "^8.4.1",
     "@eslint/eslintrc": "^3.3.5",
     "@prisma/client": "^5.22.0",
     "@sentry/nextjs": "^10.64.0",

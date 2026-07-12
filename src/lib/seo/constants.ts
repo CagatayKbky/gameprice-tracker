@@ -19,6 +19,7 @@ export const PUBLIC_STATIC_ROUTES = [
   { path: "/bundles", priority: 0.75, changeFrequency: "daily" as const },
   { path: "/pricing", priority: 0.7, changeFrequency: "weekly" as const },
   { path: "/about", priority: 0.65, changeFrequency: "monthly" as const },
+  { path: "/privacy", priority: 0.6, changeFrequency: "monthly" as const },
   { path: "/guides", priority: 0.85, changeFrequency: "weekly" as const },
   ...GUIDE_CATALOG.map((guide) => ({
     path: `/guides/${guide.slug}`,

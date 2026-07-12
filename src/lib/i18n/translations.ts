@@ -103,6 +103,7 @@ const tr: TranslationDict = {
   "notifications.markAllRead": "Tümünü okundu işaretle",
   "notifications.empty": "Henüz bildirim yok. Fiyat alarmı kur veya istek listene oyun ekle.",
   "nav.notifications": "Bildirimler",
+  "nav.admin": "Admin",
   "libraryInsights.title": "Kütüphane İçgörüleri",
   "libraryInsights.subtitle": "Oynama süresi, backlog ve unutulan oyunlar.",
   "libraryInsights.totalGames": "Toplam oyun",
@@ -116,7 +117,8 @@ const tr: TranslationDict = {
   "libraryInsights.avgPlaytime": "Oyun başına ortalama {hours} saat oynama süresi.",
 
   "referral.title": "Arkadaşını Davet Et",
-  "referral.subtitle": "3 arkadaş davet et, Summer Sale çerçevesi kazan.",
+  "referral.subtitle": "3 davet = Summer Sale çerçevesi · 5 davet = 7 gün Pro",
+  "referral.proReward": "5. davette 7 gün GamePrice Pro kazanırsın.",
   "referral.copy": "Linki kopyala",
   "referral.copied": "Kopyalandı",
   "referral.stats": "Kodun: {code} · {count} davet",
@@ -312,6 +314,7 @@ const tr: TranslationDict = {
   "footer.account.alerts": "Fiyat Alarmları",
   "footer.account.settings": "Ayarlar",
   "footer.account.about": "Hakkında",
+  "footer.account.privacy": "Gizlilik",
   "footer.platforms": "Platformlar",
   "footer.copyright":
     "© {year} GamePrice. Fiyat verileri CheapShark, Steam, Xbox ve PlayStation API'lerinden sağlanır.",
@@ -536,6 +539,12 @@ const tr: TranslationDict = {
   "admin.stat.proUsers": "Pro Üye",
   "admin.stat.notifications7d": "Bildirim (7g)",
   "admin.stat.referrals": "Davet",
+  "admin.stat.googleUsers": "Google Kullanıcı",
+  "admin.sessionRequired": "Admin paneline erişmek için Google ile giriş yapın ve admin yetkisine sahip olun.",
+  "admin.goSettings": "Ayarlara Git",
+  "admin.googleUsers.title": "Google ile Kayıtlı Kullanıcılar",
+  "admin.googleUsers.subtitle": "Google hesabıyla giriş yapmış tüm kullanıcılar.",
+  "admin.googleUsers.empty": "Henüz Google ile giriş yapan kullanıcı yok.",
   "admin.syncStatus": "Senkron Durumu",
   "admin.sync.steam": "Steam kataloğu",
   "admin.sync.rawg": "RAWG kataloğu",
@@ -648,6 +657,9 @@ const tr: TranslationDict = {
   "auth.steam.connectedFallback": "Bağlı",
   "auth.steam.error": "Steam girişi başarısız oldu",
   "auth.steam.success": "Steam hesabı bağlandı",
+  "auth.loginTitle": "Hesap Bağlantıları",
+  "auth.googleLogin": "Google ile Giriş",
+  "auth.googleConnected": "Google hesabı bağlı",
   "auth.logout": "Çıkış Yap",
   "auth.logoutConfirm": "Hesabınızdan çıkış yapmak istediğinize emin misiniz?",
 
@@ -833,6 +845,64 @@ const tr: TranslationDict = {
   "guides.steamDeck.tip2": "Türkiye Steam fiyatlarını GamePrice ile karşılaştır.",
   "guides.steamDeck.tip3": "Yaz/kış Steam indirimlerinde toplu alım yap.",
   "guides.steamDeck.cta": "Kataloğa git",
+
+  "privacy.title": "Gizlilik Politikası",
+  "privacy.subtitle": "GamePrice'da verilerin nasıl işlendiği.",
+  "privacy.updated": "Son güncelleme: Temmuz 2026",
+  "privacy.sections.data.title": "Topladığımız veriler",
+  "privacy.sections.data.body":
+    "Oturum çerezi, istek listesi, fiyat alarmları ve profil tercihlerini saklarıyoruz. Steam veya Google ile giriş yaparsan ilgili hesap kimliği ve görünen ad/avatar bilgisi profiline bağlanır. Ödeme bilgileri doğrudan iyzico üzerinden işlenir; kart verisi sunucularımızda tutulmaz.",
+  "privacy.sections.cookies.title": "Çerezler",
+  "privacy.sections.cookies.body":
+    "Dil tercihi, oturum ve (onay verirsen) analitik çerezleri kullanıyoruz. Tarayıcı ayarlarından çerezleri silebilir veya engelleyebilirsin; bazı özellikler çalışmayabilir.",
+  "privacy.sections.thirdParty.title": "Üçüncü taraflar",
+  "privacy.sections.thirdParty.body":
+    "Fiyat verileri CheapShark, Steam, Xbox ve PlayStation API'lerinden gelir. Google/Steam OAuth yalnızca giriş için kullanılır. E-posta bildirimleri seçtiğin sağlayıcı üzerinden gönderilir.",
+  "privacy.sections.rights.title": "Hakların",
+  "privacy.sections.rights.body":
+    "Verilerini görüntülemek veya silmek için ayarlar sayfasından çıkış yapıp çerezleri temizleyebilirsin. KVKK kapsamında talepler için iletişim bölümündeki e-postayı kullan.",
+  "privacy.sections.contact.title": "İletişim",
+  "privacy.sections.contact.body":
+    "Gizlilik soruları: kabakayas@gmail.com. GamePrice ticari bir fiyat karşılaştırma aracıdır; mağaza fiyatları anlık değişebilir.",
+
+  "guides.blackFriday.cardTitle": "Black Friday Oyun İndirimleri",
+  "guides.blackFriday.cardSubtitle": "Kasım fırsatlarını yakala",
+  "guides.blackFriday.cardDesc": "Black Friday'de Steam, Epic ve konsol indirimlerini nasıl takip edersin?",
+  "guides.blackFriday.title": "Black Friday Oyun İndirimleri 2026",
+  "guides.blackFriday.subtitle": "Kasım ayının en büyük fırsatlarını kaçırma.",
+  "guides.blackFriday.p1":
+    "Black Friday genelde Kasım sonunda başlar; Steam Autumn Sale, Epic indirimleri ve konsol mağazaları aynı dönemde örtüşür. Wishlist ve fiyat alarmı kurarak gece yarısı fiyat düşüşlerini yakalayabilirsin.",
+  "guides.blackFriday.h2tips": "Strateji",
+  "guides.blackFriday.tip1": "İstek listene hedef oyunları ekle; tarihsel dip ile karşılaştır.",
+  "guides.blackFriday.tip2": "Bundle ve key sitelerini GamePrice ile tek ekranda kıyasla.",
+  "guides.blackFriday.tip3": "Cyber Monday'de ikinci dalga indirimleri kontrol et.",
+  "guides.blackFriday.cta": "Günün indirimlerine git",
+
+  "guides.gogVsSteam.cardTitle": "GOG vs Steam",
+  "guides.gogVsSteam.cardSubtitle": "Hangi mağazada alınır?",
+  "guides.gogVsSteam.cardDesc": "DRM-free GOG ile Steam fiyatlarını karşılaştır.",
+  "guides.gogVsSteam.title": "GOG vs Steam — Karşılaştırma",
+  "guides.gogVsSteam.subtitle": "DRM-free mi, Steam kütüphanesi mi?",
+  "guides.gogVsSteam.p1":
+    "GOG çoğu klasik ve bağımsız oyunda DRM-free kopya sunar; Steam ise sosyal özellikler, Workshop ve geniş kütüphane entegrasyonu sağlar. Aynı oyun bazen her iki mağazada farklı fiyata düşer.",
+  "guides.gogVsSteam.h2tips": "Ne zaman hangisi?",
+  "guides.gogVsSteam.tip1": "Kalıcı koleksiyon istiyorsan GOG indirimlerini takip et.",
+  "guides.gogVsSteam.tip2": "Arkadaşlarla oynayacaksan Steam sürümü genelde daha mantıklı.",
+  "guides.gogVsSteam.tip3": "GamePrice karşılaştırma sayfasında anlık fiyat farkını gör.",
+  "guides.gogVsSteam.cta": "Fiyat karşılaştır",
+
+  "guides.deckVerified.cardTitle": "Steam Deck Verified",
+  "guides.deckVerified.cardSubtitle": "Rozetler ne anlama gelir?",
+  "guides.deckVerified.cardDesc": "Verified, Playable ve Unsupported farkını öğren.",
+  "guides.deckVerified.title": "Steam Deck Verified Nedir?",
+  "guides.deckVerified.subtitle": "Deck için doğru oyunu seç.",
+  "guides.deckVerified.p1":
+    "Verified: kontrolcü, ekran ve performans Deck için optimize. Playable: oynanabilir ama klavye/mouse veya küçük ayar gerekebilir. Unsupported: resmi uyumluluk yok; topluluk yine de çalıştırabilir.",
+  "guides.deckVerified.h2tips": "Satın almadan önce",
+  "guides.deckVerified.tip1": "Steam mağaza sayfasındaki Deck uyumluluk rozetini kontrol et.",
+  "guides.deckVerified.tip2": "ProtonDB yorumlarına ek olarak GamePrice fiyat geçmişine bak.",
+  "guides.deckVerified.tip3": "Verified oyunlarda indirim dönemlerini takvimle planla.",
+  "guides.deckVerified.cta": "Deck oyun fiyatları",
 };
 
 const en: TranslationDict = {
@@ -931,6 +1001,7 @@ const en: TranslationDict = {
   "notifications.markAllRead": "Mark all read",
   "notifications.empty": "No notifications yet. Set a price alert or add wishlist games.",
   "nav.notifications": "Notifications",
+  "nav.admin": "Admin",
   "libraryInsights.title": "Library Insights",
   "libraryInsights.subtitle": "Playtime, backlog, and forgotten games.",
   "libraryInsights.totalGames": "Total games",
@@ -944,7 +1015,8 @@ const en: TranslationDict = {
   "libraryInsights.avgPlaytime": "Average {hours} hours played per game.",
 
   "referral.title": "Invite Friends",
-  "referral.subtitle": "Invite 3 friends to unlock the Summer Sale frame.",
+  "referral.subtitle": "3 invites = Summer Sale frame · 5 invites = 7 days Pro",
+  "referral.proReward": "Your 5th invite unlocks 7 days of GamePrice Pro.",
   "referral.copy": "Copy link",
   "referral.copied": "Copied",
   "referral.stats": "Your code: {code} · {count} invites",
@@ -1140,6 +1212,7 @@ const en: TranslationDict = {
   "footer.account.alerts": "Price Alerts",
   "footer.account.settings": "Settings",
   "footer.account.about": "About",
+  "footer.account.privacy": "Privacy",
   "footer.platforms": "Platforms",
   "footer.copyright":
     "© {year} GamePrice. Price data provided by CheapShark, Steam, Xbox, and PlayStation APIs.",
@@ -1364,6 +1437,12 @@ const en: TranslationDict = {
   "admin.stat.proUsers": "Pro Users",
   "admin.stat.notifications7d": "Notifs (7d)",
   "admin.stat.referrals": "Referrals",
+  "admin.stat.googleUsers": "Google Users",
+  "admin.sessionRequired": "Sign in with Google and have admin access to use the admin panel.",
+  "admin.goSettings": "Go to Settings",
+  "admin.googleUsers.title": "Google Sign-In Users",
+  "admin.googleUsers.subtitle": "All users who signed in with a Google account.",
+  "admin.googleUsers.empty": "No Google sign-in users yet.",
   "admin.syncStatus": "Sync Status",
   "admin.sync.steam": "Steam catalog",
   "admin.sync.rawg": "RAWG catalog",
@@ -1476,6 +1555,9 @@ const en: TranslationDict = {
   "auth.steam.connectedFallback": "Connected",
   "auth.steam.error": "Steam sign-in failed",
   "auth.steam.success": "Steam account connected",
+  "auth.loginTitle": "Account Connections",
+  "auth.googleLogin": "Sign in with Google",
+  "auth.googleConnected": "Google account connected",
   "auth.logout": "Sign Out",
   "auth.logoutConfirm": "Are you sure you want to sign out?",
 
@@ -1662,6 +1744,64 @@ const en: TranslationDict = {
   "guides.steamDeck.tip2": "Compare Turkey Steam prices on GamePrice.",
   "guides.steamDeck.tip3": "Buy in bulk during summer/winter Steam sales.",
   "guides.steamDeck.cta": "Browse catalog",
+
+  "privacy.title": "Privacy Policy",
+  "privacy.subtitle": "How GamePrice handles your data.",
+  "privacy.updated": "Last updated: July 2026",
+  "privacy.sections.data.title": "Data we collect",
+  "privacy.sections.data.body":
+    "We store session cookies, wishlists, price alerts, and profile preferences. If you sign in with Steam or Google, we link the account ID and display name/avatar. Payments are processed by iyzico; we do not store card details.",
+  "privacy.sections.cookies.title": "Cookies",
+  "privacy.sections.cookies.body":
+    "We use cookies for language, session, and (with consent) analytics. You can clear or block cookies in your browser; some features may stop working.",
+  "privacy.sections.thirdParty.title": "Third parties",
+  "privacy.sections.thirdParty.body":
+    "Price data comes from CheapShark, Steam, Xbox, and PlayStation APIs. Google/Steam OAuth is used only for sign-in. Email alerts are sent via your chosen provider.",
+  "privacy.sections.rights.title": "Your rights",
+  "privacy.sections.rights.body":
+    "To view or delete data, sign out and clear cookies from settings. For GDPR/KVKK requests, use the contact email below.",
+  "privacy.sections.contact.title": "Contact",
+  "privacy.sections.contact.body":
+    "Privacy questions: kabakayas@gmail.com. GamePrice is a price comparison tool; store prices may change instantly.",
+
+  "guides.blackFriday.cardTitle": "Black Friday Game Deals",
+  "guides.blackFriday.cardSubtitle": "Catch November sales",
+  "guides.blackFriday.cardDesc": "How to track Steam, Epic, and console deals on Black Friday.",
+  "guides.blackFriday.title": "Black Friday Game Deals 2026",
+  "guides.blackFriday.subtitle": "Don't miss November's biggest discounts.",
+  "guides.blackFriday.p1":
+    "Black Friday usually starts late November; Steam Autumn Sale, Epic promos, and console stores often overlap. Use wishlists and price alerts to catch midnight drops.",
+  "guides.blackFriday.h2tips": "Strategy",
+  "guides.blackFriday.tip1": "Add target games to your wishlist; compare against historical lows.",
+  "guides.blackFriday.tip2": "Compare bundles and key stores in one GamePrice view.",
+  "guides.blackFriday.tip3": "Check Cyber Monday for a second wave of deals.",
+  "guides.blackFriday.cta": "View today's deals",
+
+  "guides.gogVsSteam.cardTitle": "GOG vs Steam",
+  "guides.gogVsSteam.cardSubtitle": "Where to buy?",
+  "guides.gogVsSteam.cardDesc": "Compare DRM-free GOG with Steam prices.",
+  "guides.gogVsSteam.title": "GOG vs Steam — Comparison",
+  "guides.gogVsSteam.subtitle": "DRM-free or Steam library?",
+  "guides.gogVsSteam.p1":
+    "GOG often offers DRM-free copies for classics and indies; Steam adds social features, Workshop, and library integration. The same title can dip to different prices on each store.",
+  "guides.gogVsSteam.h2tips": "When to pick which",
+  "guides.gogVsSteam.tip1": "Want a permanent offline collection? Watch GOG sales.",
+  "guides.gogVsSteam.tip2": "Playing with friends? Steam edition is usually better.",
+  "guides.gogVsSteam.tip3": "See live price gaps on GamePrice compare.",
+  "guides.gogVsSteam.cta": "Compare prices",
+
+  "guides.deckVerified.cardTitle": "Steam Deck Verified",
+  "guides.deckVerified.cardSubtitle": "What badges mean",
+  "guides.deckVerified.cardDesc": "Verified, Playable, and Unsupported explained.",
+  "guides.deckVerified.title": "What Is Steam Deck Verified?",
+  "guides.deckVerified.subtitle": "Pick the right game for Deck.",
+  "guides.deckVerified.p1":
+    "Verified: controls, display, and performance tuned for Deck. Playable: works but may need keyboard/mouse or tweaks. Unsupported: no official rating; community may still run it.",
+  "guides.deckVerified.h2tips": "Before you buy",
+  "guides.deckVerified.tip1": "Check the Deck compatibility badge on the Steam store page.",
+  "guides.deckVerified.tip2": "Pair ProtonDB notes with GamePrice price history.",
+  "guides.deckVerified.tip3": "Plan Verified purchases around sale calendar peaks.",
+  "guides.deckVerified.cta": "Deck game prices",
 };
 
 const dictionaries: Record<Locale, TranslationDict> = { tr, en };

@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">GamePrice</string>
+    <string name="title_activity_main">GamePrice</string>
+    <string name="package_name">org.gameprice.app</string>
+    <string name="custom_url_scheme">org.gameprice.app</string>
+</resources>

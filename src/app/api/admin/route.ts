@@ -6,29 +6,33 @@ import { getRecentJobLogs } from "@/lib/services/job-log";
 import {
   searchUserProfiles,
   setUserAccess,
-  setUserAdmin,
   setUserPro,
+  listGoogleUsers,
   type UserIdentifierType,
 } from "@/lib/services/admin-users";
 import { grantUserCosmetic } from "@/lib/services/profile-cosmetics";
-
-function authorizeAdmin(request: NextRequest): boolean {
-  const secret = process.env.ADMIN_SECRET;
-  if (!secret) return false;
-  const header = request.headers.get("authorization");
-  const queryKey = request.nextUrl.searchParams.get("key");
-  return header === `Bearer ${secret}` || queryKey === secret;
-}
+import { requireAdmin } from "@/lib/auth/admin";
 
 export async function GET(request: NextRequest) {
-  if (!authorizeAdmin(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireAdmin(request);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   const usersQuery = request.nextUrl.searchParams.get("users");
-  const users = usersQuery ? await searchUserProfiles(usersQuery) : undefined;
+  const listGoogle = request.nextUrl.searchParams.get("google") === "1";
+  const page = Math.max(1, parseInt(request.nextUrl.searchParams.get("page") || "1", 10));
 
-  const [syncStatus, trackedGames, activeAlerts, wishlistItems, profiles, jobLogs, proUsers, notifications7d, referrals] =
+  let users;
+  let googleUserList;
+  if (listGoogle) {
+    googleUserList = await listGoogleUsers(page);
+    users = googleUserList.users;
+  } else if (usersQuery) {
+    users = await searchUserProfiles(usersQuery);
+  }
+
+  const [syncStatus, trackedGames, activeAlerts, wishlistItems, profiles, jobLogs, proUsers, notifications7d, referrals, googleUsers] =
     await Promise.all([
       getCatalogSyncStatus(),
       prisma.trackedGame.count(),
@@ -41,6 +45,7 @@ export async function GET(request: NextRequest) {
         where: { createdAt: { gte: new Date(Date.now() - 7 * 86400000) } },
       }),
       prisma.userProfile.count({ where: { referredBySessionId: { not: null } } }),
+      prisma.userProfile.count({ where: { googleId: { not: null } } }),
     ]);
 
   return NextResponse.json({
@@ -53,6 +58,7 @@ export async function GET(request: NextRequest) {
       proUsers,
       notifications7d,
       referrals,
+      googleUsers,
     },
     env: {
       rawgEnabled: Boolean(process.env.RAWG_API_KEY),
@@ -79,8 +85,9 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  if (!authorizeAdmin(request)) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  const auth = await requireAdmin(request);
+  if (!auth.ok) {
+    return NextResponse.json({ error: auth.error }, { status: auth.status });
   }
 
   const body = await request.json().catch(() => ({}));
@@ -128,12 +135,7 @@ export async function POST(request: NextRequest) {
   }
 
   if (action === "make-me-admin") {
-    const sessionId = request.cookies.get(SESSION_COOKIE)?.value;
-    if (!sessionId) {
-      return NextResponse.json({ error: "No active session" }, { status: 400 });
-    }
-    const profile = await setUserAdmin(sessionId, true);
-    return NextResponse.json({ ok: true, profile });
+    return NextResponse.json({ error: "use_google_admin_emails" }, { status: 400 });
   }
 
   if (action === "make-me-pro") {

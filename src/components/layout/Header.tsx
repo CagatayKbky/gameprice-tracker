@@ -20,6 +20,7 @@ import {
   Sparkles,
   Users,
   BookOpen,
+  Shield,
 } from "lucide-react";
 import { CurrencySwitcher } from "@/components/layout/CurrencySwitcher";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
@@ -38,7 +39,7 @@ const primaryNavItems = [
   { href: "/alerts", labelKey: "nav.alerts", icon: Bell },
 ];
 
-const secondaryNavItems = [
+const secondaryNavItemsBase = [
   { href: "/bundles", labelKey: "nav.bundles", icon: Package },
   { href: "/compare", labelKey: "nav.compare", icon: GitCompareArrows },
   { href: "/social", labelKey: "nav.social", icon: Users },
@@ -47,8 +48,6 @@ const secondaryNavItems = [
   { href: "/pricing", labelKey: "nav.premium", icon: Sparkles },
   { href: "/platforms", labelKey: "nav.platforms", icon: Store },
 ];
-
-const allNavItems = [...primaryNavItems, ...secondaryNavItems];
 
 function getBadge(
   href: string,
@@ -68,6 +67,7 @@ export function Header() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [counts, setCounts] = useState({ wishlist: 0, alerts: 0, notifications: 0 });
+  const [isAdmin, setIsAdmin] = useState(false);
   const { games: compareGames } = useCompare();
 
   useEffect(() => {
@@ -75,8 +75,9 @@ export function Header() {
       fetch("/api/wishlist").then((r) => r.json()),
       fetch("/api/alerts").then((r) => r.json()),
       fetch("/api/notifications").then((r) => r.json()),
+      fetch("/api/profile").then((r) => r.json()),
     ])
-      .then(([wishlist, alerts, notifications]) => {
+      .then(([wishlist, alerts, notifications, profile]) => {
         setCounts({
           wishlist: Array.isArray(wishlist) ? wishlist.length : 0,
           alerts: Array.isArray(alerts)
@@ -84,9 +85,23 @@ export function Header() {
             : 0,
           notifications: notifications?.unread || 0,
         });
+        setIsAdmin(Boolean(profile?.isAdmin));
       })
       .catch(() => {});
   }, [pathname]);
+
+  const secondaryNavItems = [
+    { href: "/bundles", labelKey: "nav.bundles", icon: Package },
+    { href: "/compare", labelKey: "nav.compare", icon: GitCompareArrows },
+    { href: "/social", labelKey: "nav.social", icon: Users },
+    { href: "/notifications", labelKey: "nav.notifications", icon: Bell },
+    { href: "/guides", labelKey: "nav.guides", icon: BookOpen },
+    { href: "/pricing", labelKey: "nav.premium", icon: Sparkles },
+    { href: "/platforms", labelKey: "nav.platforms", icon: Store },
+    ...(isAdmin ? [{ href: "/admin", labelKey: "nav.admin", icon: Shield }] : []),
+  ];
+
+  const allNavItems = [...primaryNavItems, ...secondaryNavItems];
 
   useEffect(() => {
     setMoreOpen(false);
