@@ -16,6 +16,7 @@ import { PersonalizedHomeSection } from "@/components/home/PersonalizedHomeSecti
 import { FriendActivityStrip } from "@/components/home/FriendActivityStrip";
 import { HomeLiveStats } from "@/components/home/HomeLiveStats";
 import { EpicFreeSection } from "@/components/home/EpicFreeSection";
+import { HomeDownloadSection } from "@/components/home/HomeDownloadSection";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildPageMetadata } from "@/lib/seo/page-metadata";
 import { buildSiteJsonLd } from "@/lib/seo/site-schemas";
@@ -193,6 +194,8 @@ export default async function HomePage() {
       <HomeHowItWorks />
 
       <HomeCtaBanner />
+
+      <HomeDownloadSection />
 
       <section className="max-w-7xl mx-auto px-4 sm:px-6 py-16 border-t border-border/50">
         <h2 className="text-2xl sm:text-3xl font-bold text-center mb-10">

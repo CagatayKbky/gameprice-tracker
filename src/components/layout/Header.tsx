@@ -21,7 +21,9 @@ import {
   Users,
   BookOpen,
   Shield,
+  Smartphone,
 } from "lucide-react";
+import { Logo } from "@/components/brand/Logo";
 import { CurrencySwitcher } from "@/components/layout/CurrencySwitcher";
 import { ThemeToggle } from "@/components/layout/ThemeToggle";
 import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
@@ -81,6 +83,7 @@ export function Header() {
   }, [pathname]);
 
   const secondaryNavItems = [
+    { href: "/download", labelKey: "nav.download", icon: Smartphone },
     { href: "/bundles", labelKey: "nav.bundles", icon: Package },
     { href: "/compare", labelKey: "nav.compare", icon: GitCompareArrows },
     { href: "/social", labelKey: "nav.social", icon: Users },
@@ -104,12 +107,7 @@ export function Header() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <div className="flex items-center h-16 gap-2 sm:gap-3 min-w-0">
           <Link href="/" className="flex items-center gap-2 shrink-0">
-            <div className="w-9 h-9 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-              <Gamepad2 className="w-5 h-5 text-white" />
-            </div>
-            <span className="text-xl font-bold gradient-text hidden sm:block">
-              GamePrice
-            </span>
+            <Logo size="sm" showWordmark className="max-sm:[&>span:last-child]:hidden" />
           </Link>
 
           <div className="flex-1 min-w-0 hidden md:block max-w-md lg:max-w-sm xl:max-w-md">

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { PLATFORMS } from "@/lib/platforms";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { Logo } from "@/components/brand/Logo";
 
 export function Footer() {
   const { t } = useLocale();
@@ -36,7 +37,7 @@ export function Footer() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-8">
           <div className="lg:col-span-2">
-            <h3 className="text-lg font-bold gradient-text mb-3">GamePrice</h3>
+            <Logo size="md" className="mb-3" />
             <p className="text-sm text-muted leading-relaxed max-w-sm">
               {t("footer.tagline")}
             </p>

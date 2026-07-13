@@ -23,6 +23,33 @@ const tr: TranslationDict = {
   "nav.premium": "Pro",
   "nav.social": "Sosyal",
   "nav.guides": "Rehberler",
+  "nav.download": "İndir",
+
+  // ── Download ────────────────────────────────────────────────────────────
+  "download.home.title": "GamePrice'ı cebine al",
+  "download.home.subtitle":
+    "Android APK veya Chrome PWA ile indirimleri, alarmları ve istek listeni her yerden takip et. Uygulama her zaman güncel kalır.",
+  "download.home.apk": "APK İndir",
+  "download.home.details": "Kurulum rehberi",
+  "download.home.hintApk": "APK: Play Store olmadan doğrudan kurulum",
+  "download.home.hintPwa": "PWA: Chrome menüsünden «Uygulamayı yükle»",
+  "download.page.title": "GamePrice Android",
+  "download.page.subtitle":
+    "Play Store olmadan APK ile yükle. Uygulama gameprice.org üzerinden çalışır — her zaman güncel.",
+  "download.page.cta": "APK İndir (Android)",
+  "download.page.feature.speed.title": "Hızlı erişim",
+  "download.page.feature.speed.desc": "Ana ekrandan tek dokunuşla aç",
+  "download.page.feature.secure.title": "Güvenli",
+  "download.page.feature.secure.desc": "Resmi gameprice.org bağlantısı",
+  "download.page.feature.mobile.title": "Mobil UX",
+  "download.page.feature.mobile.desc": "Alt menü ve tam ekran deneyim",
+  "download.page.steps.title": "Kurulum adımları",
+  "download.page.steps.1": "Yukarıdaki butondan APK dosyasını indir",
+  "download.page.steps.2": 'Android ayarlarından "Bilinmeyen kaynaklardan yükleme"ye izin ver',
+  "download.page.steps.3": "İndirilen gameprice.apk dosyasına dokun",
+  "download.page.steps.4": "Kurulumu tamamla ve GamePrice'ı aç",
+  "download.page.pwaHint":
+    'Chrome kullanıyorsan PWA olarak da kurabilirsin: menü → "Uygulamayı yükle".',
 
   // ── Theme & Language ────────────────────────────────────────────────────
   "theme.light": "Açık tema",
@@ -982,6 +1009,33 @@ const en: TranslationDict = {
   "nav.premium": "Pro",
   "nav.social": "Social",
   "nav.guides": "Guides",
+  "nav.download": "Download",
+
+  // ── Download ────────────────────────────────────────────────────────────
+  "download.home.title": "Take GamePrice with you",
+  "download.home.subtitle":
+    "Track deals, alerts, and your wishlist anywhere with the Android APK or Chrome PWA. The app always stays up to date.",
+  "download.home.apk": "Download APK",
+  "download.home.details": "Install guide",
+  "download.home.hintApk": "APK: Direct install without the Play Store",
+  "download.home.hintPwa": "PWA: Chrome menu → “Install app”",
+  "download.page.title": "GamePrice Android",
+  "download.page.subtitle":
+    "Install via APK without the Play Store. The app runs on gameprice.org — always up to date.",
+  "download.page.cta": "Download APK (Android)",
+  "download.page.feature.speed.title": "Quick access",
+  "download.page.feature.speed.desc": "Open from your home screen in one tap",
+  "download.page.feature.secure.title": "Secure",
+  "download.page.feature.secure.desc": "Official gameprice.org connection",
+  "download.page.feature.mobile.title": "Mobile UX",
+  "download.page.feature.mobile.desc": "Bottom nav and full-screen experience",
+  "download.page.steps.title": "Installation steps",
+  "download.page.steps.1": "Download the APK using the button above",
+  "download.page.steps.2": 'Allow installs from unknown sources in Android settings',
+  "download.page.steps.3": "Tap the downloaded gameprice.apk file",
+  "download.page.steps.4": "Complete setup and open GamePrice",
+  "download.page.pwaHint":
+    'On Chrome you can also install as a PWA: menu → "Install app".',
 
   // ── Theme & Language ────────────────────────────────────────────────────
   "theme.light": "Light theme",

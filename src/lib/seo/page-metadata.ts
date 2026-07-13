@@ -12,6 +12,7 @@ type PageSeoKey =
   | "compare"
   | "pricing"
   | "about"
+  | "download"
   | "privacy"
   | "saleCalendar"
   | "guidesHub"
@@ -85,6 +86,12 @@ const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: 
       description:
         "GamePrice; oyun fiyatlarını takip etmen, indirimleri yakalaman ve en ucuz mağazayı bulman için yapıldı.",
       keywords: ["gameprice", "oyun fiyat takip sitesi"],
+    },
+    download: {
+      title: "GamePrice Android Uygulaması İndir",
+      description:
+        "GamePrice Android APK indir. Oyun fiyat takibi, indirim alarmları ve istek listesi — mobilde her zaman güncel.",
+      keywords: ["gameprice apk", "oyun fiyat uygulaması", "android oyun indirim"],
     },
     privacy: {
       title: "Gizlilik Politikası — GamePrice",
@@ -202,6 +209,12 @@ const SEO_COPY: Record<Locale, Record<PageSeoKey, { title: string; description: 
       title: "About GamePrice",
       description: "GamePrice helps you track game prices, catch deals, and find the cheapest store.",
       keywords: ["gameprice", "game deal tracker"],
+    },
+    download: {
+      title: "Download GamePrice Android App",
+      description:
+        "Download the GamePrice Android APK. Track game prices, deal alerts, and your wishlist — always up to date on mobile.",
+      keywords: ["gameprice apk", "game price app", "android game deals"],
     },
     privacy: {
       title: "Privacy Policy — GamePrice",

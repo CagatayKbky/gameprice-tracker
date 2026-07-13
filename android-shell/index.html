@@ -19,17 +19,14 @@
       }
       .wrap { text-align: center; padding: 2rem; }
       .logo {
-        width: 72px;
-        height: 72px;
-        border-radius: 18px;
-        background: #6366f1;
-        display: grid;
-        place-items: center;
+        width: 80px;
+        height: 80px;
+        border-radius: 20px;
         margin: 0 auto 1rem;
-        font-size: 2rem;
-        font-weight: 800;
+        box-shadow: 0 8px 32px rgba(99, 102, 241, 0.25);
+        border: 1px solid rgba(255, 255, 255, 0.1);
       }
-      h1 { font-size: 1.25rem; margin: 0 0 0.5rem; }
+      h1 { font-size: 1.25rem; margin: 0 0 0.5rem; font-weight: 700; }
       p { color: #8f98a0; font-size: 0.875rem; margin: 0; }
       .spinner {
         width: 28px;
@@ -45,7 +42,7 @@
   </head>
   <body>
     <div class="wrap">
-      <div class="logo">GP</div>
+      <img src="logo.png" alt="GamePrice" class="logo" width="80" height="80" />
       <h1>GamePrice</h1>
       <p>Oyun fiyatları yükleniyor…</p>
       <div class="spinner" aria-hidden="true"></div>
