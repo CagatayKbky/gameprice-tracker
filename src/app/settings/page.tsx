@@ -33,6 +33,9 @@ export default function SettingsPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [saved, setSaved] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [discordTesting, setDiscordTesting] = useState(false);
+  const [discordTestResult, setDiscordTestResult] = useState<"ok" | "fail" | null>(null);
   const [authBanner, setAuthBanner] = useState<string | null>(null);
 
   useEffect(() => {
@@ -76,8 +79,10 @@ export default function SettingsPage() {
     e.preventDefault();
     setSaving(true);
     setSaved(false);
+    setSaveError(null);
+    setDiscordTestResult(null);
     try {
-      await fetch("/api/profile", {
+      const res = await fetch("/api/profile", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -86,7 +91,7 @@ export default function SettingsPage() {
           emailNotifications,
           weeklyDigest,
           pushNotifications,
-          discordWebhook: discordWebhook || null,
+          discordWebhook: discordWebhook.trim() || null,
           telegramChatId: telegramChatId || null,
           wishlistDealAlerts,
           freeGameNotify,
@@ -94,10 +99,51 @@ export default function SettingsPage() {
           publicProfile,
         }),
       });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        if (data.error === "pro_required") {
+          setSaveError(t("settings.proRequired"));
+        } else if (data.error === "invalid_discord_webhook") {
+          setSaveError(t("settings.invalidWebhook"));
+        } else {
+          setSaveError(t("settings.saveError"));
+        }
+        return;
+      }
       setSaved(true);
       setTimeout(() => setSaved(false), 3000);
     } finally {
       setSaving(false);
+    }
+  };
+
+  const testDiscordWebhook = async () => {
+    if (!discordWebhook.trim()) return;
+    setDiscordTesting(true);
+    setDiscordTestResult(null);
+    setSaveError(null);
+    try {
+      const res = await fetch("/api/profile/discord-test", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ webhookUrl: discordWebhook.trim() }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (res.ok) {
+        setDiscordTestResult("ok");
+      } else if (data.error === "invalid_discord_webhook") {
+        setSaveError(t("settings.invalidWebhook"));
+        setDiscordTestResult("fail");
+      } else if (data.error === "pro_required") {
+        setSaveError(t("settings.proRequired"));
+        setDiscordTestResult("fail");
+      } else {
+        setDiscordTestResult("fail");
+      }
+    } catch {
+      setDiscordTestResult("fail");
+    } finally {
+      setDiscordTesting(false);
     }
   };
 
@@ -120,6 +166,12 @@ export default function SettingsPage() {
       {authBanner && (
         <p className="mb-6 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
           {authBanner}
+        </p>
+      )}
+
+      {saveError && (
+        <p className="mb-6 rounded-xl border border-red-400/30 bg-red-400/10 px-4 py-3 text-sm text-red-300">
+          {saveError}
         </p>
       )}
 
@@ -307,11 +359,38 @@ export default function SettingsPage() {
             <input
               type="url"
               value={discordWebhook}
-              onChange={(e) => setDiscordWebhook(e.target.value)}
+              onChange={(e) => {
+                setDiscordWebhook(e.target.value);
+                setDiscordTestResult(null);
+                setSaveError(null);
+              }}
               placeholder={t("settings.discordPlaceholder")}
               disabled={!isPro}
               className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm disabled:opacity-50"
             />
+            <p className="text-xs text-muted mt-2">{t("settings.discordHint")}</p>
+            {isPro && discordWebhook.trim() && (
+              <div className="mt-3 flex flex-wrap items-center gap-3">
+                <button
+                  type="button"
+                  onClick={() => void testDiscordWebhook()}
+                  disabled={discordTesting}
+                  className="text-sm px-3 py-1.5 rounded-lg border border-border bg-background hover:bg-card-hover disabled:opacity-50"
+                >
+                  {discordTesting ? (
+                    <Loader2 className="w-4 h-4 animate-spin inline" />
+                  ) : (
+                    t("settings.discordTest")
+                  )}
+                </button>
+                {discordTestResult === "ok" && (
+                  <span className="text-xs text-emerald-400">{t("settings.discordTestOk")}</span>
+                )}
+                {discordTestResult === "fail" && (
+                  <span className="text-xs text-red-400">{t("settings.discordTestFail")}</span>
+                )}
+              </div>
+            )}
             {!isPro && (
               <p className="text-xs text-accent">
                 <Link href="/pricing">{t("premium.upgradeCta")}</Link>

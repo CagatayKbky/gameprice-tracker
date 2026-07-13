@@ -6,6 +6,7 @@ import { sendTelegramAlert } from "@/lib/services/telegram";
 import { sendPushToSession } from "@/lib/services/push";
 import { getProfileEmail } from "@/lib/services/profile";
 import { createUserNotification } from "@/lib/services/notifications";
+import { getPremiumStatus } from "@/lib/premium/access";
 
 const MIN_DISCOUNT_NOTIFY = 25;
 
@@ -74,12 +75,15 @@ export async function checkWishlistDealAlerts() {
         });
       }
 
-      if (profile?.discordWebhook) {
+      const premium = await getPremiumStatus(item.sessionId);
+
+      if (premium.isPro && profile?.discordWebhook) {
         await sendDiscordPriceAlert(profile.discordWebhook, {
           gameTitle: item.gameTitle,
           targetPrice: price,
           currentPrice: price,
           gameId: item.cheapSharkGameId,
+          type: "wishlist_deal",
         });
       }
 

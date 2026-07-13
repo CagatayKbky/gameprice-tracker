@@ -5,6 +5,10 @@ import { getProfile, upsertProfile } from "@/lib/services/profile";
 import { prisma } from "@/lib/db";
 import { getPremiumStatus, assertProFeature } from "@/lib/premium/access";
 import { buildProfileAppearance, getUnlockedCosmetics } from "@/lib/services/profile-cosmetics";
+import {
+  isValidDiscordWebhookUrl,
+  normalizeDiscordWebhookUrl,
+} from "@/lib/services/discord";
 
 function ensureSession(request: NextRequest, response: NextResponse): string {
   const existing = request.cookies.get(SESSION_COOKIE)?.value;
@@ -120,7 +124,17 @@ export async function PUT(request: NextRequest) {
         { status: 403, headers: response.headers }
       );
     }
+    if (!isValidDiscordWebhookUrl(discordWebhook)) {
+      return NextResponse.json(
+        { error: "invalid_discord_webhook" },
+        { status: 400, headers: response.headers }
+      );
+    }
   }
+
+  const normalizedDiscordWebhook = discordWebhook
+    ? normalizeDiscordWebhookUrl(discordWebhook)
+    : null;
   if (telegramChatId) {
     const check = await assertProFeature(sessionId, "telegram");
     if (!check.ok) {
@@ -137,7 +151,7 @@ export async function PUT(request: NextRequest) {
     weeklyDigest: weeklyDigest !== false,
     pushNotifications: pushNotifications !== false,
     wishlistDealAlerts: wishlistDealAlerts !== false,
-    discordWebhook: discordWebhook || null,
+    discordWebhook: normalizedDiscordWebhook,
     telegramChatId: telegramChatId || null,
     ...(onboardingDone !== undefined ? { onboardingDone: Boolean(onboardingDone) } : {}),
     ...(freeGameNotify !== undefined ? { freeGameNotify: freeGameNotify !== false } : {}),

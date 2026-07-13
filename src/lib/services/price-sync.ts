@@ -242,12 +242,13 @@ export async function checkAndTriggerAlerts() {
         where: { sessionId: alert.sessionId },
         select: { discordWebhook: true },
       });
-      if (profileForDiscord?.discordWebhook) {
+      if (isPro && profileForDiscord?.discordWebhook) {
         await sendDiscordPriceAlert(profileForDiscord.discordWebhook, {
           gameTitle: alert.gameTitle,
           targetPrice: alert.targetPrice,
           currentPrice,
           gameId: alert.cheapSharkGameId,
+          type: "price_alert",
         });
       }
 
