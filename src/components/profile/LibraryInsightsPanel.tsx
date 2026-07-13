@@ -25,7 +25,7 @@ export function LibraryInsightsPanel({ steamConnected }: { steamConnected: boole
       setLoading(false);
       return;
     }
-    fetch("/api/steam/library?insights=1")
+    fetch("/api/steam/library?insights=1", { signal: AbortSignal.timeout(10_000) })
       .then((r) => r.json())
       .then((json) => setData(json.insights || null))
       .finally(() => setLoading(false));

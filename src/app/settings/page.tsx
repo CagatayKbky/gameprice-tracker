@@ -8,6 +8,8 @@ import { SteamLoginButton } from "@/components/auth/SteamLoginButton";
 import { GoogleLoginButton } from "@/components/auth/GoogleLoginButton";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { usePremium } from "@/components/providers/PremiumProvider";
+import { fetchJson } from "@/lib/fetch-json";
+import { SettingsPageSkeleton } from "@/components/ui/PageLoading";
 import { ProBadge } from "@/components/premium/PricingPlans";
 
 export default function SettingsPage() {
@@ -48,24 +50,23 @@ export default function SettingsPage() {
   }, [t]);
 
   useEffect(() => {
-    fetch("/api/profile")
-      .then((r) => r.json())
+    fetchJson<Record<string, unknown>>("/api/profile?light=1", 10_000)
       .then((data) => {
-        setEmail(data.email || "");
-        setName(data.name || "");
+        setEmail((data.email as string) || "");
+        setName((data.name as string) || "");
         setEmailNotifications(data.emailNotifications !== false);
         setWeeklyDigest(data.weeklyDigest !== false);
         setPushNotifications(data.pushNotifications !== false);
-        setDiscordWebhook(data.discordWebhook || "");
-        setTelegramChatId(data.telegramChatId || "");
+        setDiscordWebhook((data.discordWebhook as string) || "");
+        setTelegramChatId((data.telegramChatId as string) || "");
         setWishlistDealAlerts(data.wishlistDealAlerts !== false);
         setFreeGameNotify(data.freeGameNotify !== false);
         setHideOwnedGames(data.hideOwnedGames !== false);
         setPublicProfile(data.publicProfile !== false);
-        setSteamId(data.steamId || null);
-        setSteamPersona(data.steamPersona || null);
-        setGoogleId(data.googleId || null);
-        setGoogleAvatar(data.googleAvatar || null);
+        setSteamId((data.steamId as string) || null);
+        setSteamPersona((data.steamPersona as string) || null);
+        setGoogleId((data.googleId as string) || null);
+        setGoogleAvatar((data.googleAvatar as string) || null);
       })
       .catch(() => {})
       .finally(() => setLoading(false));
@@ -101,11 +102,7 @@ export default function SettingsPage() {
   };
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-muted" />
-      </div>
-    );
+    return <SettingsPageSkeleton />;
   }
 
   return (

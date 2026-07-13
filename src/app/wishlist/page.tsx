@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Heart, Loader2 } from "lucide-react";
+import { Heart } from "lucide-react";
 import { WishlistItemData } from "@/types";
 import { SteamWishlistImport } from "@/components/games/SteamWishlistImport";
 import { WishlistSavingsBanner } from "@/components/wishlist/WishlistSavingsBanner";
@@ -10,6 +10,8 @@ import { BulkWishlistImport } from "@/components/games/BulkWishlistImport";
 import { WishlistCard } from "@/components/games/WishlistCard";
 import { GameGrid } from "@/components/layout/GameGrid";
 import { SectionHeader } from "@/components/layout/SectionHeader";
+import { GameGridSkeleton } from "@/components/ui/PageLoading";
+import { fetchJson } from "@/lib/fetch-json";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
 interface SubscriptionData {
@@ -27,12 +29,15 @@ export default function WishlistPage() {
   const load = () => {
     setLoading(true);
     Promise.all([
-      fetch("/api/wishlist").then((r) => r.json()),
-      fetch("/api/wishlist/subscriptions").then((r) => r.json()),
-      fetch("/api/profile").then((r) => r.json()),
+      fetchJson<WishlistItemData[]>("/api/wishlist", 10_000).catch(() => []),
+      fetchJson<SubscriptionData>("/api/wishlist/subscriptions", 10_000).catch(() => ({
+        items: [],
+        summary: { gamepass: 0, psplus: 0 },
+      })),
+      fetchJson<{ steamId?: string }>("/api/profile?light=1", 10_000).catch(() => ({})),
     ])
       .then(([wishlist, subs, prof]) => {
-        setSteamId(prof.steamId || null);
+        setSteamId((prof as { steamId?: string }).steamId || null);
         const subMap = new Map<string, { gamepass: boolean; psplus: boolean }>(
           (subs.items || []).map(
             (s: { gameId: string; gamepass: boolean; psplus: boolean }) =>
@@ -101,9 +106,7 @@ export default function WishlistPage() {
       <BulkWishlistImport onImported={load} />
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-muted" />
-        </div>
+        <GameGridSkeleton count={12} />
       ) : items.length === 0 ? (
         <div className="text-center py-20 rounded-2xl border border-dashed border-border bg-card/50">
           <Heart className="w-12 h-12 text-muted mx-auto mb-4" />

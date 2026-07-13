@@ -5,6 +5,7 @@ import {
   normalizeTitle,
   parsePlatforms,
 } from "@/lib/catalog/utils";
+import { getSteamLibraryImage } from "@/lib/game-images";
 
 const STEAM_LIST_URL =
   "https://raw.githubusercontent.com/dgibbs64/SteamCMD-AppID-List/master/steamcmd_appid.json";
@@ -158,6 +159,7 @@ export async function syncSteamCatalog(force = false): Promise<number> {
       titleNorm,
       letter: getCatalogLetter(titleNorm),
       steamAppId: String(app.appid),
+      imageUrl: getSteamLibraryImage(String(app.appid)),
       platforms: JSON.stringify(["steam", "pc"]),
       source: "steam",
     });
@@ -327,4 +329,34 @@ export async function enrichCatalogFromRawgSearch(query: string) {
 
 export function catalogGameToPlatforms(value: string): string[] {
   return parsePlatforms(value);
+}
+
+/** Fill missing Steam library images for catalog rows (batched). */
+export async function backfillSteamCatalogImages(batchSize = 500) {
+  const rows = await prisma.catalogGame.findMany({
+    where: {
+      steamAppId: { not: null },
+      OR: [{ imageUrl: null }, { imageUrl: "" }],
+    },
+    select: { id: true, steamAppId: true },
+    take: batchSize,
+  });
+
+  await Promise.all(
+    rows.map((row) =>
+      prisma.catalogGame.update({
+        where: { id: row.id },
+        data: { imageUrl: getSteamLibraryImage(row.steamAppId!) },
+      })
+    )
+  );
+
+  const remaining = await prisma.catalogGame.count({
+    where: {
+      steamAppId: { not: null },
+      OR: [{ imageUrl: null }, { imageUrl: "" }],
+    },
+  });
+
+  return { updated: rows.length, remaining };
 }

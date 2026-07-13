@@ -43,7 +43,7 @@ export function PremiumProvider({ children }: { children: ReactNode }) {
 
   const refresh = useCallback(async () => {
     try {
-      const res = await fetch("/api/billing/status");
+      const res = await fetch("/api/billing/status", { signal: AbortSignal.timeout(8_000) });
       if (res.ok) setStatus(await res.json());
     } catch {
       /* ignore */

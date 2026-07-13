@@ -61,6 +61,7 @@ export async function fetchSteamWishlist(
       Accept: "application/xml,text/xml",
     },
     next: { revalidate: 600 },
+    signal: AbortSignal.timeout(12_000),
   });
 
   if (!res.ok) {

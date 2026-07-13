@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { X, Settings, LogIn, Heart, Bell } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { fetchJson } from "@/lib/fetch-json";
 import { openNativeAuth } from "@/lib/capacitor/native";
 
 const STEPS = [
@@ -19,8 +20,7 @@ export function OnboardingModal() {
   const [step, setStep] = useState(0);
 
   useEffect(() => {
-    fetch("/api/profile")
-      .then((r) => r.json())
+    fetchJson<{ onboardingDone?: boolean }>("/api/profile?light=1", 8_000)
       .then((p) => {
         if (p.onboardingDone === false || p.onboardingDone === undefined) {
           const dismissed = localStorage.getItem("gp_onboarding_dismissed");

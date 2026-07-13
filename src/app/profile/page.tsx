@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState, useCallback, Suspense } from "react";
+import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
 import { GameImage } from "@/components/ui/GameImage";
 import { resolveGameImage } from "@/lib/game-images";
 import { extractSteamAppId } from "@/lib/game-id";
-import { useSearchParams } from "next/navigation";
+import { fetchJson } from "@/lib/fetch-json";
 import {
   Heart,
   Bell,
@@ -27,6 +27,7 @@ import { ProfileCosmeticsPanel } from "@/components/profile/ProfileCosmeticsPane
 import { BuyWaitPanel } from "@/components/profile/BuyWaitPanel";
 import { SteamProfileHeader } from "@/components/profile/SteamProfileHeader";
 import { ShareProfileButton } from "@/components/profile/ShareProfileButton";
+import { ProfilePageSkeleton } from "@/components/ui/PageLoading";
 
 interface ProfileData {
   email: string | null;
@@ -134,7 +135,6 @@ function onlineLabel(state: string | null | undefined, t: (k: string) => string)
 
 function ProfileContent() {
   const { t } = useLocale();
-  const searchParams = useSearchParams();
   const { games: recentlyViewed } = useRecentlyViewed();
   const [profile, setProfile] = useState<ProfileData | null>(null);
   const [steamData, setSteamData] = useState<SteamData | null>(null);
@@ -144,48 +144,72 @@ function ProfileContent() {
   const [loading, setLoading] = useState(true);
   const [steamBanner, setSteamBanner] = useState<string | null>(null);
 
+  const loadExtras = useCallback(async () => {
+    try {
+      const [steam, cosmeticsData] = await Promise.all([
+        fetchJson<SteamData>("/api/steam/profile?wishlist=0", 10_000).catch(() => ({
+          connected: false,
+        })),
+        fetchJson<CosmeticsData>("/api/profile/cosmetics", 10_000).catch(() => null),
+      ]);
+      setSteamData(steam);
+      if (cosmeticsData) setCosmetics(cosmeticsData);
+    } catch {
+      /* ignore */
+    }
+  }, []);
+
   const loadData = useCallback(async () => {
-    const [prof, wishlist, alerts, steam, cosmeticsData] = await Promise.all([
-      fetch("/api/profile").then((r) => r.json()),
-      fetch("/api/wishlist").then((r) => r.json()),
-      fetch("/api/alerts").then((r) => r.json()),
-      fetch("/api/steam/profile").then((r) => r.json()),
-      fetch("/api/profile/cosmetics").then((r) => r.json()),
+    const [prof, wishlist, alerts] = await Promise.all([
+      fetchJson<ProfileData>("/api/profile?light=1", 10_000).catch(() => null),
+      fetchJson<unknown[]>("/api/wishlist", 10_000).catch(() => []),
+      fetchJson<Array<{ isActive: boolean }>>("/api/alerts", 10_000).catch(() => []),
     ]);
-    setProfile(prof);
-    setSteamData(steam);
-    setCosmetics(cosmeticsData);
+    if (prof) setProfile(prof);
     setWishlistCount(Array.isArray(wishlist) ? wishlist.length : 0);
     setAlertCount(
       Array.isArray(alerts)
-        ? alerts.filter((a: { isActive: boolean }) => a.isActive).length
+        ? alerts.filter((a) => a.isActive).length
         : 0
     );
   }, []);
 
-  useEffect(() => {
-    loadData()
-      .catch(() => {})
-      .finally(() => setLoading(false));
-  }, [loadData]);
+  const reloadAll = useCallback(async () => {
+    await loadData();
+    await loadExtras();
+  }, [loadData, loadExtras]);
 
   useEffect(() => {
-    const auth = searchParams.get("steam") === "ok" ? "steam" : searchParams.get("google") === "ok" ? "google" : null;
+    let cancelled = false;
+    (async () => {
+      try {
+        await loadData();
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+      if (!cancelled) void loadExtras();
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [loadData, loadExtras]);
+
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const auth = params.get("steam") === "ok" ? "steam" : params.get("google") === "ok" ? "google" : null;
     if (auth) {
       setSteamBanner(auth === "steam" ? t("profile.steamConnected") : t("profile.googleConnected"));
       const url = new URL(window.location.href);
       url.searchParams.delete(auth === "steam" ? "steam" : "google");
       window.history.replaceState({}, "", url.pathname);
-      if (auth === "google") void loadData();
+      if (auth === "google") {
+        void loadData().then(() => loadExtras());
+      }
     }
-  }, [searchParams, t, loadData]);
+  }, [t, loadData, loadExtras]);
 
   if (loading) {
-    return (
-      <div className="flex justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-muted" />
-      </div>
-    );
+    return <ProfilePageSkeleton />;
   }
 
   const steam = steamData?.steam;
@@ -359,7 +383,7 @@ function ProfileContent() {
           isPro={Boolean(profile?.isPro)}
           avatarUrl={avatarUrl}
           displayName={displayName}
-          onUpdated={loadData}
+          onUpdated={reloadAll}
         />
       )}
 
@@ -369,7 +393,7 @@ function ProfileContent() {
             variant="profile"
             steamId={steamId}
             steamWishlistCount={steamData?.wishlist?.count}
-            onImported={loadData}
+            onImported={reloadAll}
           />
         </div>
       )}
@@ -455,15 +479,5 @@ function ProfileContent() {
 }
 
 export default function ProfilePage() {
-  return (
-    <Suspense
-      fallback={
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-muted" />
-        </div>
-      }
-    >
-      <ProfileContent />
-    </Suspense>
-  );
+  return <ProfileContent />;
 }

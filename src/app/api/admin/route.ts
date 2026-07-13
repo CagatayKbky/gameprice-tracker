@@ -102,6 +102,13 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ ok: true, result });
   }
 
+  if (action === "backfill-catalog-images") {
+    const { backfillSteamCatalogImages } = await import("@/lib/services/catalog-sync");
+    const batchSize = body.batchSize ? parseInt(body.batchSize, 10) : 500;
+    const result = await backfillSteamCatalogImages(batchSize);
+    return NextResponse.json({ ok: true, result });
+  }
+
   if (action === "sync-meilisearch") {
     const { syncMeilisearchCatalog } = await import("@/lib/services/meilisearch-sync");
     const { logJobStart, logJobFinish } = await import("@/lib/services/job-log");

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
-import { fetchSteamCommunityProfile, getSteamAppHeaderUrl } from "@/lib/api/steam-profile";
+import { getSteamLibraryImage } from "@/lib/game-images";
+import { fetchSteamCommunityProfile } from "@/lib/api/steam-profile";
 import { fetchSteamWishlist } from "@/lib/api/steam-wishlist";
 
 export async function refreshSteamProfileForSession(sessionId: string) {
@@ -49,7 +50,7 @@ export async function getSteamWishlistPreview(steamId: string, limit = 6) {
         name: item.name,
         appId: item.appId,
         gameId: item.appId ? `steam-${item.appId}` : undefined,
-        imageUrl: item.appId ? getSteamAppHeaderUrl(item.appId) : undefined,
+        imageUrl: item.appId ? getSteamLibraryImage(item.appId) : undefined,
       })),
     };
   } catch {

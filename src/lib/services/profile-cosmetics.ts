@@ -74,14 +74,17 @@ export async function getUnlockedCosmetics(sessionId: string) {
 
   const libraryCount = await prisma.steamOwnedGame.count({ where: { sessionId } });
   const wishlistCount = await prisma.wishlistItem.count({ where: { sessionId } });
-  await grantDefaultProfileCosmetics(sessionId, {
-    isPro: profile.plan === "pro",
-    isAdmin: profile.isAdmin,
-    steamConnected: Boolean(profile.steamId),
-    libraryCount,
-    wishlistCount,
-    createdAt: profile.createdAt,
-  });
+  const existingCosmetics = await prisma.userCosmetic.count({ where: { sessionId } });
+  if (existingCosmetics === 0) {
+    await grantDefaultProfileCosmetics(sessionId, {
+      isPro: profile.plan === "pro",
+      isAdmin: profile.isAdmin,
+      steamConnected: Boolean(profile.steamId),
+      libraryCount,
+      wishlistCount,
+      createdAt: profile.createdAt,
+    });
+  }
 
   const unlocked = await prisma.userCosmetic.findMany({ where: { sessionId } });
   const unlockedKeys = new Set(unlocked.map((item) => `${item.type}:${item.key}`));

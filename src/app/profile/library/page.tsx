@@ -8,6 +8,8 @@ import { GameImage } from "@/components/ui/GameImage";
 import { getSteamLibraryImage } from "@/lib/game-images";
 import { LibraryQuickActions } from "@/components/profile/LibraryQuickActions";
 import { ManualLibraryImport } from "@/components/profile/ManualLibraryImport";
+import { fetchJson } from "@/lib/fetch-json";
+import { GameGridSkeleton } from "@/components/ui/PageLoading";
 
 interface LibraryGame {
   steamAppId: string;
@@ -43,8 +45,7 @@ export default function ProfileLibraryPage() {
   const [gogConnected, setGogConnected] = useState(false);
 
   useEffect(() => {
-    fetch("/api/profile")
-      .then((r) => r.json())
+    fetchJson<{ gogConnected?: boolean }>("/api/profile?light=1", 8_000)
       .then((data) => setGogConnected(Boolean(data.gogConnected)))
       .catch(() => setGogConnected(false));
 
@@ -264,9 +265,7 @@ export default function ProfileLibraryPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-muted" />
-        </div>
+        <GameGridSkeleton count={12} />
       ) : tab !== "steam" ? (
         filteredManual.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border bg-card/50 p-12 text-center text-muted">

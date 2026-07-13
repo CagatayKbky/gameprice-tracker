@@ -31,13 +31,20 @@ export async function GET(request: NextRequest) {
     await applyReferralCode(sessionId, refCookie).catch(() => {});
   }
 
-  const profile = await getProfile(sessionId);
-  const gogMeta = await prisma.userProfile.findUnique({
-    where: { sessionId },
-    select: { gogRefreshToken: true, gogLibrarySyncedAt: true },
-  });
-  const premium = await getPremiumStatus(sessionId);
-  const cosmetics = await getUnlockedCosmetics(sessionId);
+  const light = request.nextUrl.searchParams.get("light") === "1";
+
+  const [profile, gogMeta, premium] = await Promise.all([
+    getProfile(sessionId),
+    prisma.userProfile.findUnique({
+      where: { sessionId },
+      select: { gogRefreshToken: true, gogLibrarySyncedAt: true },
+    }),
+    getPremiumStatus(sessionId),
+  ]);
+
+  const cosmetics = light
+    ? null
+    : await getUnlockedCosmetics(sessionId);
   const appearance = buildProfileAppearance({
     activeProfileFrame: profile?.activeProfileFrame,
     activeProfileEffect: profile?.activeProfileEffect,
@@ -71,11 +78,13 @@ export async function GET(request: NextRequest) {
       usage: premium.usage,
       planExpiresAt: premium.planExpiresAt,
       appearance,
-      unlockedCosmetics: {
-        frames: cosmetics.frames,
-        effects: cosmetics.effects,
-        badges: cosmetics.badges,
-      },
+      unlockedCosmetics: cosmetics
+        ? {
+            frames: cosmetics.frames,
+            effects: cosmetics.effects,
+            badges: cosmetics.badges,
+          }
+        : undefined,
       gogConnected: Boolean(gogMeta?.gogRefreshToken),
       gogLibrarySyncedAt: gogMeta?.gogLibrarySyncedAt ?? null,
     },
