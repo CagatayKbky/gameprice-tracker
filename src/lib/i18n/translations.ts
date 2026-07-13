@@ -71,6 +71,7 @@ const tr: TranslationDict = {
   "profile.connectAccountsDesc":
     "Ayarlardan Steam veya Google ile giriş yap; istek listesi, kütüphane ve bildirimler senkronize olsun.",
   "profile.connectAccountsCta": "Ayarlara git",
+  "profile.cosmeticsLoading": "Kozmetikler yükleniyor…",
   "profile.proMember": "Pro Üye",
   "profile.freePlan": "Ücretsiz plan",
   "profile.steamProfile": "Steam Profili",
@@ -1057,6 +1058,7 @@ const en: TranslationDict = {
   "profile.connectAccountsDesc":
     "Sign in with Steam or Google in Settings to sync wishlist, library, and notifications.",
   "profile.connectAccountsCta": "Go to Settings",
+  "profile.cosmeticsLoading": "Loading cosmetics…",
   "profile.proMember": "Pro Member",
   "profile.freePlan": "Free plan",
   "profile.steamProfile": "Steam Profile",

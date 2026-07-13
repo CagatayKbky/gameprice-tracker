@@ -1,6 +1,6 @@
 import { ReactNode } from "react";
 import { ProfileAvatarFrame } from "@/components/profile/ProfileAvatarFrame";
-import { getFrameDefinition } from "@/lib/profile/cosmetics";
+import { getEffectDefinition, getFrameDefinition } from "@/lib/profile/cosmetics";
 
 interface SteamBadge {
   id: string;
@@ -34,10 +34,18 @@ export function SteamProfileHeader({
   children,
 }: SteamProfileHeaderProps) {
   const frame = getFrameDefinition(frameId);
+  const effect = getEffectDefinition(effectId);
+  const bannerOverlay = [frame.bannerOverlayClass, effect.bannerOverlayClass]
+    .filter(Boolean)
+    .join(" ");
 
   return (
     <section className={`mb-6 overflow-hidden rounded-2xl border ${frame.cardClass}`}>
-      <div className={`h-24 sm:h-32 ${frame.bannerClass}`} />
+      <div className={`relative h-24 sm:h-32 ${frame.bannerClass}`}>
+        {bannerOverlay && (
+          <div className={`absolute inset-0 ${bannerOverlay}`} aria-hidden />
+        )}
+      </div>
       <div className="relative px-4 pb-4 sm:px-6 sm:pb-6">
         <div className="-mt-12 sm:-mt-16 flex flex-col gap-4">
           <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-end sm:gap-4">

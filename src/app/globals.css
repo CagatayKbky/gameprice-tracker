@@ -68,11 +68,129 @@
     );
   }
 
-  .steam-profile-banner {
+  .steam-profile-banner,
+  .profile-banner-classic {
     background:
       radial-gradient(circle at 20% 20%, rgba(102, 192, 244, 0.18), transparent 35%),
       radial-gradient(circle at 80% 0%, rgba(99, 102, 241, 0.12), transparent 30%),
       linear-gradient(135deg, #0f1720 0%, #1b2838 45%, #2a475e 100%);
+  }
+
+  .profile-banner-steam-blue {
+    background:
+      radial-gradient(circle at 15% 50%, rgba(102, 192, 244, 0.35), transparent 40%),
+      radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.2), transparent 35%),
+      linear-gradient(120deg, #0c1929 0%, #1b4a6b 50%, #1b2838 100%);
+  }
+
+  .profile-banner-pro-gold {
+    background:
+      radial-gradient(circle at 25% 30%, rgba(251, 191, 36, 0.35), transparent 40%),
+      radial-gradient(circle at 75% 10%, rgba(245, 158, 11, 0.2), transparent 35%),
+      linear-gradient(135deg, #1a1208 0%, #3d2a0a 45%, #1b2838 100%);
+  }
+
+  .profile-banner-neon {
+    background:
+      radial-gradient(circle at 20% 80%, rgba(217, 70, 239, 0.3), transparent 45%),
+      radial-gradient(circle at 80% 20%, rgba(168, 85, 247, 0.25), transparent 40%),
+      linear-gradient(135deg, #12081f 0%, #2a1045 50%, #0f1720 100%);
+  }
+
+  .profile-banner-holo {
+    background:
+      linear-gradient(135deg, #0b1218 0%, #1a1030 35%, #0b1820 70%, #12100b 100%);
+    background-size: 200% 200%;
+    animation: profile-banner-holo-shift 8s ease infinite;
+  }
+
+  .profile-banner-summer {
+    background:
+      radial-gradient(circle at 30% 40%, rgba(34, 197, 94, 0.25), transparent 40%),
+      radial-gradient(circle at 70% 20%, rgba(250, 204, 21, 0.2), transparent 35%),
+      linear-gradient(135deg, #0b1410 0%, #14532d 45%, #1b2838 100%);
+  }
+
+  .profile-banner-overlay-waves::after,
+  .profile-banner-overlay-shimmer::after,
+  .profile-banner-overlay-grid::after,
+  .profile-banner-overlay-holo::after,
+  .profile-effect-banner-pulse::after,
+  .profile-effect-banner-aurora::after,
+  .profile-effect-banner-ember::after,
+  .profile-effect-banner-frost::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+
+  .profile-banner-overlay-waves::after {
+    background: linear-gradient(
+      90deg,
+      transparent 0%,
+      rgba(102, 192, 244, 0.12) 50%,
+      transparent 100%
+    );
+    background-size: 200% 100%;
+    animation: profile-banner-sweep 5s ease-in-out infinite;
+  }
+
+  .profile-banner-overlay-shimmer::after {
+    background: linear-gradient(
+      105deg,
+      transparent 35%,
+      rgba(251, 191, 36, 0.18) 50%,
+      transparent 65%
+    );
+    background-size: 250% 100%;
+    animation: profile-banner-sweep 4s ease-in-out infinite;
+  }
+
+  .profile-banner-overlay-grid::after {
+    background-image:
+      linear-gradient(rgba(217, 70, 239, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(217, 70, 239, 0.08) 1px, transparent 1px);
+    background-size: 24px 24px;
+    mask-image: linear-gradient(to bottom, black, transparent);
+  }
+
+  .profile-banner-overlay-holo::after {
+    background: conic-gradient(
+      from 0deg at 50% 50%,
+      rgba(34, 211, 238, 0.15),
+      rgba(168, 85, 247, 0.15),
+      rgba(244, 114, 182, 0.15),
+      rgba(251, 191, 36, 0.15),
+      rgba(34, 211, 238, 0.15)
+    );
+    animation: profile-ring-spin 12s linear infinite;
+    opacity: 0.7;
+  }
+
+  .profile-effect-banner-pulse::after {
+    background: radial-gradient(circle at 50% 100%, rgba(102, 192, 244, 0.2), transparent 70%);
+    animation: profile-aura-pulse 2.8s ease-in-out infinite;
+  }
+
+  .profile-effect-banner-aurora::after {
+    background:
+      radial-gradient(ellipse at 30% 80%, rgba(34, 211, 238, 0.25), transparent 50%),
+      radial-gradient(ellipse at 70% 60%, rgba(168, 85, 247, 0.2), transparent 50%),
+      radial-gradient(ellipse at 50% 90%, rgba(52, 211, 153, 0.15), transparent 45%);
+    animation: profile-banner-aurora 6s ease-in-out infinite;
+  }
+
+  .profile-effect-banner-ember::after {
+    background: radial-gradient(ellipse at 50% 100%, rgba(251, 146, 60, 0.28), transparent 65%);
+    animation: profile-banner-ember 3.2s ease-in-out infinite;
+  }
+
+  .profile-effect-banner-frost::after {
+    background:
+      linear-gradient(180deg, rgba(186, 230, 253, 0.12), transparent 70%),
+      radial-gradient(circle at 80% 20%, rgba(147, 197, 253, 0.15), transparent 40%);
+    animation: profile-banner-sweep 7s ease-in-out infinite;
   }
 
   .profile-ring-classic {
@@ -124,6 +242,41 @@
     animation: profile-ring-spin 3s linear infinite;
     pointer-events: none;
   }
+
+  .profile-aura-aurora {
+    box-shadow:
+      0 0 24px rgba(34, 211, 238, 0.3),
+      0 0 40px rgba(168, 85, 247, 0.2);
+    animation: profile-aura-aurora 4s ease-in-out infinite;
+  }
+
+  .profile-aura-ember {
+    box-shadow: 0 0 28px rgba(251, 146, 60, 0.4);
+    animation: profile-banner-ember 2.6s ease-in-out infinite;
+  }
+
+  .profile-aura-frost {
+    box-shadow:
+      0 0 22px rgba(147, 197, 253, 0.35),
+      inset 0 0 12px rgba(186, 230, 253, 0.15);
+  }
+
+  .profile-aura-frost::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 9999px;
+    background: conic-gradient(
+      from 0deg,
+      transparent,
+      rgba(186, 230, 253, 0.35),
+      transparent,
+      rgba(147, 197, 253, 0.25),
+      transparent
+    );
+    animation: profile-ring-spin 5s linear infinite;
+    pointer-events: none;
+  }
 }
 
 @keyframes profile-ring-spin {
@@ -142,11 +295,82 @@
   }
 }
 
+@keyframes profile-banner-holo-shift {
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes profile-banner-sweep {
+  0%,
+  100% {
+    background-position: 0% 50%;
+    opacity: 0.6;
+  }
+  50% {
+    background-position: 100% 50%;
+    opacity: 1;
+  }
+}
+
+@keyframes profile-banner-aurora {
+  0%,
+  100% {
+    opacity: 0.55;
+    transform: translateY(0);
+  }
+  50% {
+    opacity: 0.9;
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes profile-banner-ember {
+  0%,
+  100% {
+    opacity: 0.65;
+    box-shadow: inset 0 -20px 30px rgba(251, 146, 60, 0.1);
+  }
+  50% {
+    opacity: 1;
+    box-shadow: inset 0 -30px 40px rgba(251, 146, 60, 0.2);
+  }
+}
+
+@keyframes profile-aura-aurora {
+  0%,
+  100% {
+    box-shadow:
+      0 0 20px rgba(34, 211, 238, 0.25),
+      0 0 36px rgba(168, 85, 247, 0.15);
+  }
+  50% {
+    box-shadow:
+      0 0 30px rgba(52, 211, 153, 0.3),
+      0 0 44px rgba(168, 85, 247, 0.25);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .profile-ring-spin,
   .profile-ring-spin-fast,
   .profile-aura-pulse,
-  .profile-aura-shimmer::after {
+  .profile-aura-shimmer::after,
+  .profile-aura-aurora,
+  .profile-aura-ember,
+  .profile-aura-frost::after,
+  .profile-banner-holo,
+  .profile-banner-overlay-waves::after,
+  .profile-banner-overlay-shimmer::after,
+  .profile-banner-overlay-holo::after,
+  .profile-effect-banner-pulse::after,
+  .profile-effect-banner-aurora::after,
+  .profile-effect-banner-ember::after,
+  .profile-effect-banner-frost::after {
     animation: none !important;
   }
 }

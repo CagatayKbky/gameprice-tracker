@@ -21,12 +21,14 @@ export interface CosmeticFrameDefinition extends CosmeticDefinition {
   ringSpinClass: string;
   ringWidth: number;
   bannerClass: string;
+  bannerOverlayClass?: string;
   cardClass: string;
 }
 
 export interface CosmeticEffectDefinition extends CosmeticDefinition {
   type: "effect";
   auraClass: string;
+  bannerOverlayClass?: string;
 }
 
 export const PROFILE_FRAMES: CosmeticFrameDefinition[] = [
@@ -39,7 +41,7 @@ export const PROFILE_FRAMES: CosmeticFrameDefinition[] = [
     ringClass: "profile-ring-classic",
     ringSpinClass: "",
     ringWidth: 3,
-    bannerClass: "steam-profile-banner",
+    bannerClass: "profile-banner-classic",
     cardClass: "border-[#2a475e]/60 bg-[#0e1419]",
   },
   {
@@ -51,7 +53,8 @@ export const PROFILE_FRAMES: CosmeticFrameDefinition[] = [
     ringClass: "profile-ring-steam-blue",
     ringSpinClass: "profile-ring-spin",
     ringWidth: 4,
-    bannerClass: "steam-profile-banner",
+    bannerClass: "profile-banner-steam-blue",
+    bannerOverlayClass: "profile-banner-overlay-waves",
     cardClass: "border-[#66c0f4]/30 bg-[#0e1419]",
   },
   {
@@ -64,7 +67,8 @@ export const PROFILE_FRAMES: CosmeticFrameDefinition[] = [
     ringClass: "profile-ring-pro-gold",
     ringSpinClass: "profile-ring-spin",
     ringWidth: 5,
-    bannerClass: "steam-profile-banner",
+    bannerClass: "profile-banner-pro-gold",
+    bannerOverlayClass: "profile-banner-overlay-shimmer",
     cardClass: "border-amber-400/35 bg-[#12100b]",
   },
   {
@@ -77,7 +81,8 @@ export const PROFILE_FRAMES: CosmeticFrameDefinition[] = [
     ringClass: "profile-ring-neon-purple",
     ringSpinClass: "profile-ring-spin-fast",
     ringWidth: 5,
-    bannerClass: "steam-profile-banner",
+    bannerClass: "profile-banner-neon",
+    bannerOverlayClass: "profile-banner-overlay-grid",
     cardClass: "border-fuchsia-500/35 bg-[#120b1d]",
   },
   {
@@ -90,7 +95,8 @@ export const PROFILE_FRAMES: CosmeticFrameDefinition[] = [
     ringClass: "profile-ring-holo",
     ringSpinClass: "profile-ring-spin",
     ringWidth: 5,
-    bannerClass: "steam-profile-banner",
+    bannerClass: "profile-banner-holo",
+    bannerOverlayClass: "profile-banner-overlay-holo",
     cardClass: "border-cyan-300/35 bg-[#0b1218]",
   },
   {
@@ -102,7 +108,7 @@ export const PROFILE_FRAMES: CosmeticFrameDefinition[] = [
     ringClass: "profile-ring-summer-sale",
     ringSpinClass: "profile-ring-spin",
     ringWidth: 5,
-    bannerClass: "steam-profile-banner",
+    bannerClass: "profile-banner-summer",
     cardClass: "border-emerald-400/35 bg-[#0b1410]",
   },
 ];
@@ -142,6 +148,37 @@ export const PROFILE_EFFECTS: CosmeticEffectDefinition[] = [
     tier: "pro",
     proOnly: true,
     auraClass: "profile-aura-pulse",
+    bannerOverlayClass: "profile-effect-banner-pulse",
+  },
+  {
+    id: "aurora",
+    type: "effect",
+    label: "Aurora",
+    description: "Northern lights shimmer around avatar.",
+    tier: "pro",
+    proOnly: true,
+    auraClass: "profile-aura-aurora",
+    bannerOverlayClass: "profile-effect-banner-aurora",
+  },
+  {
+    id: "ember",
+    type: "effect",
+    label: "Ember",
+    description: "Warm ember glow with soft flicker.",
+    tier: "pro",
+    proOnly: true,
+    auraClass: "profile-aura-ember",
+    bannerOverlayClass: "profile-effect-banner-ember",
+  },
+  {
+    id: "frost",
+    type: "effect",
+    label: "Frost",
+    description: "Icy cyan crystalline shimmer.",
+    tier: "pro",
+    proOnly: true,
+    auraClass: "profile-aura-frost",
+    bannerOverlayClass: "profile-effect-banner-frost",
   },
 ];
 

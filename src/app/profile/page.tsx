@@ -11,7 +11,6 @@ import {
   Bell,
   Clock,
   Settings,
-  Loader2,
   Mail,
   Crown,
   ExternalLink,
@@ -20,6 +19,7 @@ import {
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { useRecentlyViewed } from "@/components/providers/RecentlyViewedProvider";
 import { getPublicProfilePath } from "@/lib/profile/profile-slug";
+import { buildDisplayedBadges } from "@/lib/profile/badges";
 import { SteamWishlistImport } from "@/components/games/SteamWishlistImport";
 import { ProfileLibrarySection } from "@/components/profile/ProfileLibrarySection";
 import { LibraryInsightsPanel } from "@/components/profile/LibraryInsightsPanel";
@@ -144,28 +144,30 @@ function ProfileContent() {
   const [loading, setLoading] = useState(true);
   const [steamBanner, setSteamBanner] = useState<string | null>(null);
 
-  const loadExtras = useCallback(async () => {
+  const loadSteam = useCallback(async (refresh = false) => {
+    const url = refresh
+      ? "/api/steam/profile?wishlist=0&refresh=1"
+      : "/api/steam/profile?wishlist=0";
+    const timeout = refresh ? 12_000 : 8_000;
     try {
-      const [steam, cosmeticsData] = await Promise.all([
-        fetchJson<SteamData>("/api/steam/profile?wishlist=0", 10_000).catch(() => ({
-          connected: false,
-        })),
-        fetchJson<CosmeticsData>("/api/profile/cosmetics", 10_000).catch(() => null),
-      ]);
+      const steam = await fetchJson<SteamData>(url, timeout);
       setSteamData(steam);
-      if (cosmeticsData) setCosmetics(cosmeticsData);
     } catch {
-      /* ignore */
+      if (!refresh) {
+        setSteamData({ connected: false });
+      }
     }
   }, []);
 
   const loadData = useCallback(async () => {
-    const [prof, wishlist, alerts] = await Promise.all([
-      fetchJson<ProfileData>("/api/profile?light=1", 10_000).catch(() => null),
+    const [prof, wishlist, alerts, cosmeticsData] = await Promise.all([
+      fetchJson<ProfileData>("/api/profile?light=1", 12_000).catch(() => null),
       fetchJson<unknown[]>("/api/wishlist", 10_000).catch(() => []),
       fetchJson<Array<{ isActive: boolean }>>("/api/alerts", 10_000).catch(() => []),
+      fetchJson<CosmeticsData>("/api/profile/cosmetics", 15_000).catch(() => null),
     ]);
     if (prof) setProfile(prof);
+    if (cosmeticsData) setCosmetics(cosmeticsData);
     setWishlistCount(Array.isArray(wishlist) ? wishlist.length : 0);
     setAlertCount(
       Array.isArray(alerts)
@@ -175,24 +177,24 @@ function ProfileContent() {
   }, []);
 
   const reloadAll = useCallback(async () => {
-    await loadData();
-    await loadExtras();
-  }, [loadData, loadExtras]);
+    await Promise.all([loadData(), loadSteam(false)]);
+    void loadSteam(true);
+  }, [loadData, loadSteam]);
 
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        await loadData();
+        await Promise.all([loadData(), loadSteam(false)]);
       } finally {
         if (!cancelled) setLoading(false);
       }
-      if (!cancelled) void loadExtras();
+      if (!cancelled) void loadSteam(true);
     })();
     return () => {
       cancelled = true;
     };
-  }, [loadData, loadExtras]);
+  }, [loadData, loadSteam]);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -202,11 +204,11 @@ function ProfileContent() {
       const url = new URL(window.location.href);
       url.searchParams.delete(auth === "steam" ? "steam" : "google");
       window.history.replaceState({}, "", url.pathname);
-      if (auth === "google") {
-        void loadData().then(() => loadExtras());
+      if (auth === "google" || auth === "steam") {
+        void reloadAll();
       }
     }
-  }, [t, loadData, loadExtras]);
+  }, [t, reloadAll]);
 
   if (loading) {
     return <ProfilePageSkeleton />;
@@ -228,6 +230,16 @@ function ProfileContent() {
     name: profile?.name,
   });
   const shareSlug = publicPath?.replace("/u/", "") || "";
+  const equippedFrame =
+    cosmetics?.equipped.frame ||
+    cosmetics?.appearance.frameId ||
+    profile?.activeProfileFrame ||
+    "classic";
+  const equippedEffect =
+    cosmetics?.equipped.effect ||
+    cosmetics?.appearance.effectId ||
+    profile?.activeProfileEffect ||
+    "none";
   const badges = cosmetics?.cosmetics.badgeCatalog
     ? [
         ...cosmetics.cosmetics.badgeCatalog.statusBadges.filter((b) => b.unlocked),
@@ -237,17 +249,12 @@ function ProfileContent() {
         label: badge.label,
         cls: badge.toneClass,
       }))
-    : [
-        profile?.isAdmin ? { id: "admin", label: "Admin", cls: "bg-red-500/15 text-red-300 border-red-500/30" } : null,
-        profile?.isPro ? { id: "pro", label: "Pro", cls: "bg-amber-500/15 text-amber-300 border-amber-500/30" } : null,
-        isSteamConnected ? { id: "steam", label: "Steam", cls: "bg-sky-500/15 text-sky-300 border-sky-500/30" } : null,
-        isGoogleConnected ? { id: "google", label: "Google", cls: "bg-white/10 text-white border-white/20" } : null,
-        ...(cosmetics?.cosmetics.badges || []).map((badge) => ({
-          id: badge.id,
-          label: badge.label,
-          cls: badge.toneClass,
-        })),
-      ].filter(Boolean) as Array<{ id: string; label: string; cls: string }>;
+    : buildDisplayedBadges({
+        isPro: Boolean(profile?.isPro),
+        isAdmin: profile?.isAdmin,
+        steamConnected: isSteamConnected,
+        unlockedCosmeticBadgeIds: (cosmetics?.cosmetics.badges || []).map((b) => b.id),
+      });
 
   return (
     <div className="max-w-4xl mx-auto px-3 py-6 sm:px-6 sm:py-8">
@@ -260,8 +267,8 @@ function ProfileContent() {
       <SteamProfileHeader
         displayName={displayName}
         avatarUrl={avatarUrl}
-        frameId={cosmetics?.equipped.frame || cosmetics?.appearance.frameId}
-        effectId={cosmetics?.equipped.effect || cosmetics?.appearance.effectId}
+        frameId={equippedFrame}
+        effectId={equippedEffect}
         badges={badges}
         showSteamBadge={isSteamConnected}
         subtitle={
@@ -374,7 +381,7 @@ function ProfileContent() {
         <BuyWaitPanel compact />
       </section>
 
-      {cosmetics && (
+      {cosmetics ? (
         <ProfileCosmeticsPanel
           frames={cosmetics.cosmetics.frames}
           effects={cosmetics.cosmetics.effects}
@@ -385,6 +392,10 @@ function ProfileContent() {
           displayName={displayName}
           onUpdated={reloadAll}
         />
+      ) : (
+        <div className="mb-8 rounded-2xl border border-[#2a475e]/50 bg-[#0e1419] p-5 text-sm text-[#8f98a0]">
+          {t("profile.cosmeticsLoading")}
+        </div>
       )}
 
       {isSteamConnected && steamId && (
