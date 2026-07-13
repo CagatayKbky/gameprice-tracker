@@ -5,6 +5,7 @@ import Link from "next/link";
 import { GameImage } from "@/components/ui/GameImage";
 import { resolveGameImage } from "@/lib/game-images";
 import { Sparkles, Library, Heart, Loader2 } from "lucide-react";
+import { fetchJson } from "@/lib/fetch-json";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { WorthItScoreBadge } from "@/components/games/WorthItScoreBadge";
@@ -37,8 +38,7 @@ export function PersonalizedHomeSection() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/home/personalized")
-      .then((r) => r.json())
+    fetchJson<PersonalizedData>("/api/home/personalized", 12_000)
       .then(setData)
       .catch(() => setData({ connected: false }))
       .finally(() => setLoading(false));

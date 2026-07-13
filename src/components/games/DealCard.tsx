@@ -67,7 +67,7 @@ export function DealCard({ deal, variant = "vertical" }: DealCardProps) {
       className="group relative rounded-2xl overflow-hidden bg-card border border-border/80 hover:border-accent/40 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1"
     >
       <div className="card-shine absolute inset-0 pointer-events-none z-10" />
-      <div className="relative aspect-3/4 overflow-hidden bg-card-hover">
+      <div className="relative aspect-[3/4] overflow-hidden bg-card-hover">
         <GameImage
           src={imageUrl}
           steamAppId={deal.steamAppId}

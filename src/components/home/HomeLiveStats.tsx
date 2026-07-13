@@ -3,23 +3,28 @@
 import { useEffect, useState } from "react";
 import { TrendingDown, Percent, Tag } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { fetchJson } from "@/lib/fetch-json";
 
-interface LiveStats {
+export interface HomeLiveStatsData {
   dealCount: number;
   maxDiscount: number;
   freeCount: number;
 }
 
-export function HomeLiveStats() {
+interface HomeLiveStatsProps {
+  initialStats?: HomeLiveStatsData;
+}
+
+export function HomeLiveStats({ initialStats }: HomeLiveStatsProps) {
   const { t } = useLocale();
-  const [stats, setStats] = useState<LiveStats | null>(null);
+  const [stats, setStats] = useState<HomeLiveStatsData | null>(initialStats ?? null);
 
   useEffect(() => {
-    fetch("/api/home/live-stats")
-      .then((r) => r.json())
+    if (initialStats) return;
+    fetchJson<HomeLiveStatsData>("/api/home/live-stats", 10_000)
       .then(setStats)
       .catch(() => {});
-  }, []);
+  }, [initialStats]);
 
   if (!stats) return null;
 

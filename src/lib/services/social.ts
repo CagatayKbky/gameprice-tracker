@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { getCosmeticDisplayLabel } from "@/lib/profile/cosmetic-labels";
 import { buildProfileAppearance, getUnlockedCosmetics } from "@/lib/services/profile-cosmetics";
 import { findPublicProfileBySlug } from "@/lib/profile/profile-slug-service";
 import { getPublicProfilePath } from "@/lib/profile/profile-slug";
@@ -466,16 +467,6 @@ export async function getSocialActivityFeed(sessionId: string) {
     }
   }
 
-  const badgeLabels: Record<string, string> = {
-    founder: "Founder",
-    "early-supporter": "Early Supporter",
-    "verified-collector": "Collector",
-    "deal-hunter": "Deal Hunter",
-    "steam-pro": "Steam Pro",
-    "pro-gold": "Pro Gold",
-    holo: "Holo",
-  };
-
   for (const row of recentCosmetics) {
     const profile = profileMap.get(row.sessionId);
     if (!profile) continue;
@@ -484,7 +475,7 @@ export async function getSocialActivityFeed(sessionId: string) {
       type: "cosmetic_unlock",
       at: row.createdAt.toISOString(),
       profile,
-      cosmeticLabel: badgeLabels[row.key] || row.key,
+      cosmeticLabel: getCosmeticDisplayLabel(row.key),
     });
   }
 

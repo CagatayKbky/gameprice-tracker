@@ -134,7 +134,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                 href={`/game/steam-${game.steamAppId}`}
                 className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
               >
-                <div className="relative aspect-3/4 bg-background">
+                <div className="relative aspect-[3/4] bg-background">
                   <GameImage
                     src={getSteamLibraryImage(game.steamAppId)}
                     steamAppId={game.steamAppId}
@@ -168,7 +168,7 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
                 href={`/game/${item.cheapSharkGameId}`}
                 className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
               >
-                <div className="relative aspect-3/4 bg-background">
+                <div className="relative aspect-[3/4] bg-background">
                   <GameImage
                     src={imageUrl}
                     steamAppId={steamAppId}

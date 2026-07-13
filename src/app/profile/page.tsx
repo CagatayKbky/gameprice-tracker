@@ -433,7 +433,7 @@ function ProfileContent() {
                 href={item.gameId ? `/game/${item.gameId}` : steamAppId ? `/game/steam-${steamAppId}` : "#"}
                 className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all hover:-translate-y-0.5"
               >
-                <div className="relative aspect-3/4 bg-background">
+                <div className="relative aspect-[3/4] bg-background">
                   <GameImage
                     src={imageUrl}
                     steamAppId={steamAppId}
@@ -465,7 +465,7 @@ function ProfileContent() {
                 href={`/game/${game.gameId}`}
                 className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all hover:-translate-y-0.5"
               >
-                <div className="relative aspect-3/4 bg-background">
+                <div className="relative aspect-[3/4] bg-background">
                   <GameImage
                     src={imageUrl}
                     steamAppId={game.steamAppId ?? extractSteamAppId(game.gameId)}

@@ -5,11 +5,16 @@ import { DealGrid } from "@/components/layout/DealGrid";
 import { HomeSectionHeader } from "@/components/home/HomeSectionHeader";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
+import type { DealOfTheDay } from "@/types";
 
-export async function EpicFreeSection() {
+interface EpicFreeSectionProps {
+  games?: DealOfTheDay[];
+}
+
+export async function EpicFreeSection({ games }: EpicFreeSectionProps = {}) {
   const locale = await getServerLocale();
-  const games = await getEpicFreeGames(locale);
-  if (games.length === 0) return null;
+  const epicGames = games ?? (await getEpicFreeGames(locale));
+  if (epicGames.length === 0) return null;
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/40">
@@ -28,7 +33,7 @@ export async function EpicFreeSection() {
         Epic Games Store →
       </a>
       <DealGrid>
-        {games.slice(0, 4).map((deal) => (
+        {epicGames.slice(0, 4).map((deal) => (
           <DealCard key={deal.gameId} deal={deal} />
         ))}
       </DealGrid>

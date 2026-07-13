@@ -24,7 +24,7 @@ export function WishlistCard({ item, onRemove, buyInsteadLabel }: WishlistCardPr
   return (
     <div className="group relative rounded-2xl overflow-hidden bg-card border border-border/80 hover:border-accent/40 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/5">
       <Link href={`/game/${item.cheapSharkGameId}`} className="block">
-        <div className="relative aspect-3/4 overflow-hidden bg-card-hover">
+        <div className="relative aspect-[3/4] overflow-hidden bg-card-hover">
           <GameImage
             src={imageUrl}
             steamAppId={steamAppId}

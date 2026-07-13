@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Users, Loader2 } from "lucide-react";
+import { fetchJson } from "@/lib/fetch-json";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { getPublicProfilePath } from "@/lib/profile/profile-slug";
 
@@ -38,8 +39,7 @@ export function FriendActivityStrip() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/social")
-      .then((r) => r.json())
+    fetchJson<{ activity?: ActivityItem[] }>("/api/social", 10_000)
       .then((data) => setActivity((data.activity || []).slice(0, 5)))
       .catch(() => setActivity([]))
       .finally(() => setLoading(false));
@@ -85,12 +85,14 @@ export function FriendActivityStrip() {
                     ? t("social.activityWishlistAdd", { game: item.gameTitle || "" })
                     : item.type === "library_sync"
                       ? t("social.activityLibrarySync")
-                      : item.type === "alert_hit"
-                        ? t("social.activityAlertHit", {
-                            game: item.gameTitle || "",
-                            price: item.price ? `$${item.price.toFixed(2)}` : "",
-                          })
-                        : t("social.activityProJoin")}
+                      : item.type === "cosmetic_unlock"
+                        ? t("social.activityCosmetic", { label: item.cosmeticLabel || "" })
+                        : item.type === "alert_hit"
+                          ? t("social.activityAlertHit", {
+                              game: item.gameTitle || "",
+                              price: item.price ? `$${item.price.toFixed(2)}` : "",
+                            })
+                          : t("social.activityProJoin")}
                 </p>
                 <p className="text-[10px] text-muted mt-1">{formatRelative(item.at, t)}</p>
               </div>

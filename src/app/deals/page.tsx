@@ -98,7 +98,7 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
     });
   }
 
-  if (tab !== "free" && tab !== "historical-low") {
+  if (tab === "all" || tab === "aaa") {
     deals = await enrichDealsWithHistoricalLow(deals);
   }
 
@@ -112,7 +112,7 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
 
   const title = t(locale, TAB_TITLE_KEYS[tab] || TAB_TITLE_KEYS.all);
   const subtitle = t(locale, TAB_SUBTITLE_KEYS[tab] || TAB_SUBTITLE_KEYS.all);
-  const megaDeals = tab === "all" || tab === "mega" ? await getMegaDeals() : [];
+  const megaDeals = tab === "mega" ? deals : tab === "all" ? await getMegaDeals() : [];
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">

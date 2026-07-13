@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useState } from "react";
 import Link from "next/link";
 import { Bell, CheckCheck, Loader2 } from "lucide-react";
+import { fetchJson } from "@/lib/fetch-json";
+import { PageLoadingSpinner } from "@/components/ui/PageLoading";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
 interface NotificationItem {
@@ -24,11 +26,14 @@ export default function NotificationsPage() {
 
   const load = useCallback(() => {
     setLoading(true);
-    fetch("/api/notifications")
-      .then((r) => r.json())
+    fetchJson<{ items?: NotificationItem[]; unread?: number }>("/api/notifications", 10_000)
       .then((data) => {
         setItems(data.items || []);
         setUnread(data.unread || 0);
+      })
+      .catch(() => {
+        setItems([]);
+        setUnread(0);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -88,9 +93,7 @@ export default function NotificationsPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-16">
-          <Loader2 className="h-6 w-6 animate-spin text-[#66c0f4]" />
-        </div>
+        <PageLoadingSpinner />
       ) : items.length === 0 ? (
         <p className="rounded-xl border border-dashed border-[#2a475e]/60 bg-[#1b2838]/40 px-4 py-10 text-center text-sm text-[#8f98a0]">
           {t("notifications.empty")}

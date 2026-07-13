@@ -4,6 +4,7 @@ import { resolveGameImage } from "@/lib/game-images";
 import { getOwnedAppIds } from "@/lib/services/steam-library";
 import { calculateWorthItScore } from "@/lib/worth-it-score";
 import { getSocialGraph } from "@/lib/services/social";
+import { mapWithConcurrency } from "@/lib/cache";
 
 export interface PersonalizedDeal {
   gameId: string;
@@ -39,42 +40,50 @@ export async function getPersonalizedHomeData(sessionId: string | null) {
   const wishlistDeals: PersonalizedDeal[] = [];
   let totalSavings = 0;
 
-  for (const item of wishlist.slice(0, 12)) {
+  const wishlistSlice = wishlist.slice(0, 12);
+  const wishlistResults = await mapWithConcurrency(wishlistSlice, 4, async (item) => {
     try {
       const game = await resolveGame(item.cheapSharkGameId);
       const store = game?.cheapestStore;
-      if (!store || store.discount < 10) continue;
+      if (!store || store.discount < 10) return null;
 
       const appId = item.cheapSharkGameId.replace("steam-", "");
-      if (profile.hideOwnedGames && ownedIds.has(appId)) continue;
+      if (profile.hideOwnedGames && ownedIds.has(appId)) return null;
 
       const savings = Math.max(0, store.normalPrice - store.price);
-      totalSavings += savings;
-
-      wishlistDeals.push({
-        gameId: item.cheapSharkGameId,
-        title: item.gameTitle,
-        imageUrl: resolveGameImage({
-          imageUrl: item.imageUrl ?? game?.imageUrl,
-          steamAppId: item.cheapSharkGameId.startsWith("steam-")
-            ? item.cheapSharkGameId.replace("steam-", "")
-            : game?.steamAppId,
-        }),
-        price: store.price,
-        discount: store.discount,
-        platform: store.platformName,
-        worthItScore: calculateWorthItScore({
-          currentPrice: store.price,
-          historicalLow: game?.historicalLow,
+      return {
+        savings,
+        deal: {
+          gameId: item.cheapSharkGameId,
+          title: item.gameTitle,
+          imageUrl: resolveGameImage({
+            imageUrl: item.imageUrl ?? game?.imageUrl,
+            steamAppId: item.cheapSharkGameId.startsWith("steam-")
+              ? item.cheapSharkGameId.replace("steam-", "")
+              : game?.steamAppId,
+          }),
+          price: store.price,
           discount: store.discount,
-          metacritic: game?.metacritic,
-        }),
-        isHistoricalLow:
-          Boolean(game?.historicalLow) && store.price <= (game?.historicalLow ?? 0) * 1.05,
-      });
+          platform: store.platformName,
+          worthItScore: calculateWorthItScore({
+            currentPrice: store.price,
+            historicalLow: game?.historicalLow,
+            discount: store.discount,
+            metacritic: game?.metacritic,
+          }),
+          isHistoricalLow:
+            Boolean(game?.historicalLow) && store.price <= (game?.historicalLow ?? 0) * 1.05,
+        } satisfies PersonalizedDeal,
+      };
     } catch {
-      /* skip */
+      return null;
     }
+  });
+
+  for (const row of wishlistResults) {
+    if (!row) continue;
+    totalSavings += row.savings;
+    wishlistDeals.push(row.deal);
   }
 
   wishlistDeals.sort((a, b) => b.worthItScore - a.worthItScore);
@@ -112,12 +121,13 @@ export async function getPersonalizedHomeData(sessionId: string | null) {
       return b[1].friends.size - a[1].friends.size;
     });
 
-    for (const [gameId, meta] of entries) {
+    const topEntries = entries.slice(0, 12);
+    const friendResults = await mapWithConcurrency(topEntries, 4, async ([gameId, meta]) => {
       try {
         const game = await resolveGame(gameId);
         const store = game?.cheapestStore;
-        if (!store || store.discount < 10) continue;
-        friendDeals.push({
+        if (!store || store.discount < 10) return null;
+        return {
           gameId,
           title: meta.title,
           imageUrl: meta.imageUrl,
@@ -132,13 +142,18 @@ export async function getPersonalizedHomeData(sessionId: string | null) {
           }),
           isHistoricalLow:
             Boolean(game?.historicalLow) && store.price <= (game?.historicalLow ?? 0) * 1.05,
-          friendName: graph.friends.find((f) => meta.friends.has(f.profile?.sessionId || ""))?.profile
-            ?.steamPersona || "Friend",
+          friendName:
+            graph.friends.find((f) => meta.friends.has(f.profile?.sessionId || ""))?.profile
+              ?.steamPersona || "Friend",
           friendCount: meta.friends.size,
-        });
+        };
       } catch {
-        /* skip */
+        return null;
       }
+    });
+
+    for (const row of friendResults) {
+      if (row) friendDeals.push(row);
     }
   }
 

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { Library, Loader2, RefreshCw } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { invalidateOwnedCache } from "@/hooks/useOwnedGames";
+import { fetchJson } from "@/lib/fetch-json";
 import { GameImage } from "@/components/ui/GameImage";
 import { getSteamLibraryImage } from "@/lib/game-images";
 
@@ -22,8 +23,7 @@ export function ProfileLibrarySection({ steamConnected }: { steamConnected: bool
   const [syncing, setSyncing] = useState(false);
 
   const load = () => {
-    fetch("/api/steam/library")
-      .then((r) => r.json())
+    fetchJson<{ count?: number; topPlayed?: LibraryGame[] }>("/api/steam/library", 10_000)
       .then((d) => {
         setCount(d.count || 0);
         setGames(d.topPlayed || []);
@@ -93,7 +93,7 @@ export function ProfileLibrarySection({ steamConnected }: { steamConnected: bool
               href={`/game/steam-${g.steamAppId}`}
               className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
             >
-              <div className="relative aspect-3/4 bg-background">
+              <div className="relative aspect-[3/4] bg-background">
                 <GameImage
                   src={getSteamLibraryImage(g.steamAppId)}
                   steamAppId={g.steamAppId}
@@ -105,7 +105,9 @@ export function ProfileLibrarySection({ steamConnected }: { steamConnected: bool
               <div className="p-2">
                 <p className="text-xs font-medium line-clamp-2">{g.name}</p>
                 <p className="text-[10px] text-muted mt-0.5">
-                  {Math.round(g.playtimeMinutes / 60)}s oynanmış
+                  {t("profile.libraryPlaytime", {
+                    hours: String(Math.round(g.playtimeMinutes / 60)),
+                  })}
                 </p>
               </div>
             </Link>

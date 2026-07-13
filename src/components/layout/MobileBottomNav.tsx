@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useEffect, useState } from "react";
 import { Home, TrendingDown, Heart, User, Users, Shield } from "lucide-react";
+import { fetchJson } from "@/lib/fetch-json";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
 const baseLinks = [
@@ -20,8 +21,7 @@ export function MobileBottomNav() {
   const [isAdmin, setIsAdmin] = useState(false);
 
   useEffect(() => {
-    fetch("/api/profile")
-      .then((r) => r.json())
+    fetchJson<{ isAdmin?: boolean }>("/api/profile?light=1", 8_000)
       .then((data) => setIsAdmin(Boolean(data?.isAdmin)))
       .catch(() => {});
   }, [pathname]);

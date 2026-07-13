@@ -59,8 +59,7 @@ export default function ProfileLibraryPage() {
   const loadManualGames = useCallback(() => {
     if (tab === "steam") return;
     setLoading(true);
-    fetch(`/api/library/manual?platform=${tab}`)
-      .then((r) => r.json())
+    fetchJson<{ games?: ManualGame[] }>(`/api/library/manual?platform=${tab}`, 10_000)
       .then((data) => setManualGames(Array.isArray(data.games) ? data.games : []))
       .catch(() => setManualGames([]))
       .finally(() => setLoading(false));
@@ -82,8 +81,12 @@ export default function ProfileLibraryPage() {
     if (query.trim()) params.set("q", query.trim());
     if (recentOnly) params.set("recentOnly", "1");
 
-    fetch(`/api/steam/library?${params.toString()}`)
-      .then((r) => r.json())
+    fetchJson<{
+      games?: LibraryGame[];
+      count?: number;
+      filteredCount?: number;
+      recentPlayed?: LibraryGame[];
+    }>(`/api/steam/library?${params.toString()}`, 12_000)
       .then((data) => {
         setGames(Array.isArray(data.games) ? data.games : []);
         setCount(data.count || 0);
@@ -194,7 +197,7 @@ export default function ProfileLibraryPage() {
                 href={`/game/steam-${game.steamAppId}`}
                 className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
               >
-                <div className="relative aspect-3/4 bg-background">
+                <div className="relative aspect-[3/4] bg-background">
                   <GameImage
                     src={getSteamLibraryImage(game.steamAppId)}
                     steamAppId={game.steamAppId}
@@ -303,7 +306,7 @@ export default function ProfileLibraryPage() {
               href={`/game/steam-${game.steamAppId}`}
               className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
             >
-              <div className="relative aspect-3/4 bg-background">
+              <div className="relative aspect-[3/4] bg-background">
                 <GameImage
                   src={getSteamLibraryImage(game.steamAppId)}
                   steamAppId={game.steamAppId}

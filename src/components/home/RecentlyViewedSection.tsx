@@ -45,7 +45,7 @@ export function RecentlyViewedSection() {
               href={`/game/${game.gameId}`}
               className="shrink-0 w-28 group"
             >
-              <div className="relative aspect-3/4 rounded-xl overflow-hidden bg-card border border-border group-hover:border-accent/50 transition-colors">
+              <div className="relative aspect-[3/4] rounded-xl overflow-hidden bg-card border border-border group-hover:border-accent/50 transition-colors">
                 <GameImage
                   src={image}
                   steamAppId={steamAppId}

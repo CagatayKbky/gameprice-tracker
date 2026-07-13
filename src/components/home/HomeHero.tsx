@@ -43,7 +43,7 @@ export function HomeHero({ catalogCount, platformCount, backdropImages = [] }: H
                 key={`${url}-${i}`}
                 src={url}
                 alt=""
-                className="w-full aspect-3/4 object-cover rounded-lg"
+                className="w-full aspect-[3/4] object-cover rounded-lg"
               />
             ))}
           </div>

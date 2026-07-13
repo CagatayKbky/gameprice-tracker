@@ -80,7 +80,7 @@ export default async function HomePage() {
         backdropImages={heroImages}
       />
 
-      <HomeLiveStats />
+      <HomeLiveStats initialStats={data.liveStats} />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6">
         <SteamSaleBanner />
@@ -108,7 +108,7 @@ export default async function HomePage() {
 
       <TrendingSearches />
 
-      <EpicFreeSection />
+      <EpicFreeSection games={data.epicFree} />
 
       {data.freeGames.length > 0 && (
         <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/40">

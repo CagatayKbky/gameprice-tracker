@@ -6,6 +6,24 @@ import { Check, ChevronDown, Loader2, Lock, Medal, Sparkles } from "lucide-react
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { ProfileAvatarFrame } from "@/components/profile/ProfileAvatarFrame";
 import { getEffectDefinition, getFrameDefinition } from "@/lib/profile/cosmetics";
+import { cosmeticI18nKey } from "@/lib/profile/cosmetic-labels";
+
+function translatedCosmetic(
+  t: (key: string) => string,
+  type: "frame" | "effect",
+  id: string,
+  fallbackLabel: string,
+  fallbackDescription: string
+) {
+  const labelKey = cosmeticI18nKey(type, id, "label");
+  const descKey = cosmeticI18nKey(type, id, "description");
+  const label = t(labelKey);
+  const description = t(descKey);
+  return {
+    label: label === labelKey ? fallbackLabel : label,
+    description: description === descKey ? fallbackDescription : description,
+  };
+}
 
 interface CosmeticItem {
   id: string;
@@ -137,7 +155,9 @@ export function ProfileCosmeticsPanel({
           <div className="min-w-0">
             <h2 className="font-semibold text-white">{t("profileCosmetics.title")}</h2>
             <p className="text-xs text-[#8f98a0] truncate">
-              {getFrameDefinition(equipped.frame).label} · {getEffectDefinition(equipped.effect).label}
+              {translatedCosmetic(t, "frame", equipped.frame, getFrameDefinition(equipped.frame).label, "").label}
+              {" · "}
+              {translatedCosmetic(t, "effect", equipped.effect, getEffectDefinition(equipped.effect).label, "").label}
             </p>
           </div>
         </div>
@@ -222,6 +242,13 @@ export function ProfileCosmeticsPanel({
                   const locked = !item.unlocked;
                   const activeNow = activeId === item.id;
                   const isBusy = busy === `${tab}:${item.id}`;
+                  const text = translatedCosmetic(
+                    t,
+                    tab as "frame" | "effect",
+                    item.id,
+                    item.label,
+                    item.description
+                  );
 
                   return (
                     <button
@@ -247,8 +274,8 @@ export function ProfileCosmeticsPanel({
                         <EffectSwatch effectId={item.id} />
                       )}
                       <div className="min-w-0 flex-1">
-                        <p className="text-sm font-medium text-white">{item.label}</p>
-                        <p className="text-xs text-[#8f98a0] truncate">{item.description}</p>
+                        <p className="text-sm font-medium text-white">{text.label}</p>
+                        <p className="text-xs text-[#8f98a0] truncate">{text.description}</p>
                       </div>
                       <div className="shrink-0">
                         {isBusy ? (

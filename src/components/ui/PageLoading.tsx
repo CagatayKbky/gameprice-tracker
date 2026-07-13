@@ -29,7 +29,7 @@ export function GameGridSkeleton({ count = 8 }: { count?: number }) {
   return (
     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 animate-pulse">
       {Array.from({ length: count }).map((_, i) => (
-        <div key={i} className="aspect-3/4 rounded-2xl bg-card" />
+        <div key={i} className="aspect-[3/4] rounded-2xl bg-card" />
       ))}
     </div>
   );
@@ -47,7 +47,7 @@ export function ProfilePageSkeleton() {
       <div className="rounded-2xl bg-card h-48 mb-8" />
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         {[1, 2, 3, 4].map((i) => (
-          <div key={i} className="aspect-3/4 rounded-2xl bg-card" />
+          <div key={i} className="aspect-[3/4] rounded-2xl bg-card" />
         ))}
       </div>
     </div>

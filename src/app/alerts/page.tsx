@@ -2,9 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { Bell, Trash2, Loader2, CheckCircle2 } from "lucide-react";
+import { Bell, Trash2, CheckCircle2 } from "lucide-react";
 import { PriceAlertData } from "@/types";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
+import { fetchJson } from "@/lib/fetch-json";
+import { PageLoadingSpinner } from "@/components/ui/PageLoading";
 import { useLocale } from "@/components/providers/LocaleProvider";
 
 export default function AlertsPage() {
@@ -13,8 +15,7 @@ export default function AlertsPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch("/api/alerts")
-      .then((r) => r.json())
+    fetchJson<PriceAlertData[]>("/api/alerts", 10_000)
       .then(setAlerts)
       .catch(() => setAlerts([]))
       .finally(() => setLoading(false));
@@ -42,9 +43,7 @@ export default function AlertsPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center py-20">
-          <Loader2 className="w-8 h-8 animate-spin text-muted" />
-        </div>
+        <PageLoadingSpinner />
       ) : alerts.length === 0 ? (
         <div className="text-center py-20">
           <Bell className="w-12 h-12 text-muted mx-auto mb-4" />
