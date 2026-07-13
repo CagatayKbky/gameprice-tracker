@@ -1,5 +1,6 @@
 import { SearchResult } from "@/types";
-import { tryToUsd } from "@/lib/currency";
+import { normalizeToUsd } from "@/lib/currency";
+import { getSteamLibraryImage } from "@/lib/game-images";
 
 interface SteamSearchItem {
   id: number;
@@ -36,14 +37,15 @@ export async function searchSteamStore(query: string): Promise<SearchResult[]> {
         .filter((item) => item.id && item.name)
         .slice(0, 50)
         .map(async (item) => {
-          const priceTry = item.price ? item.price.final / 100 : undefined;
-          const priceUsd = priceTry ? await tryToUsd(priceTry) : undefined;
+          const priceUsd = item.price
+            ? await normalizeToUsd(item.price.final / 100, item.price.currency)
+            : undefined;
           const discount = item.price?.discount_percent || 0;
 
           return {
             gameId: `steam-${item.id}`,
             title: item.name,
-            imageUrl: item.tiny_image,
+            imageUrl: getSteamLibraryImage(String(item.id)),
             steamAppId: String(item.id),
             cheapestPrice: priceUsd,
             cheapestPlatform: "Steam",

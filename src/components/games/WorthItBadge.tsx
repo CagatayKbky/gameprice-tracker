@@ -11,13 +11,40 @@ interface SteamTurkeyPriceProps {
 }
 
 export function SteamTurkeyPrice({ appId, price }: SteamTurkeyPriceProps) {
-  const formatTry = (amount: number) =>
-    new Intl.NumberFormat("tr-TR", {
+  const { rates } = useCurrency();
+
+  const formatAmount = (amount: number) => {
+    if (price.currency === "TRY") {
+      return new Intl.NumberFormat("tr-TR", {
+        style: "currency",
+        currency: "TRY",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 2,
+      }).format(amount);
+    }
+    if (price.currency === "USD") {
+      const tryAmount = amount * (rates.TRY ?? 34.5);
+      return new Intl.NumberFormat("tr-TR", {
+        style: "currency",
+        currency: "TRY",
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      }).format(tryAmount);
+    }
+    return new Intl.NumberFormat("tr-TR", {
       style: "currency",
-      currency: "TRY",
-      minimumFractionDigits: 0,
+      currency: price.currency,
+      minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+  };
+
+  const currencyLabel =
+    price.currency === "TRY"
+      ? "Bölgesel fiyat (TRY)"
+      : price.currency === "USD"
+        ? "USD fiyatı (TRY karşılığı)"
+        : `Bölgesel fiyat (${price.currency})`;
 
   return (
     <div className="rounded-xl bg-[#1b2838]/50 border border-[#1b2838] p-4 flex items-center justify-between gap-4">
@@ -25,7 +52,7 @@ export function SteamTurkeyPrice({ appId, price }: SteamTurkeyPriceProps) {
         <span className="text-2xl">🎮</span>
         <div>
           <p className="font-semibold text-sm">Steam Türkiye</p>
-          <p className="text-xs text-muted">Bölgesel fiyat (TRY)</p>
+          <p className="text-xs text-muted">{currencyLabel}</p>
         </div>
       </div>
       <div className="text-right">
@@ -34,9 +61,9 @@ export function SteamTurkeyPrice({ appId, price }: SteamTurkeyPriceProps) {
         ) : (
           <>
             {price.discount > 0 && (
-              <p className="text-xs text-muted line-through">{formatTry(price.initial)}</p>
+              <p className="text-xs text-muted line-through">{formatAmount(price.initial)}</p>
             )}
-            <p className="text-xl font-bold text-emerald-400">{formatTry(price.final)}</p>
+            <p className="text-xl font-bold text-emerald-400">{formatAmount(price.final)}</p>
             {price.discount > 0 && (
               <span className="text-xs font-bold text-emerald-400">-%{price.discount}</span>
             )}

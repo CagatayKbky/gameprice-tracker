@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { GameImage } from "@/components/ui/GameImage";
+import { resolveGameImage } from "@/lib/game-images";
 import { Sparkles, Library, Heart, Loader2 } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
@@ -91,19 +92,22 @@ export function PersonalizedHomeSection() {
             className="group rounded-xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all hover:-translate-y-0.5"
           >
             <div className="relative aspect-[3/4] bg-background">
-              {deal.imageUrl ? (
-                <Image
-                  src={deal.imageUrl}
-                  alt={deal.title}
-                  fill
-                  className="object-cover group-hover:scale-105 transition-transform"
-                  sizes="160px"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center text-muted">
-                  <Heart className="w-8 h-8" />
-                </div>
-              )}
+              <GameImage
+                src={resolveGameImage({
+                  imageUrl: deal.imageUrl,
+                  steamAppId: deal.gameId.startsWith("steam-")
+                    ? deal.gameId.replace("steam-", "")
+                    : undefined,
+                })}
+                steamAppId={
+                  deal.gameId.startsWith("steam-")
+                    ? deal.gameId.replace("steam-", "")
+                    : undefined
+                }
+                alt={deal.title}
+                fill
+                className="object-cover group-hover:scale-105 transition-transform"
+              />
               <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded bg-emerald-500/90 text-white text-[10px] font-bold">
                 -%{deal.discount}
               </div>
@@ -131,19 +135,22 @@ export function PersonalizedHomeSection() {
                 className="group rounded-xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
               >
                 <div className="relative aspect-[16/9] bg-background">
-                  {deal.imageUrl ? (
-                    <Image
-                      src={deal.imageUrl}
-                      alt={deal.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform"
-                      sizes="200px"
-                    />
-                  ) : (
-                    <div className="w-full h-full flex items-center justify-center text-muted">
-                      <Heart className="w-8 h-8" />
-                    </div>
-                  )}
+                  <GameImage
+                    src={resolveGameImage({
+                      imageUrl: deal.imageUrl,
+                      steamAppId: deal.gameId.startsWith("steam-")
+                        ? deal.gameId.replace("steam-", "")
+                        : undefined,
+                    })}
+                    steamAppId={
+                      deal.gameId.startsWith("steam-")
+                        ? deal.gameId.replace("steam-", "")
+                        : undefined
+                    }
+                    alt={deal.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                  />
                   <div className="absolute top-1.5 right-1.5 px-1.5 py-0.5 rounded bg-sky-500/90 text-white text-[10px] font-bold">
                     -%{deal.discount}
                   </div>

@@ -50,11 +50,12 @@ export function GameCard({ game }: GameCardProps) {
       game.cheapestPrice <= game.historicalLow * 1.05);
 
   return (
-    <div className="group relative rounded-xl overflow-hidden bg-card border border-border hover:border-accent/50 transition-all duration-300 hover:shadow-lg hover:shadow-accent/5 hover:-translate-y-1">
+    <div className="group relative rounded-2xl overflow-hidden bg-card border border-border/80 hover:border-accent/40 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1">
       <Link href={`/game/${game.gameId}`} className="block">
         <div className="relative aspect-3/4 overflow-hidden bg-card-hover">
           <GameImage
             src={imageUrl}
+            steamAppId={game.steamAppId}
             alt={game.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"

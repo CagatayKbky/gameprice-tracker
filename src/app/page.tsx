@@ -17,6 +17,8 @@ import { FriendActivityStrip } from "@/components/home/FriendActivityStrip";
 import { HomeLiveStats } from "@/components/home/HomeLiveStats";
 import { EpicFreeSection } from "@/components/home/EpicFreeSection";
 import { HomeDownloadSection } from "@/components/home/HomeDownloadSection";
+import { HomeSectionHeader } from "@/components/home/HomeSectionHeader";
+import { resolveGameImage } from "@/lib/game-images";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { buildPageMetadata } from "@/lib/seo/page-metadata";
 import { buildSiteJsonLd } from "@/lib/seo/site-schemas";
@@ -57,6 +59,15 @@ export default async function HomePage() {
     },
   ];
 
+  const heroImages = [
+    ...data.deals.map((d) =>
+      resolveGameImage({ imageUrl: d.imageUrl, steamAppId: d.steamAppId })
+    ),
+    ...data.featured.map((g) =>
+      resolveGameImage({ imageUrl: g.imageUrl, steamAppId: g.steamAppId })
+    ),
+  ].filter((url): url is string => Boolean(url));
+
   return (
     <div>
       {buildSiteJsonLd().map((schema, i) => (
@@ -65,6 +76,7 @@ export default async function HomePage() {
       <HomeHero
         catalogCount={data.catalogCount}
         platformCount={data.platformCount}
+        backdropImages={heroImages}
       />
 
       <HomeLiveStats />
@@ -98,20 +110,16 @@ export default async function HomePage() {
       <EpicFreeSection />
 
       {data.freeGames.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/50">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Gift className="w-5 h-5 text-emerald-400" />
-              <div>
-                <h2 className="text-xl font-bold">{t(locale, "home.sections.freeGames")}</h2>
-                <p className="text-sm text-muted">{t(locale, "home.sections.freeGamesSubtitle")}</p>
-              </div>
-            </div>
-            <Link href="/deals?tab=free" className="text-sm text-accent hover:underline">
-              {t(locale, "common.seeAll")}
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/40">
+          <HomeSectionHeader
+            icon={Gift}
+            iconClassName="text-emerald-400"
+            title={t(locale, "home.sections.freeGames")}
+            subtitle={t(locale, "home.sections.freeGamesSubtitle")}
+            href="/deals?tab=free"
+            linkLabel={t(locale, "common.seeAll")}
+          />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {data.freeGames.slice(0, 8).map((deal) => (
               <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
             ))}
@@ -119,27 +127,23 @@ export default async function HomePage() {
         </section>
       )}
 
-      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/50">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <TrendingDown className="w-5 h-5 text-emerald-400" />
-            <div>
-              <h2 className="text-xl sm:text-2xl font-bold">{t(locale, "home.sections.dealsOfDay")}</h2>
-              <p className="text-sm text-muted">{t(locale, "home.sections.dealsOfDaySubtitle")}</p>
-            </div>
-          </div>
-          <Link href="/deals" className="text-sm text-accent hover:underline">
-            {t(locale, "common.seeAll")}
-          </Link>
-        </div>
+      <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/40">
+        <HomeSectionHeader
+          icon={TrendingDown}
+          iconClassName="text-emerald-400"
+          title={t(locale, "home.sections.dealsOfDay")}
+          subtitle={t(locale, "home.sections.dealsOfDaySubtitle")}
+          href="/deals"
+          linkLabel={t(locale, "common.seeAll")}
+        />
         {data.deals.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {data.deals.map((deal) => (
               <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
             ))}
           </div>
         ) : (
-          <div className="text-center py-12 rounded-xl bg-card border border-border">
+          <div className="text-center py-12 rounded-2xl bg-card/50 border border-border">
             <p className="text-muted">{t(locale, "home.sections.dealsEmpty")}</p>
             <Link href="/deals" className="text-sm text-accent hover:underline mt-2 inline-block">
               {t(locale, "home.sections.goToDeals")}
@@ -149,20 +153,16 @@ export default async function HomePage() {
       </section>
 
       {data.popular.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/50">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-2">
-              <Star className="w-5 h-5 text-yellow-400" />
-              <div>
-                <h2 className="text-xl font-bold">{t(locale, "home.sections.highRated")}</h2>
-                <p className="text-sm text-muted">{t(locale, "home.sections.highRatedSubtitle")}</p>
-              </div>
-            </div>
-            <Link href="/deals?tab=aaa" className="text-sm text-accent hover:underline">
-              {t(locale, "common.seeAll")}
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/40">
+          <HomeSectionHeader
+            icon={Star}
+            iconClassName="text-yellow-400"
+            title={t(locale, "home.sections.highRated")}
+            subtitle={t(locale, "home.sections.highRatedSubtitle")}
+            href="/deals?tab=aaa"
+            linkLabel={t(locale, "common.seeAll")}
+          />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {data.popular.map((deal) => (
               <DealCard key={deal.gameId + deal.platformName} deal={deal} />
             ))}
@@ -171,17 +171,14 @@ export default async function HomePage() {
       )}
 
       {data.budgetDeals.length > 0 && (
-        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/50">
-          <div className="flex items-center justify-between mb-6">
-            <div>
-              <h2 className="text-xl font-bold">{t(locale, "home.sections.budgetDeals")}</h2>
-              <p className="text-sm text-muted">{t(locale, "home.sections.budgetDealsSubtitle")}</p>
-            </div>
-            <Link href="/deals?tab=under10" className="text-sm text-accent hover:underline">
-              {t(locale, "common.seeAll")}
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 py-10 border-t border-border/40">
+          <HomeSectionHeader
+            title={t(locale, "home.sections.budgetDeals")}
+            subtitle={t(locale, "home.sections.budgetDealsSubtitle")}
+            href="/deals?tab=under10"
+            linkLabel={t(locale, "common.seeAll")}
+          />
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
             {data.budgetDeals.slice(0, 8).map((deal) => (
               <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
             ))}

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { resolveGame } from "@/lib/api/unified-search";
+import { resolveGameImage } from "@/lib/game-images";
 import { getOwnedAppIds } from "@/lib/services/steam-library";
 import { calculateWorthItScore } from "@/lib/worth-it-score";
 import { getSocialGraph } from "@/lib/services/social";
@@ -53,7 +54,12 @@ export async function getPersonalizedHomeData(sessionId: string | null) {
       wishlistDeals.push({
         gameId: item.cheapSharkGameId,
         title: item.gameTitle,
-        imageUrl: item.imageUrl,
+        imageUrl: resolveGameImage({
+          imageUrl: item.imageUrl ?? game?.imageUrl,
+          steamAppId: item.cheapSharkGameId.startsWith("steam-")
+            ? item.cheapSharkGameId.replace("steam-", "")
+            : game?.steamAppId,
+        }),
         price: store.price,
         discount: store.discount,
         platform: store.platformName,

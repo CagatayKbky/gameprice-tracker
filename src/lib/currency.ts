@@ -51,6 +51,21 @@ export async function tryToUsd(amountTry: number): Promise<number> {
   return Math.round((amountTry / tryRate) * 100) / 100;
 }
 
+/** Normalize a store price to USD using the given currency code. */
+export async function normalizeToUsd(
+  amount: number,
+  currency: string
+): Promise<number> {
+  const code = currency.toUpperCase();
+  if (code === "TRY") return tryToUsd(amount);
+  if (code === "EUR") {
+    const rates = await getExchangeRates();
+    const eurRate = rates.EUR || FALLBACK_RATES.EUR;
+    return Math.round((amount / eurRate) * 100) / 100;
+  }
+  return amount;
+}
+
 export async function getRatesForClient(): Promise<Record<Currency, number>> {
   return getExchangeRates();
 }

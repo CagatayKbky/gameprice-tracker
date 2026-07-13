@@ -12,7 +12,8 @@ import { normalizeTitle } from "@/lib/catalog/utils";
 import { searchCatalog, getCatalogCount } from "@/lib/services/catalog-search";
 import { meiliSearch, isMeilisearchEnabled } from "@/lib/api/meilisearch";
 import { enrichCatalogFromRawgSearch } from "@/lib/services/catalog-sync";
-import { tryToUsd } from "@/lib/currency";
+import { pickBestImageUrl, getSteamLibraryImage } from "@/lib/game-images";
+import { normalizeToUsd } from "@/lib/currency";
 
 async function ensureCatalogSeeded() {
   const count = await getCatalogCount();
@@ -50,7 +51,12 @@ function mergeSearchResults(...lists: SearchResult[][]): SearchResult[] {
       map.set(key, {
         ...existing,
         gameId: preferId,
-        imageUrl: existing.imageUrl || game.imageUrl,
+        imageUrl: pickBestImageUrl(
+          existing.imageUrl,
+          game.imageUrl,
+          existing.steamAppId ? getSteamLibraryImage(existing.steamAppId) : undefined,
+          game.steamAppId ? getSteamLibraryImage(game.steamAppId) : undefined
+        ),
         steamAppId: existing.steamAppId || game.steamAppId,
         cheapestPrice:
           existing.cheapestPrice !== undefined && game.cheapestPrice !== undefined
@@ -138,14 +144,8 @@ async function resolveSteamGame(appId: string): Promise<GameDeal | null> {
   const stores: StorePrice[] = [];
 
   if (steam.price) {
-    const priceUsd =
-      steam.price.currency === "TRY"
-        ? await tryToUsd(steam.price.final)
-        : steam.price.final;
-    const normalUsd =
-      steam.price.currency === "TRY"
-        ? await tryToUsd(steam.price.initial)
-        : steam.price.initial;
+    const priceUsd = await normalizeToUsd(steam.price.final, steam.price.currency);
+    const normalUsd = await normalizeToUsd(steam.price.initial, steam.price.currency);
 
     stores.push({
       platformId: "steam",

@@ -1,11 +1,11 @@
 import { DealOfTheDay } from "@/types";
 import { cached } from "@/lib/cache";
 import { getSteamStoreUrl } from "@/lib/api/steam";
-import { getExchangeRates } from "@/lib/currency";
+import { normalizeToUsd } from "@/lib/currency";
+import { getSteamLibraryImage, pickBestImageUrl } from "@/lib/game-images";
 
 const STEAM_CC = "TR";
 const STEAM_LANG = "turkish";
-const SEARCH_CURRENCY = "TRY";
 
 interface SteamFeaturedItem {
   id: number;
@@ -26,17 +26,12 @@ interface ParsedSteamRow {
   title: string;
   discount: number;
   finalCents: number;
+  currency: string;
   imageUrl?: string;
 }
 
 async function centsToUsd(cents: number, currency?: string): Promise<number> {
-  const amount = cents / 100;
-  if (currency === "TRY") {
-    const rates = await getExchangeRates();
-    const tryRate = rates.TRY || 34.5;
-    return Math.round((amount / tryRate) * 100) / 100;
-  }
-  return amount;
+  return normalizeToUsd(cents / 100, currency ?? "USD");
 }
 
 async function toDeal(
@@ -60,7 +55,7 @@ async function toDeal(
     title,
     gameId: `steam-${appId}`,
     steamAppId: appId,
-    imageUrl,
+    imageUrl: pickBestImageUrl(getSteamLibraryImage(appId), imageUrl),
     normalPrice,
     salePrice,
     discount,
@@ -97,10 +92,11 @@ function parseSteamSearchHtml(html: string): ParsedSteamRow[] {
     const discount = parseInt(chunk.match(/data-discount="(\d+)"/)?.[1] || "0", 10);
     const finalCents = parseInt(chunk.match(/data-price-final="(\d+)"/)?.[1] || "0", 10);
     const imageUrl = chunk.match(/src="(https:[^"]+store_item_assets[^"]+)"/)?.[1];
+    const currency = chunk.match(/data-ds-price-currency="([^"]+)"/)?.[1] ?? "TRY";
 
     if (!appId || !title || seen.has(appId)) continue;
     seen.add(appId);
-    results.push({ appId, title, discount, finalCents, imageUrl });
+    results.push({ appId, title, discount, finalCents, currency, imageUrl });
   }
 
   return results;
@@ -144,7 +140,7 @@ async function fetchSteamSearchPage(page: number): Promise<DealOfTheDay[]> {
   const rows = parseSteamSearchHtml(html);
   return Promise.all(
     rows.map((row) =>
-      toDeal(row.appId, row.title, row.discount, row.finalCents, 0, row.imageUrl, SEARCH_CURRENCY)
+      toDeal(row.appId, row.title, row.discount, row.finalCents, 0, row.imageUrl, row.currency)
     )
   );
 }
@@ -179,7 +175,7 @@ export async function getSteamFreeGames(): Promise<DealOfTheDay[]> {
   const html = await res.text();
   const rows = parseSteamSearchHtml(html).filter((r) => r.finalCents === 0);
   return Promise.all(
-    rows.map((row) => toDeal(row.appId, row.title, 100, 0, 0, row.imageUrl, SEARCH_CURRENCY))
+    rows.map((row) => toDeal(row.appId, row.title, 100, 0, 0, row.imageUrl, row.currency))
   );
 }
 

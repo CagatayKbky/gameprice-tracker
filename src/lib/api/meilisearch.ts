@@ -1,4 +1,5 @@
 import { SearchResult } from "@/types";
+import { resolveGameImage } from "@/lib/game-images";
 import { searchCatalog } from "@/lib/services/catalog-search";
 
 const MEILI_HOST = process.env.MEILISEARCH_HOST;
@@ -39,7 +40,10 @@ export async function meiliSearch(query: string, limit = 60): Promise<SearchResu
     return (data.hits ?? []).map((hit) => ({
       gameId: hit.cheapSharkId || hit.slug,
       title: hit.title,
-      imageUrl: hit.imageUrl,
+      imageUrl: resolveGameImage({
+        imageUrl: hit.imageUrl,
+        steamAppId: hit.steamAppId,
+      }),
       steamAppId: hit.steamAppId,
       platforms: hit.platforms ?? (hit.steamAppId ? ["steam"] : []),
       metacritic: hit.metacritic,
