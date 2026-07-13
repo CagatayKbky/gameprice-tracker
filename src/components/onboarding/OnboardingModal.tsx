@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { X, Settings, LogIn, Heart, Bell } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { openNativeAuth } from "@/lib/capacitor/native";
 
 const STEPS = [
   { icon: Settings, titleKey: "onboarding.step1.title", descKey: "onboarding.step1.desc", href: "/settings" },
@@ -79,13 +80,16 @@ export function OnboardingModal() {
                 {t("onboarding.next")}
               </button>
             ) : isExternal ? (
-              <a
-                href={current.href}
-                onClick={dismiss}
+              <button
+                type="button"
+                onClick={() => {
+                  dismiss();
+                  void openNativeAuth("/api/auth/google");
+                }}
                 className="flex-1 py-2.5 rounded-xl bg-accent text-white text-sm font-medium text-center"
               >
                 {t("onboarding.finish")}
-              </a>
+              </button>
             ) : (
               <Link
                 href={current.href}

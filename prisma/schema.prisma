@@ -262,3 +262,23 @@ model FriendDealAlertLog {
   @@unique([sessionId, gameId])
   @@index([sessionId])
 }
+
+model NativeAuthCode {
+  id        String    @id @default(cuid())
+  code      String    @unique
+  sessionId String
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([expiresAt])
+}
+
+model NativeOAuthPending {
+  state     String   @id
+  sessionId String
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+}

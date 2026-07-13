@@ -14,6 +14,7 @@ import { PremiumProvider } from "@/components/providers/PremiumProvider";
 import { CompareFloatingBar } from "@/components/games/CompareFloatingBar";
 import { PwaRegister } from "@/components/pwa/PwaRegister";
 import { PwaInstallPrompt } from "@/components/pwa/PwaInstallPrompt";
+import { CapacitorBridge } from "@/components/capacitor/CapacitorBridge";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 
@@ -120,6 +121,7 @@ export default function RootLayout({
               <CompareFloatingBar />
               <PwaRegister />
               <PwaInstallPrompt />
+              <CapacitorBridge />
               <OnboardingModal />
             </ToastProvider>
             </RecentlyViewedProvider>

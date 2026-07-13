@@ -27,6 +27,7 @@ export function Footer() {
     { href: "/settings", label: t("footer.account.settings") },
     { href: "/pricing", label: t("nav.premium") },
     { href: "/about", label: t("footer.account.about") },
+    { href: "/download", label: t("footer.account.download") },
     { href: "/privacy", label: t("footer.account.privacy") },
   ];
 

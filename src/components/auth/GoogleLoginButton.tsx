@@ -3,6 +3,7 @@
 import { LogIn, Loader2, LogOut } from "lucide-react";
 import { useState } from "react";
 import { useLocale } from "@/components/providers/LocaleProvider";
+import { openNativeAuth } from "@/lib/capacitor/native";
 
 interface GoogleLoginButtonProps {
   connected?: boolean;
@@ -57,13 +58,16 @@ export function GoogleLoginButton({
   }
 
   return (
-    <a
-      href="/api/auth/google"
-      onClick={() => setLoading(true)}
+    <button
+      type="button"
+      onClick={() => {
+        setLoading(true);
+        void openNativeAuth("/api/auth/google");
+      }}
       className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white text-gray-800 text-sm font-medium hover:bg-gray-100 transition-colors border border-border"
     >
       {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <LogIn className="w-4 h-4" />}
       {t("auth.googleLogin")}
-    </a>
+    </button>
   );
 }

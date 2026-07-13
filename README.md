@@ -93,20 +93,24 @@ npm run test:e2e    # Playwright (dev server gerekli)
 
 Play Store ücreti olmadan yüklenebilir APK için Capacitor kullanılır. Uygulama `https://gameprice.org` adresini WebView içinde açar.
 
-**Gereksinimler:** Android Studio, JDK 17+
+**İndir:** [gameprice.org/download](https://gameprice.org/download) veya [GitHub APK](https://github.com/CagatayKbky/gameprice-tracker/releases/download/apk-latest/gameprice.apk)
+
+**Gereksinimler:** Android Studio + JDK 17+ (yerel derleme) veya GitHub Actions (`Android APK` workflow)
 
 ```bash
 npm install
-npm run cap:sync          # android-shell → native proje
-npm run cap:open          # Android Studio açar
-# Android Studio: Build → Build Bundle(s) / APK(s) → Build APK(s)
-# veya terminal:
+npm run cap:sync
 npm run android:apk       # android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-Yerel geliştirme için `CAPACITOR_SERVER_URL=http://10.0.2.2:3000 npm run cap:sync` (emülatör).
+**APK özellikleri:**
+- Google girişi: harici tarayıcı + deep link (`org.gameprice.app://auth`)
+- Steam girişi: WebView içinde çalışır
+- Günlük otomatik güncelleme (canlı site yüklendiği için)
 
-Google OAuth redirect URI'ye production URL ekleyin: `https://gameprice.org/api/auth/google/callback`
+Yerel geliştirme: `CAPACITOR_SERVER_URL=http://10.0.2.2:3000 npm run cap:sync` (emülatör).
+
+Google OAuth redirect URI: `https://gameprice.org/api/auth/google/callback`
 
 ## Komutlar
 

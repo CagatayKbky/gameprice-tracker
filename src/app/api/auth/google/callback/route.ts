@@ -4,6 +4,7 @@ import { prisma } from "@/lib/db";
 import { SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
 import { getGoogleOAuthConfig, isGoogleAdminEmail } from "@/lib/auth/admin";
 import { syncProfileSlug } from "@/lib/profile/profile-slug-service";
+import { createNativeAuthCode, consumeNativeOAuthPending } from "@/lib/services/native-auth";
 
 function getAppUrl() {
   return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
@@ -66,7 +67,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.redirect(`${getAppUrl()}/settings?google=error`);
     }
 
-    const sessionId = request.cookies.get(SESSION_COOKIE)?.value || randomUUID();
+    const sessionId =
+      (state ? await consumeNativeOAuthPending(state) : null) ||
+      request.cookies.get(SESSION_COOKIE)?.value ||
+      randomUUID();
     const email = googleUser.email || null;
     const name = googleUser.name || email?.split("@")[0] || "Player";
     const grantAdmin = isGoogleAdminEmail(email);
@@ -99,6 +103,16 @@ export async function GET(request: NextRequest) {
     });
 
     await syncProfileSlug(sessionId, name);
+
+    const isNative = request.cookies.get("google_oauth_native")?.value === "1";
+
+    if (isNative) {
+      const authCode = await createNativeAuthCode(sessionId);
+      const response = NextResponse.redirect(`org.gameprice.app://auth?code=${authCode}`);
+      response.cookies.delete("google_oauth_state");
+      response.cookies.delete("google_oauth_native");
+      return response;
+    }
 
     const response = NextResponse.redirect(`${getAppUrl()}/profile?google=ok`);
     response.cookies.set(SESSION_COOKIE, sessionId, {

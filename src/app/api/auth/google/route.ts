@@ -1,20 +1,16 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { randomUUID } from "crypto";
-import { prisma } from "@/lib/db";
-import { SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
-import { getGoogleOAuthConfig, isGoogleAdminEmail } from "@/lib/auth/admin";
+import { getGoogleOAuthConfig } from "@/lib/auth/admin";
 
-function getAppUrl() {
-  return process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-}
-
-export async function GET() {
+export async function GET(request: NextRequest) {
   const config = getGoogleOAuthConfig();
   if (!config) {
     return NextResponse.json({ error: "google_not_configured" }, { status: 503 });
   }
 
-  const state = randomUUID();
+  const isNative = request.nextUrl.searchParams.get("native") === "1";
+  const state = request.nextUrl.searchParams.get("state") || randomUUID();
+
   const params = new URLSearchParams({
     client_id: config.clientId,
     redirect_uri: config.redirectUri,
@@ -30,10 +26,19 @@ export async function GET() {
   );
   response.cookies.set("google_oauth_state", state, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
-    sameSite: "lax",
+    secure: true,
+    sameSite: isNative ? "none" : "lax",
     maxAge: 600,
     path: "/",
   });
+  if (isNative) {
+    response.cookies.set("google_oauth_native", "1", {
+      httpOnly: true,
+      secure: true,
+      sameSite: "none",
+      maxAge: 600,
+      path: "/",
+    });
+  }
   return response;
 }

@@ -321,6 +321,7 @@ const tr: TranslationDict = {
   "footer.account.alerts": "Fiyat Alarmları",
   "footer.account.settings": "Ayarlar",
   "footer.account.about": "Hakkında",
+  "footer.account.download": "Android APK",
   "footer.account.privacy": "Gizlilik",
   "footer.platforms": "Platformlar",
   "footer.copyright":
@@ -1279,6 +1280,7 @@ const en: TranslationDict = {
   "footer.account.alerts": "Price Alerts",
   "footer.account.settings": "Settings",
   "footer.account.about": "About",
+  "footer.account.download": "Android APK",
   "footer.account.privacy": "Privacy",
   "footer.platforms": "Platforms",
   "footer.copyright":
