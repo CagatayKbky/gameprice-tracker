@@ -7,13 +7,6 @@ on:
       - main
     tags:
       - "v*"
-    paths:
-      - "android/**"
-      - "android-shell/**"
-      - "capacitor.config.ts"
-      - "package.json"
-      - "package-lock.json"
-      - ".github/workflows/android-apk.yml"
 
 permissions:
   contents: write
@@ -30,31 +23,31 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: "20"
+          node-version: "22"
           cache: npm
 
       - uses: actions/setup-java@v4
         with:
-          distribution: temurin
+          distribution: zulu
           java-version: "21"
 
       - uses: android-actions/setup-android@v3
 
-      - name: Accept Android SDK licenses
-        run: yes | sdkmanager --licenses
-
-      - name: Install Android SDK packages
-        run: sdkmanager "platforms;android-35" "build-tools;35.0.0"
-
-      - name: Configure Android SDK path
-        run: echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
-
       - name: Install dependencies
         run: npm ci
 
-      - name: Build debug APK
+      - name: Prepare Android SDK
         run: |
-          cd android
+          echo "sdk.dir=$ANDROID_SDK_ROOT" > android/local.properties
+          yes | sdkmanager --licenses
+          sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+
+      - name: Sync Capacitor
+        run: npm run cap:sync
+
+      - name: Build debug APK
+        working-directory: android
+        run: |
           chmod +x gradlew
           ./gradlew assembleDebug --no-daemon --stacktrace
 
@@ -69,16 +62,18 @@ jobs:
           retention-days: 90
 
       - name: Publish apk-latest release
-        run: |
-          gh release upload "apk-latest" gameprice.apk --clobber 2>/dev/null || \
-          gh release create "apk-latest" gameprice.apk \
-            --title "GamePrice Android APK" \
-            --notes "Son derlenen debug APK. Play Store dışı kurulum için indir: https://gameprice.org/download"
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: apk-latest
+          name: GamePrice Android APK
+          body: Son derlenen debug APK. İndir: https://gameprice.org/download
+          files: gameprice.apk
+          make_latest: true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Publish versioned release on tag
-        if: startsWith(github.ref, 'refs/tags/')
+        if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
           files: gameprice.apk
