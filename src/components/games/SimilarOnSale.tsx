@@ -1,7 +1,8 @@
-import Link from "next/link";
 import { TrendingDown } from "lucide-react";
 import { getMegaDeals } from "@/lib/api/deals";
 import { DealCard } from "@/components/games/DealCard";
+import { DealGrid } from "@/components/layout/DealGrid";
+import { HomeSectionHeader } from "@/components/home/HomeSectionHeader";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
 
@@ -30,20 +31,18 @@ export async function SimilarOnSale({ title, excludeId }: SimilarOnSaleProps) {
 
   return (
     <section className="mb-10">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2">
-          <TrendingDown className="w-5 h-5 text-amber-400" />
-          <h2 className="text-xl font-bold">{t(locale, "game.similarOnSale.title")}</h2>
-        </div>
-        <Link href="/deals?tab=mega" className="text-sm text-accent hover:underline">
-          {t(locale, "common.seeAll")}
-        </Link>
-      </div>
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <HomeSectionHeader
+        icon={TrendingDown}
+        iconClassName="text-amber-400"
+        title={t(locale, "game.similarOnSale.title")}
+        href="/deals?tab=mega"
+        linkLabel={t(locale, "common.seeAll")}
+      />
+      <DealGrid>
         {similar.map((deal) => (
           <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
         ))}
-      </div>
+      </DealGrid>
     </section>
   );
 }

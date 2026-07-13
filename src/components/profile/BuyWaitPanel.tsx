@@ -6,6 +6,8 @@ import { Loader2, ShoppingCart, Timer, Eye } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { GameImage } from "@/components/ui/GameImage";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
+import { resolveGameImage } from "@/lib/game-images";
+import { extractSteamAppId } from "@/lib/game-id";
 
 interface BuyWaitItem {
   gameId: string;
@@ -97,7 +99,11 @@ export function BuyWaitPanel({ compact = false }: { compact?: boolean }) {
             >
               <div className="flex min-w-0 flex-1 items-center gap-3">
                 <GameImage
-                  src={item.imageUrl}
+                  src={resolveGameImage({
+                    imageUrl: item.imageUrl,
+                    steamAppId: extractSteamAppId(item.gameId),
+                  })}
+                  steamAppId={extractSteamAppId(item.gameId)}
                   alt={item.title}
                   className="h-14 w-10 shrink-0 rounded object-cover"
                 />

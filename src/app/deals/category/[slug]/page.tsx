@@ -1,6 +1,8 @@
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import { DealCard } from "@/components/games/DealCard";
+import { DealGrid } from "@/components/layout/DealGrid";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { getCategoryMeta, getDealsForCategory, DEAL_CATEGORIES } from "@/lib/deal-categories";
 import { enrichDealsWithHistoricalLow } from "@/lib/api/deals";
 import { ChevronLeft } from "lucide-react";
@@ -49,8 +51,7 @@ export default async function DealCategoryPage({ params }: CategoryPageProps) {
         {t(locale, "deals.tabs.all")}
       </Link>
 
-      <h1 className="text-2xl sm:text-3xl font-bold">{meta.title}</h1>
-      <p className="text-muted mt-2 mb-8">{meta.subtitle}</p>
+      <SectionHeader title={meta.title} subtitle={meta.subtitle} as="h1" className="mb-4" />
 
       <div className="flex flex-wrap gap-2 mb-8">
         {DEAL_CATEGORIES.map((c) => (
@@ -68,11 +69,11 @@ export default async function DealCategoryPage({ params }: CategoryPageProps) {
         ))}
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <DealGrid>
         {deals.map((deal) => (
           <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
         ))}
-      </div>
+      </DealGrid>
 
       {deals.length === 0 && (
         <p className="text-center py-20 text-muted">{t(locale, "deals.empty")}</p>

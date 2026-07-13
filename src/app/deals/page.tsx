@@ -8,6 +8,8 @@ import {
   enrichDealsWithHistoricalLow,
 } from "@/lib/api/deals";
 import { DealCard } from "@/components/games/DealCard";
+import { DealGrid } from "@/components/layout/DealGrid";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { DealsFilters } from "@/components/games/DealsFilters";
 import { SteamSaleBanner } from "@/components/deals/SteamSaleBanner";
 import { DealsMegaHero } from "@/components/deals/DealsMegaHero";
@@ -114,19 +116,14 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-3 mb-6">
-        <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
-          {tab === "free" ? (
-            <Gift className="w-5 h-5 text-emerald-400" />
-          ) : (
-            <TrendingDown className="w-5 h-5 text-emerald-400" />
-          )}
-        </div>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">{title}</h1>
-          <p className="text-muted mt-1">{subtitle}</p>
-        </div>
-      </div>
+      <SectionHeader
+        icon={tab === "free" ? Gift : TrendingDown}
+        iconClassName="text-emerald-400"
+        title={title}
+        subtitle={subtitle}
+        as="h1"
+        className="mb-6"
+      />
 
       <SteamSaleBanner />
 
@@ -138,11 +135,11 @@ export default async function DealsPage({ searchParams }: DealsPageProps) {
         <DealsFilters />
       </Suspense>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      <DealGrid>
         {deals.map((deal) => (
           <DealCard key={deal.gameId + deal.platformName + deal.dealUrl} deal={deal} />
         ))}
-      </div>
+      </DealGrid>
 
       {deals.length === 0 && (
         <div className="text-center py-20 text-muted">

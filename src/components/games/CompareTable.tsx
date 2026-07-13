@@ -4,6 +4,8 @@ import Link from "next/link";
 import { GameDeal } from "@/types";
 import { PriceDisplay } from "@/components/ui/PriceDisplay";
 import { GameImage } from "@/components/ui/GameImage";
+import { resolveGameImage } from "@/lib/game-images";
+import { extractSteamAppId } from "@/lib/game-id";
 import { PlatformBadge } from "./PlatformBadge";
 import { WorthItScoreBadge } from "./WorthItScoreBadge";
 import { calculateWorthItScore } from "@/lib/worth-it-score";
@@ -30,16 +32,19 @@ export function CompareTable({ games }: CompareTableProps) {
   return (
     <>
       <div className="md:hidden space-y-4">
-        {games.map((game) => (
+        {games.map((game) => {
+          const steamAppId = extractSteamAppId(game.gameId);
+          const imageUrl = resolveGameImage({ imageUrl: game.imageUrl, steamAppId });
+          return (
           <div key={game.gameId} className="rounded-2xl border border-border bg-card p-4">
             <Link href={`/game/${game.gameId}`} className="group flex gap-3 mb-4">
               <div className="relative w-16 h-20 rounded-lg overflow-hidden bg-card-hover shrink-0">
                 <GameImage
-                  src={game.imageUrl}
+                  src={imageUrl}
+                  steamAppId={steamAppId}
                   alt={game.title}
                   fill
                   className="object-cover"
-                  sizes="64px"
                 />
               </div>
               <p className="font-semibold text-sm line-clamp-3 group-hover:text-accent">{game.title}</p>
@@ -96,7 +101,8 @@ export function CompareTable({ games }: CompareTableProps) {
               })}
             </dl>
           </div>
-        ))}
+          );
+        })}
       </div>
 
       <div className="hidden md:block -mx-4 overflow-x-auto px-4 sm:mx-0 sm:px-0 overscroll-x-contain">
@@ -104,12 +110,16 @@ export function CompareTable({ games }: CompareTableProps) {
           <thead>
             <tr>
               <th className="p-4 text-left text-sm text-muted w-40" />
-              {games.map((game) => (
+              {games.map((game) => {
+                const steamAppId = extractSteamAppId(game.gameId);
+                const imageUrl = resolveGameImage({ imageUrl: game.imageUrl, steamAppId });
+                return (
                 <th key={game.gameId} className="p-4 text-center align-top">
                   <Link href={`/game/${game.gameId}`} className="group">
                     <div className="relative w-28 h-36 mx-auto rounded-xl overflow-hidden bg-card-hover mb-3">
                       <GameImage
-                        src={game.imageUrl}
+                        src={imageUrl}
+                        steamAppId={steamAppId}
                         alt={game.title}
                         fill
                         className="object-cover group-hover:scale-105 transition-transform"
@@ -121,7 +131,8 @@ export function CompareTable({ games }: CompareTableProps) {
                     </p>
                   </Link>
                 </th>
-              ))}
+                );
+              })}
             </tr>
           </thead>
           <tbody>

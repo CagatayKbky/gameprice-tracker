@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Gift, Star, TrendingDown, Store, BarChart3, Bell } from "lucide-react";
 import { getHomePageData } from "@/lib/home-data";
 import { DealCard } from "@/components/games/DealCard";
+import { DealGrid } from "@/components/layout/DealGrid";
 import { PlatformGrid } from "@/components/games/PlatformGrid";
 import { HomeHero } from "@/components/home/HomeHero";
 import { HomeStats } from "@/components/home/HomeStats";
@@ -119,11 +120,11 @@ export default async function HomePage() {
             href="/deals?tab=free"
             linkLabel={t(locale, "common.seeAll")}
           />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          <DealGrid>
             {data.freeGames.slice(0, 8).map((deal) => (
               <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
             ))}
-          </div>
+          </DealGrid>
         </section>
       )}
 
@@ -137,11 +138,11 @@ export default async function HomePage() {
           linkLabel={t(locale, "common.seeAll")}
         />
         {data.deals.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          <DealGrid>
             {data.deals.map((deal) => (
               <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
             ))}
-          </div>
+          </DealGrid>
         ) : (
           <div className="text-center py-12 rounded-2xl bg-card/50 border border-border">
             <p className="text-muted">{t(locale, "home.sections.dealsEmpty")}</p>
@@ -162,11 +163,11 @@ export default async function HomePage() {
             href="/deals?tab=aaa"
             linkLabel={t(locale, "common.seeAll")}
           />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          <DealGrid>
             {data.popular.map((deal) => (
               <DealCard key={deal.gameId + deal.platformName} deal={deal} />
             ))}
-          </div>
+          </DealGrid>
         </section>
       )}
 
@@ -178,11 +179,11 @@ export default async function HomePage() {
             href="/deals?tab=under10"
             linkLabel={t(locale, "common.seeAll")}
           />
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 sm:gap-4">
+          <DealGrid>
             {data.budgetDeals.slice(0, 8).map((deal) => (
               <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
             ))}
-          </div>
+          </DealGrid>
         </section>
       )}
 

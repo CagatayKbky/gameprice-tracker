@@ -130,6 +130,7 @@ export default async function GamePage({ params }: GamePageProps) {
         <div className="relative w-full md:w-64 lg:w-72 aspect-[3/4] rounded-2xl overflow-hidden bg-card shrink-0 mx-auto md:mx-0">
           <GameImage
             src={enrichedGame.imageUrl}
+            steamAppId={game.steamAppId}
             alt={enrichedGame.title}
             fill
             className="object-cover"

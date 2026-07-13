@@ -3,7 +3,8 @@
 import { GameCard } from "@/components/games/GameCard";
 import { SearchResult } from "@/types";
 import { useLocale } from "@/components/providers/LocaleProvider";
-import { HomeSectionHeader } from "./HomeSectionHeader";
+import { HomeSectionHeader } from "@/components/home/HomeSectionHeader";
+import { GameGrid } from "@/components/layout/GameGrid";
 
 interface HomeSectionProps {
   title: string;
@@ -43,11 +44,11 @@ export function HomeGameGrid({
         href={href}
         linkLabel={resolvedLinkLabel}
       />
-      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3 sm:gap-4">
+      <GameGrid dense>
         {games.map((game) => (
           <GameCard key={game.gameId + game.title} game={game} />
         ))}
-      </div>
+      </GameGrid>
     </section>
   );
 }

@@ -9,6 +9,7 @@ import { DlcBadge } from "./DlcBadge";
 import { OwnedBadge } from "./OwnedBadge";
 import { useOwnedGames } from "@/hooks/useOwnedGames";
 import { resolveGameImage } from "@/lib/game-images";
+import { extractSteamAppId } from "@/lib/game-id";
 
 interface DealCardProps {
   deal: DealOfTheDay;
@@ -17,10 +18,11 @@ interface DealCardProps {
 
 export function DealCard({ deal, variant = "vertical" }: DealCardProps) {
   const { isOwned } = useOwnedGames();
-  const owned = isOwned(deal.gameId, deal.steamAppId);
+  const steamAppId = extractSteamAppId(deal.gameId, deal.steamAppId);
+  const owned = isOwned(deal.gameId, steamAppId);
   const imageUrl = resolveGameImage({
     imageUrl: deal.imageUrl,
-    steamAppId: deal.steamAppId,
+    steamAppId,
   });
 
   if (variant === "horizontal") {
@@ -33,7 +35,7 @@ export function DealCard({ deal, variant = "vertical" }: DealCardProps) {
         <div className="relative w-24 h-32 sm:w-28 sm:h-36 rounded-lg overflow-hidden shrink-0 bg-card-hover">
           <GameImage
             src={imageUrl}
-            steamAppId={deal.steamAppId}
+            steamAppId={steamAppId}
             alt={deal.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"

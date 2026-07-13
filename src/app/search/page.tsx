@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import { unifiedSearch } from "@/lib/api/unified-search";
 import { getCatalogCount } from "@/lib/services/catalog-search";
 import { GameCard } from "@/components/games/GameCard";
+import { GameGrid } from "@/components/layout/GameGrid";
 import { SearchFilters } from "@/components/games/SearchFilters";
 import { SearchBar } from "@/components/layout/SearchBar";
 import { Search, WifiOff, Database } from "lucide-react";
@@ -186,11 +187,11 @@ export default async function SearchPage({ searchParams }: SearchPageProps) {
       )}
 
       {results.length > 0 && (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <GameGrid>
           {results.map((game) => (
             <GameCard key={game.gameId + game.title} game={game} />
           ))}
-        </div>
+        </GameGrid>
       )}
     </div>
   );

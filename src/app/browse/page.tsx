@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { GameCard } from "@/components/games/GameCard";
+import { GameGrid } from "@/components/layout/GameGrid";
 import { BrowseFilters } from "@/components/games/BrowseFilters";
 import {
   browseCatalog,
@@ -119,11 +120,11 @@ export default async function BrowsePage({ searchParams }: BrowsePageProps) {
       </div>
 
       {browse.games.length > 0 ? (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+        <GameGrid>
           {browse.games.map((game: SearchResult) => (
             <GameCard key={game.gameId + game.title} game={game} />
           ))}
-        </div>
+        </GameGrid>
       ) : (
         <div className="text-center py-20 rounded-xl bg-card border border-border">
           <p className="text-muted">{t(locale, "browse.empty")}</p>

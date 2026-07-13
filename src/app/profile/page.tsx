@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useCallback, Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import { GameImage } from "@/components/ui/GameImage";
+import { resolveGameImage } from "@/lib/game-images";
+import { extractSteamAppId } from "@/lib/game-id";
 import { useSearchParams } from "next/navigation";
 import {
   Heart,
@@ -383,27 +385,32 @@ function ProfileContent() {
               {t("profile.steamWishlistCount", { count: String(steamData.wishlist.count) })}
             </span>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-            {steamData.wishlist.items.map((item) => (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3">
+            {steamData.wishlist.items.map((item) => {
+              const steamAppId = item.appId || extractSteamAppId(item.gameId || "");
+              const imageUrl = resolveGameImage({
+                imageUrl: item.imageUrl,
+                steamAppId,
+              });
+              return (
               <Link
                 key={item.appId || item.name}
-                href={item.gameId ? `/game/${item.gameId}` : "#"}
-                className="group rounded-xl overflow-hidden border border-border bg-card hover:border-accent/30 transition-colors"
+                href={item.gameId ? `/game/${item.gameId}` : steamAppId ? `/game/steam-${steamAppId}` : "#"}
+                className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all hover:-translate-y-0.5"
               >
-                {item.imageUrl && (
-                  <div className="relative aspect-460/215 bg-background">
-                    <Image
-                      src={item.imageUrl}
-                      alt={item.name}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform"
-                      sizes="(max-width: 640px) 50vw, 200px"
-                    />
-                  </div>
-                )}
+                <div className="relative aspect-3/4 bg-background">
+                  <GameImage
+                    src={imageUrl}
+                    steamAppId={steamAppId}
+                    alt={item.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
                 <p className="p-2.5 text-xs font-medium line-clamp-2">{item.name}</p>
               </Link>
-            ))}
+            );
+            })}
           </div>
         </section>
       )}
@@ -411,27 +418,31 @@ function ProfileContent() {
       {recentlyViewed.length > 0 && (
         <section>
           <h2 className="font-semibold text-lg mb-4">{t("profile.viewed")}</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {recentlyViewed.slice(0, 8).map((game) => (
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+            {recentlyViewed.slice(0, 8).map((game) => {
+              const imageUrl = resolveGameImage({
+                imageUrl: game.imageUrl,
+                steamAppId: game.steamAppId ?? extractSteamAppId(game.gameId),
+              });
+              return (
               <Link
                 key={game.gameId}
                 href={`/game/${game.gameId}`}
-                className="group rounded-xl overflow-hidden border border-border bg-card hover:border-accent/30 transition-colors"
+                className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all hover:-translate-y-0.5"
               >
-                {game.imageUrl && (
-                  <div className="relative aspect-3/4 bg-background">
-                    <Image
-                      src={game.imageUrl}
-                      alt={game.title}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform"
-                      sizes="120px"
-                    />
-                  </div>
-                )}
+                <div className="relative aspect-3/4 bg-background">
+                  <GameImage
+                    src={imageUrl}
+                    steamAppId={game.steamAppId ?? extractSteamAppId(game.gameId)}
+                    alt={game.title}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
                 <p className="p-2 text-xs font-medium line-clamp-2">{game.title}</p>
               </Link>
-            ))}
+            );
+            })}
           </div>
         </section>
       )}

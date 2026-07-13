@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getPlatformById, PLATFORMS } from "@/lib/platforms";
 import { getDealsFiltered } from "@/lib/api/deals";
 import { DealCard } from "@/components/games/DealCard";
+import { DealGrid } from "@/components/layout/DealGrid";
 import { notFound } from "next/navigation";
 import { ExternalLink } from "lucide-react";
 import { getServerLocale } from "@/lib/i18n/server";
@@ -84,11 +85,11 @@ export default async function PlatformStorePage({ params }: PlatformPageProps) {
       </div>
 
       {deals.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <DealGrid>
           {deals.map((deal) => (
             <DealCard key={deal.gameId + deal.dealUrl} deal={deal} />
           ))}
-        </div>
+        </DealGrid>
       ) : (
         <div className="text-center py-16 rounded-xl bg-card border border-border">
           <p className="text-muted mb-4">

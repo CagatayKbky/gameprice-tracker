@@ -11,6 +11,7 @@ import { WorthItScoreBadge } from "./WorthItScoreBadge";
 import { OwnedBadge } from "./OwnedBadge";
 import { cn } from "@/lib/utils";
 import { resolveGameImage } from "@/lib/game-images";
+import { extractSteamAppId } from "@/lib/game-id";
 import { useOwnedGames } from "@/hooks/useOwnedGames";
 import { calculateWorthItScore } from "@/lib/worth-it-score";
 
@@ -26,12 +27,13 @@ function metacriticColor(score: number) {
 
 export function GameCard({ game }: GameCardProps) {
   const { isOwned } = useOwnedGames();
+  const steamAppId = extractSteamAppId(game.gameId, game.steamAppId);
   const imageUrl = resolveGameImage({
     imageUrl: game.imageUrl,
-    steamAppId: game.steamAppId,
+    steamAppId,
   });
 
-  const owned = isOwned(game.gameId, game.steamAppId);
+  const owned = isOwned(game.gameId, steamAppId);
   const worthItScore =
     game.worthItScore ??
     (game.cheapestPrice !== undefined
@@ -55,7 +57,7 @@ export function GameCard({ game }: GameCardProps) {
         <div className="relative aspect-3/4 overflow-hidden bg-card-hover">
           <GameImage
             src={imageUrl}
-            steamAppId={game.steamAppId}
+            steamAppId={steamAppId}
             alt={game.title}
             fill
             className="object-cover group-hover:scale-105 transition-transform duration-500"

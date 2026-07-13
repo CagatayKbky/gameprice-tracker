@@ -2,10 +2,10 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Library, Loader2, Search, ArrowLeft, Clock3, Trash2 } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
-import { getSteamAppHeaderUrl } from "@/lib/api/steam-profile";
+import { GameImage } from "@/components/ui/GameImage";
+import { getSteamLibraryImage } from "@/lib/game-images";
 import { LibraryQuickActions } from "@/components/profile/LibraryQuickActions";
 import { ManualLibraryImport } from "@/components/profile/ManualLibraryImport";
 
@@ -186,26 +186,26 @@ export default function ProfileLibraryPage() {
             <Clock3 className="w-4 h-4 text-accent" />
             <h2 className="font-semibold">{t("profile.libraryRecentTitle")}</h2>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
             {recentPlayed.map((game) => (
               <Link
                 key={`recent-${game.steamAppId}`}
                 href={`/game/steam-${game.steamAppId}`}
-                className="group flex gap-3 rounded-2xl border border-border bg-card hover:border-accent/30 transition-colors p-3"
+                className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
               >
-                <div className="relative w-24 h-14 rounded-lg overflow-hidden shrink-0 bg-background">
-                  <Image
-                    src={getSteamAppHeaderUrl(game.steamAppId)}
+                <div className="relative aspect-3/4 bg-background">
+                  <GameImage
+                    src={getSteamLibraryImage(game.steamAppId)}
+                    steamAppId={game.steamAppId}
                     alt={game.name || ""}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform"
-                    sizes="96px"
                   />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-sm line-clamp-2">{game.name || `App ${game.steamAppId}`}</p>
+                <div className="p-2">
+                  <p className="font-medium text-xs line-clamp-2">{game.name || `App ${game.steamAppId}`}</p>
                   {game.lastPlayedAt && (
-                    <p className="text-xs text-muted mt-1">
+                    <p className="text-[10px] text-muted mt-1">
                       {t("profile.libraryLastPlayed", {
                         date: new Date(game.lastPlayedAt).toLocaleDateString(),
                       })}
@@ -297,31 +297,31 @@ export default function ProfileLibraryPage() {
           {t("profile.libraryEmpty")}
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 sm:gap-4">
           {games.map((game) => (
             <Link
               key={game.steamAppId}
               href={`/game/steam-${game.steamAppId}`}
-              className="group flex gap-3 rounded-2xl border border-border bg-card hover:border-accent/30 transition-colors p-3"
+              className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
             >
-              <div className="relative w-28 h-16 rounded-lg overflow-hidden shrink-0 bg-background">
-                <Image
-                  src={getSteamAppHeaderUrl(game.steamAppId)}
+              <div className="relative aspect-3/4 bg-background">
+                <GameImage
+                  src={getSteamLibraryImage(game.steamAppId)}
+                  steamAppId={game.steamAppId}
                   alt={game.name || ""}
                   fill
                   className="object-cover group-hover:scale-105 transition-transform"
-                  sizes="112px"
                 />
               </div>
-              <div className="min-w-0 flex-1">
-                <p className="font-medium text-sm line-clamp-2">{game.name || `App ${game.steamAppId}`}</p>
-                <p className="text-xs text-muted mt-1">
+              <div className="p-2.5">
+                <p className="font-medium text-xs line-clamp-2">{game.name || `App ${game.steamAppId}`}</p>
+                <p className="text-[10px] text-muted mt-1">
                   {t("profile.libraryPlaytime", {
                     hours: String(Math.round(game.playtimeMinutes / 60)),
                   })}
                 </p>
                 {game.lastPlayedAt && (
-                  <p className="text-xs text-muted mt-1 inline-flex items-center gap-1">
+                  <p className="text-[10px] text-muted mt-0.5 inline-flex items-center gap-1">
                     <Clock3 className="w-3 h-3" />
                     {new Date(game.lastPlayedAt).toLocaleDateString()}
                   </p>
@@ -329,7 +329,7 @@ export default function ProfileLibraryPage() {
                 <LibraryQuickActions
                   gameId={`steam-${game.steamAppId}`}
                   title={game.name || `App ${game.steamAppId}`}
-                  imageUrl={getSteamAppHeaderUrl(game.steamAppId)}
+                  imageUrl={getSteamLibraryImage(game.steamAppId)}
                 />
               </div>
             </Link>

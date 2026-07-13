@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Gamepad2, Heart, Library, Users } from "lucide-react";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE } from "@/lib/session";
 import { getPublicProfileBySlug } from "@/lib/services/social";
-import { getSteamAppHeaderUrl } from "@/lib/api/steam-profile";
+import { GameImage } from "@/components/ui/GameImage";
+import { getSteamLibraryImage, resolveGameImage } from "@/lib/game-images";
+import { extractSteamAppId } from "@/lib/game-id";
 import { PublicProfileActions } from "@/components/social/PublicProfileActions";
 import { SteamProfileHeader } from "@/components/profile/SteamProfileHeader";
 import { getServerLocale } from "@/lib/i18n/server";
@@ -126,20 +127,20 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
       {data.commonLibrary.length > 0 && (
         <section className="mb-8">
           <h2 className="font-semibold text-lg mb-4">{t(locale, "publicProfile.commonLibrary")}</h2>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
             {data.commonLibrary.map((game) => (
               <Link
                 key={game.steamAppId}
                 href={`/game/steam-${game.steamAppId}`}
-                className="group rounded-xl overflow-hidden border border-border bg-card hover:border-accent/30 transition-colors"
+                className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
               >
-                <div className="relative aspect-460/215 bg-background">
-                  <Image
-                    src={getSteamAppHeaderUrl(game.steamAppId)}
+                <div className="relative aspect-3/4 bg-background">
+                  <GameImage
+                    src={getSteamLibraryImage(game.steamAppId)}
+                    steamAppId={game.steamAppId}
                     alt={game.name || ""}
                     fill
                     className="object-cover group-hover:scale-105 transition-transform"
-                    sizes="220px"
                   />
                 </div>
                 <p className="p-2.5 text-xs font-medium line-clamp-2">{game.name || `App ${game.steamAppId}`}</p>
@@ -157,27 +158,29 @@ export default async function PublicProfilePage({ params }: PublicProfilePagePro
               {t(locale, "publicProfile.backSocial")}
             </Link>
           </div>
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-            {data.wishlistPreview.map((item) => (
+          <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-3">
+            {data.wishlistPreview.map((item) => {
+              const steamAppId = extractSteamAppId(item.cheapSharkGameId);
+              const imageUrl = resolveGameImage({ steamAppId });
+              return (
               <Link
                 key={item.id}
                 href={`/game/${item.cheapSharkGameId}`}
-                className="group rounded-xl overflow-hidden border border-border bg-card hover:border-accent/30 transition-colors"
+                className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
               >
-                {item.cheapSharkGameId.startsWith("steam-") && (
-                  <div className="relative aspect-460/215 bg-background">
-                    <Image
-                      src={getSteamAppHeaderUrl(item.cheapSharkGameId.replace("steam-", ""))}
-                      alt={item.gameTitle}
-                      fill
-                      className="object-cover group-hover:scale-105 transition-transform"
-                      sizes="220px"
-                    />
-                  </div>
-                )}
+                <div className="relative aspect-3/4 bg-background">
+                  <GameImage
+                    src={imageUrl}
+                    steamAppId={steamAppId}
+                    alt={item.gameTitle}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform"
+                  />
+                </div>
                 <p className="p-2.5 text-xs font-medium line-clamp-2">{item.gameTitle}</p>
               </Link>
-            ))}
+            );
+            })}
           </div>
         </section>
       )}

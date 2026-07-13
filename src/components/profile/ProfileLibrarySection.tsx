@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { Library, Loader2, RefreshCw } from "lucide-react";
 import { useLocale } from "@/components/providers/LocaleProvider";
 import { invalidateOwnedCache } from "@/hooks/useOwnedGames";
-import { getSteamAppHeaderUrl } from "@/lib/api/steam-profile";
+import { GameImage } from "@/components/ui/GameImage";
+import { getSteamLibraryImage } from "@/lib/game-images";
 
 interface LibraryGame {
   steamAppId: string;
@@ -86,23 +86,23 @@ export function ProfileLibrarySection({ steamConnected }: { steamConnected: bool
           {t("profile.libraryEmpty")}
         </p>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
           {games.map((g) => (
             <Link
               key={g.steamAppId}
               href={`/game/steam-${g.steamAppId}`}
-              className="flex gap-3 rounded-xl border border-border bg-card p-2 hover:border-accent/30 transition-colors"
+              className="group rounded-2xl overflow-hidden border border-border bg-card hover:border-accent/40 transition-all"
             >
-              <div className="relative w-16 h-9 rounded overflow-hidden shrink-0 bg-background">
-                <Image
-                  src={getSteamAppHeaderUrl(g.steamAppId)}
+              <div className="relative aspect-3/4 bg-background">
+                <GameImage
+                  src={getSteamLibraryImage(g.steamAppId)}
+                  steamAppId={g.steamAppId}
                   alt={g.name || ""}
                   fill
-                  className="object-cover"
-                  sizes="64px"
+                  className="object-cover group-hover:scale-105 transition-transform"
                 />
               </div>
-              <div className="min-w-0">
+              <div className="p-2">
                 <p className="text-xs font-medium line-clamp-2">{g.name}</p>
                 <p className="text-[10px] text-muted mt-0.5">
                   {Math.round(g.playtimeMinutes / 60)}s oynanmış

@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { fetchSteamWishlist } from "@/lib/api/steam-wishlist";
 import { unifiedSearch } from "@/lib/api/unified-search";
 import { addToWishlist } from "@/lib/services/wishlist";
+import { getSteamLibraryImage, resolveGameImage } from "@/lib/game-images";
 import { getProfile } from "@/lib/services/profile";
 import { SESSION_COOKIE, SESSION_MAX_AGE } from "@/lib/session";
 
@@ -60,7 +61,11 @@ export async function POST(request: NextRequest) {
       }
 
       const gameId = item.appId ? `steam-${item.appId}` : match.gameId;
-      await addToWishlist(sessionId, gameId, match.title, match.imageUrl);
+      const imageUrl = resolveGameImage({
+        imageUrl: match.imageUrl,
+        steamAppId: item.appId || match.steamAppId,
+      });
+      await addToWishlist(sessionId, gameId, match.title, imageUrl);
       imported += 1;
     }
 

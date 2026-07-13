@@ -1,8 +1,9 @@
 import Link from "next/link";
 import { Package } from "lucide-react";
 import { getBundleDeals } from "@/lib/api/deals";
-import { PriceDisplay } from "@/components/ui/PriceDisplay";
-import { GameImage } from "@/components/ui/GameImage";
+import { DealCard } from "@/components/games/DealCard";
+import { DealGrid } from "@/components/layout/DealGrid";
+import { SectionHeader } from "@/components/layout/SectionHeader";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
 import { buildPageMetadata } from "@/lib/seo/page-metadata";
@@ -19,63 +20,25 @@ export default async function BundlesPage() {
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <div className="flex items-center gap-3 mb-8">
-        <div className="w-10 h-10 rounded-xl bg-purple-500/10 flex items-center justify-center">
-          <Package className="w-5 h-5 text-purple-400" />
-        </div>
-        <div>
-          <h1 className="text-2xl sm:text-3xl font-bold">{t(locale, "bundles.title")}</h1>
-          <p className="text-muted mt-1">
-            {t(locale, "bundles.subtitle")}
-          </p>
-        </div>
-      </div>
+      <SectionHeader
+        icon={Package}
+        iconClassName="text-purple-400"
+        title={t(locale, "bundles.title")}
+        subtitle={t(locale, "bundles.subtitle")}
+        as="h1"
+        className="mb-8"
+      />
 
       <BundleComparePanel bundles={bundles} />
 
       {bundles.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        <DealGrid>
           {bundles.map((bundle) => (
-            <Link
-              key={bundle.gameId + bundle.dealUrl}
-              href={`/game/${bundle.gameId}`}
-              className="group flex gap-4 p-4 rounded-xl bg-card border border-border hover:border-purple-500/40 transition-colors"
-            >
-              <div className="relative w-24 h-28 rounded-lg overflow-hidden shrink-0 bg-card-hover">
-                <GameImage
-                  src={bundle.imageUrl}
-                  alt={bundle.title}
-                  fill
-                  className="object-cover"
-                  sizes="96px"
-                />
-                <span className="absolute top-1 right-1 px-1.5 py-0.5 rounded bg-purple-500 text-white text-xs font-bold">
-                  -%{bundle.discount}
-                </span>
-              </div>
-              <div className="min-w-0 flex-1">
-                <h3 className="font-semibold text-sm line-clamp-2 group-hover:text-accent">
-                  {bundle.title}
-                </h3>
-                <p className="text-xs text-muted mt-1">{bundle.platformName}</p>
-                <div className="mt-2 flex items-baseline gap-2 flex-wrap">
-                  <PriceDisplay amount={bundle.salePrice} className="text-lg font-bold text-emerald-400" />
-                  <PriceDisplay amount={bundle.normalPrice} className="text-sm text-muted line-through" />
-                  {bundle.pricePerGame != null && (
-                    <span className="text-xs text-muted">
-                      ≈ <PriceDisplay amount={bundle.pricePerGame} className="inline" /> / {t(locale, "bundles.perGame")}
-                    </span>
-                  )}
-                </div>
-                <span className="inline-block mt-2 text-xs px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
-                  {bundle.store}
-                </span>
-              </div>
-            </Link>
+            <DealCard key={bundle.gameId + bundle.dealUrl} deal={bundle} />
           ))}
-        </div>
+        </DealGrid>
       ) : (
-        <div className="text-center py-20 text-muted rounded-xl bg-card border border-border">
+        <div className="text-center py-20 text-muted rounded-2xl bg-card/50 border border-border">
           {t(locale, "bundles.empty")}
         </div>
       )}
