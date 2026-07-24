@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Download, Smartphone, Shield, Zap } from "lucide-react";
+import { Download, Smartphone, Shield, Zap, Monitor } from "lucide-react";
 import { Logo } from "@/components/brand/Logo";
 import { getServerLocale } from "@/lib/i18n/server";
 import { t } from "@/lib/i18n/translations";
@@ -8,6 +8,8 @@ import { buildPageMetadata } from "@/lib/seo/page-metadata";
 
 const APK_URL =
   "https://github.com/CagatayKbky/gameprice-tracker/releases/download/apk-latest/gameprice.apk";
+const EXE_URL =
+  "https://github.com/CagatayKbky/gameprice-tracker/releases/download/exe-latest/GamePrice-Setup.exe";
 
 export async function generateMetadata(): Promise<Metadata> {
   const locale = await getServerLocale();
@@ -44,24 +46,34 @@ export default async function DownloadPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-10">
-      <div className="relative overflow-hidden rounded-3xl border border-indigo-500/20 bg-gradient-to-br from-[#0f0f18] via-[#12121f] to-[#1a1030] p-8 mb-8">
-        <div className="absolute -top-20 -right-20 w-56 h-56 rounded-full bg-indigo-500/10 blur-3xl" />
+      <div className="relative overflow-hidden rounded-2xl border border-border bg-card p-8 mb-8">
         <div className="relative flex flex-col sm:flex-row items-center sm:items-start gap-6 text-center sm:text-left">
           <Logo size="xl" showWordmark={false} />
           <div>
-            <h1 className="text-3xl font-bold mb-2">{t(locale, "download.page.title")}</h1>
+            <h1 className="font-display text-3xl font-bold mb-2">
+              {t(locale, "download.page.title")}
+            </h1>
             <p className="text-muted leading-relaxed">{t(locale, "download.page.subtitle")}</p>
           </div>
         </div>
       </div>
 
-      <a
-        href={APK_URL}
-        className="inline-flex items-center gap-3 px-6 py-4 rounded-2xl bg-gradient-to-r from-indigo-600 to-violet-600 text-white font-semibold hover:opacity-90 transition-opacity shadow-lg shadow-indigo-500/25 mb-8"
-      >
-        <Download className="w-5 h-5" />
-        {t(locale, "download.page.cta")}
-      </a>
+      <div className="flex flex-col sm:flex-row gap-3 mb-8">
+        <a
+          href={EXE_URL}
+          className="inline-flex items-center justify-center gap-3 px-6 py-4 rounded-lg bg-accent text-[#0b0f14] font-semibold hover:bg-accent-hover transition-colors"
+        >
+          <Monitor className="w-5 h-5" />
+          {t(locale, "download.page.ctaExe")}
+        </a>
+        <a
+          href={APK_URL}
+          className="inline-flex items-center justify-center gap-3 px-6 py-4 rounded-lg border border-border bg-card font-semibold hover:border-accent/40 transition-colors"
+        >
+          <Download className="w-5 h-5" />
+          {t(locale, "download.page.cta")}
+        </a>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-3 mb-10">
         {features.map(({ icon: Icon, title, desc }) => (
@@ -72,6 +84,14 @@ export default async function DownloadPage() {
           </div>
         ))}
       </div>
+
+      <section className="rounded-2xl border border-border bg-card p-6 space-y-4 mb-6">
+        <h2 className="font-semibold text-lg flex items-center gap-2">
+          <Monitor className="w-5 h-5 text-accent" />
+          {t(locale, "download.page.windows.title")}
+        </h2>
+        <p className="text-sm text-muted">{t(locale, "download.page.windows.desc")}</p>
+      </section>
 
       <section className="rounded-2xl border border-border bg-card p-6 space-y-4">
         <h2 className="font-semibold text-lg">{t(locale, "download.page.steps.title")}</h2>

@@ -1,0 +1,53 @@
+name: Windows EXE
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "desktop/**"
+      - "package.json"
+      - ".github/workflows/windows-exe.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build Windows installer
+        run: npm run desktop:dist
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: gameprice-windows
+          path: |
+            desktop-dist/GamePrice-Setup.exe
+            desktop-dist/GamePrice-Portable.exe
+
+      - name: Publish release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: exe-latest
+          name: GamePrice Windows (latest)
+          files: |
+            desktop-dist/GamePrice-Setup.exe
+            desktop-dist/GamePrice-Portable.exe
+          fail_on_unmatched_files: false
+          make_latest: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

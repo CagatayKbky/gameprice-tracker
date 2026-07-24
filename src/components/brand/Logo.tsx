@@ -20,7 +20,7 @@ export function Logo({ size = "md", showWordmark = true, className }: LogoProps)
   return (
     <span className={cn("inline-flex items-center gap-2.5", className)}>
       <span
-        className="relative shrink-0 rounded-xl overflow-hidden ring-1 ring-white/10 shadow-lg shadow-indigo-500/20"
+        className="relative shrink-0 rounded-xl overflow-hidden ring-1 ring-white/10"
         style={{ width: s.box, height: s.box }}
       >
         <Image

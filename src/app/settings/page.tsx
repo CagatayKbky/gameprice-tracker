@@ -369,6 +369,21 @@ export default function SettingsPage() {
               className="w-full px-4 py-2.5 rounded-xl bg-background border border-border focus:border-accent focus:outline-none text-sm disabled:opacity-50"
             />
             <p className="text-xs text-muted mt-2">{t("settings.discordHint")}</p>
+            {process.env.NEXT_PUBLIC_DISCORD_APPLICATION_ID && (
+              <div className="mt-3 rounded-xl border border-border bg-background/60 p-3 space-y-2">
+                <p className="text-sm font-medium">{t("settings.discordBotTitle")}</p>
+                <p className="text-xs text-muted">{t("settings.discordBotDesc")}</p>
+                <p className="text-xs text-muted">{t("settings.discordBotCommands")}</p>
+                <a
+                  href={`https://discord.com/api/oauth2/authorize?client_id=${process.env.NEXT_PUBLIC_DISCORD_APPLICATION_ID}&permissions=0&scope=bot%20applications.commands`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex text-sm text-accent hover:underline"
+                >
+                  {t("settings.discordBotInvite")} →
+                </a>
+              </div>
+            )}
             {isPro && discordWebhook.trim() && (
               <div className="mt-3 flex flex-wrap items-center gap-3">
                 <button

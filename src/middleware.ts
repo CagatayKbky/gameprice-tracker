@@ -9,7 +9,10 @@ export function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   if (pathname.startsWith("/api/")) {
-    if (!pathname.startsWith("/api/billing/webhook")) {
+    if (
+      !pathname.startsWith("/api/billing/webhook") &&
+      !pathname.startsWith("/api/discord/interactions")
+    ) {
       const ip = getClientIp(request);
       const { ok } = rateLimit(`api:${ip}`, 120, 60_000);
       if (!ok) {

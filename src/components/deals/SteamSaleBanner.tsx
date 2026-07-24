@@ -10,11 +10,11 @@ export async function SteamSaleBanner() {
   const saleEnd = await getSteamSaleEndIso();
 
   return (
-    <div className="mb-8 rounded-2xl border border-indigo-500/30 bg-gradient-to-r from-indigo-500/10 via-purple-500/10 to-emerald-500/10 p-5 sm:p-6">
+    <div className="mb-8 rounded-2xl border border-border bg-card p-5 sm:p-6">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-start gap-3">
-          <div className="w-11 h-11 rounded-xl bg-indigo-500/20 flex items-center justify-center shrink-0">
-            <TrendingDown className="w-5 h-5 text-indigo-300" />
+          <div className="w-11 h-11 rounded-lg bg-steam flex items-center justify-center shrink-0">
+            <TrendingDown className="w-5 h-5 text-accent" />
           </div>
           <div>
             <h2 className="font-bold text-lg">{t(locale, "deals.steamBanner.title")}</h2>

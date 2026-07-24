@@ -64,7 +64,7 @@ export function DealCard({ deal, variant = "vertical" }: DealCardProps) {
   return (
     <Link
       href={`/game/${deal.gameId}`}
-      className="group relative rounded-2xl overflow-hidden bg-card border border-border/80 hover:border-accent/40 transition-all duration-300 hover:shadow-xl hover:shadow-indigo-500/10 hover:-translate-y-1"
+      className="group relative rounded-2xl overflow-hidden bg-card border border-border/80 hover:border-accent/40 transition-all duration-300 hover:shadow-xl hover:shadow-[0_12px_40px_-16px_rgba(102,192,244,0.25)] hover:-translate-y-1"
     >
       <div className="card-shine absolute inset-0 pointer-events-none z-10" />
       <div className="relative aspect-[3/4] overflow-hidden bg-card-hover">
@@ -84,7 +84,7 @@ export function DealCard({ deal, variant = "vertical" }: DealCardProps) {
         )}
         {deal.isHistoricalLow && <HistoricalLowBadge compact />}
         <div className="absolute bottom-0 left-0 right-0 p-3">
-          <h3 className="font-semibold text-sm line-clamp-2 text-white drop-shadow-sm group-hover:text-indigo-200 transition-colors">
+          <h3 className="font-semibold text-sm line-clamp-2 text-white drop-shadow-sm group-hover:text-accent transition-colors">
             {deal.title}
           </h3>
           <DlcBadge title={deal.title} className="mt-1 [&_span]:text-white/80" />

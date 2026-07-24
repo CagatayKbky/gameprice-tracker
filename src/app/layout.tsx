@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { DM_Sans, Space_Grotesk } from "next/font/google";
 import "./globals.css";
 import { DEFAULT_OG_IMAGE, SITE_NAME, SITE_URL } from "@/lib/seo/constants";
 import { Header } from "@/components/layout/Header";
@@ -18,9 +18,14 @@ import { CapacitorBridge } from "@/components/capacitor/CapacitorBridge";
 import { MobileBottomNav } from "@/components/layout/MobileBottomNav";
 import { OnboardingModal } from "@/components/onboarding/OnboardingModal";
 
-const inter = Inter({
+const dmSans = DM_Sans({
   subsets: ["latin"],
-  variable: "--font-inter",
+  variable: "--font-dm-sans",
+});
+
+const spaceGrotesk = Space_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-space-grotesk",
 });
 
 export const metadata: Metadata = {
@@ -95,7 +100,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#6366f1",
+  themeColor: "#66c0f4",
 };
 
 export default function RootLayout({
@@ -105,7 +110,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="tr" suppressHydrationWarning>
-      <body className={`${inter.variable} min-h-screen flex flex-col`}>
+      <body
+        className={`${dmSans.variable} ${spaceGrotesk.variable} min-h-screen flex flex-col font-sans`}
+      >
         <ThemeProvider>
         <LocaleProvider>
         <PremiumProvider>

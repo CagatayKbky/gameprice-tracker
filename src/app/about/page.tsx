@@ -45,8 +45,8 @@ export default async function AboutPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 py-12">
       <div className="flex items-center gap-3 mb-8">
-        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-          <Gamepad2 className="w-6 h-6 text-white" />
+        <div className="w-12 h-12 rounded-xl bg-steam flex items-center justify-center">
+          <Gamepad2 className="w-6 h-6 text-accent" />
         </div>
         <div>
           <h1 className="text-3xl font-bold">{t(locale, "about.title")}</h1>

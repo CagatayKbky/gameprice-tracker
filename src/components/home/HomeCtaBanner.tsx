@@ -9,9 +9,9 @@ export function HomeCtaBanner() {
 
   return (
     <section className="max-w-7xl mx-auto px-4 sm:px-6 py-8">
-      <div className="rounded-2xl bg-gradient-to-r from-indigo-600/20 via-purple-600/20 to-pink-600/20 border border-accent/20 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="rounded-2xl border border-border bg-card p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
-          <h2 className="text-2xl font-bold">{t("home.cta.title")}</h2>
+          <h2 className="font-display text-2xl font-bold">{t("home.cta.title")}</h2>
           <p className="text-muted mt-2 max-w-md">
             {t("home.cta.subtitle")}
           </p>
@@ -26,7 +26,7 @@ export function HomeCtaBanner() {
           </Link>
           <Link
             href="/alerts"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-accent text-white font-medium text-sm hover:bg-accent-hover transition-colors"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-accent text-[#0b0f14] font-medium text-sm hover:bg-accent-hover transition-colors"
           >
             <Bell className="w-4 h-4" />
             {t("home.cta.alerts")}

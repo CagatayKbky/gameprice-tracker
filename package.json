@@ -2,6 +2,7 @@
   "name": "gameprice-tracker",
   "version": "0.1.0",
   "private": true,
+  "main": "desktop/main.js",
   "scripts": {
     "dev": "next dev",
     "build": "node scripts/prepare-db-provider.mjs && prisma generate && next build",
@@ -15,13 +16,52 @@
     "meili:sync": "npx tsx scripts/sync-meilisearch.ts",
     "iyzico:setup": "npx tsx scripts/setup-iyzico-plans.ts",
     "vapid:generate": "npx tsx scripts/generate-vapid-keys.ts",
+    "discord:register": "npx tsx scripts/register-discord-commands.ts",
     "test:e2e": "playwright test",
     "test": "vitest run",
     "deploy": "npx vercel deploy --prod --yes",
     "cap:sync": "npx cap sync android",
     "cap:open": "npx cap open android",
     "android:apk": "npm run cap:sync && cd android && ./gradlew assembleDebug",
-    "android:release": "npm run cap:sync && cd android && ./gradlew assembleRelease"
+    "android:release": "npm run cap:sync && cd android && ./gradlew assembleRelease",
+    "desktop:dev": "electron .",
+    "desktop:dist": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "org.gameprice.desktop",
+    "productName": "GamePrice",
+    "directories": {
+      "output": "desktop-dist"
+    },
+    "files": [
+      "desktop/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "desktop/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "artifactName": "GamePrice-Setup.${ext}"
+    },
+    "portable": {
+      "artifactName": "GamePrice-Portable.${ext}"
+    }
   },
   "dependencies": {
     "@capacitor/android": "^8.4.1",
@@ -49,6 +89,7 @@
     "recharts": "^3.9.2",
     "tailwind-merge": "^3.6.0",
     "tailwindcss": "^4.3.2",
+    "tweetnacl": "^1.0.3",
     "typescript": "^6.0.3",
     "web-push": "^3.6.7",
     "zod": "^4.4.3"
@@ -56,6 +97,8 @@
   "devDependencies": {
     "@playwright/test": "^1.61.1",
     "@types/web-push": "^3.6.4",
+    "electron": "^37.2.0",
+    "electron-builder": "^26.0.12",
     "tsx": "^4.23.0",
     "vitest": "^4.1.10"
   }

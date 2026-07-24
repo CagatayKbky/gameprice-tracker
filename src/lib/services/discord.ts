@@ -76,7 +76,7 @@ export async function sendDiscordPriceAlert(
     description: isWishlist
       ? `**${data.gameTitle}** istek listende indirime girdi!`
       : `**${data.gameTitle}** hedef fiyata ulaştı!`,
-    color: isWishlist ? 0x22c55e : 0x6366f1,
+    color: isWishlist ? 0x22c55e : 0x66c0f4,
     fields: [
       {
         name: "Güncel Fiyat",
@@ -109,7 +109,7 @@ export async function sendDiscordTestMessage(webhookUrl: string): Promise<Discor
       {
         title: "Test başarılı",
         description: "Fiyat alarmları ve istek listesi indirimleri bu kanala gönderilecek.",
-        color: 0x6366f1,
+        color: 0x66c0f4,
         footer: { text: "GamePrice" },
         timestamp: new Date().toISOString(),
       },

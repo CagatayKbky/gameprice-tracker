@@ -18,13 +18,13 @@ export function HomeStats({ catalogCount, platformCount, dealCount }: HomeStatsP
       icon: Library,
       value: catalogCount.toLocaleString(numberLocale) + "+",
       label: t("home.stats.catalog"),
-      color: "text-indigo-400",
+      color: "text-accent",
     },
     {
       icon: Store,
       value: String(platformCount),
       label: t("home.stats.platforms"),
-      color: "text-purple-400",
+      color: "text-[#8fd3ff]",
     },
     {
       icon: TrendingDown,
@@ -36,7 +36,7 @@ export function HomeStats({ catalogCount, platformCount, dealCount }: HomeStatsP
       icon: Bell,
       value: t("home.stats.alertsFree"),
       label: t("home.stats.alerts"),
-      color: "text-pink-400",
+      color: "text-warning",
     },
   ];
 

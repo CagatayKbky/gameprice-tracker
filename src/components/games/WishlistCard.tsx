@@ -22,7 +22,7 @@ export function WishlistCard({ item, onRemove, buyInsteadLabel }: WishlistCardPr
   });
 
   return (
-    <div className="group relative rounded-2xl overflow-hidden bg-card border border-border/80 hover:border-accent/40 transition-all duration-300 hover:shadow-lg hover:shadow-indigo-500/5">
+    <div className="group relative rounded-2xl overflow-hidden bg-card border border-border/80 hover:border-accent/40 transition-all duration-300 hover:shadow-lg hover:shadow-[0_8px_28px_-12px_rgba(102,192,244,0.2)]">
       <Link href={`/game/${item.cheapSharkGameId}`} className="block">
         <div className="relative aspect-[3/4] overflow-hidden bg-card-hover">
           <GameImage
@@ -50,7 +50,7 @@ export function WishlistCard({ item, onRemove, buyInsteadLabel }: WishlistCardPr
             </div>
           )}
           <div className="absolute bottom-0 left-0 right-0 p-3">
-            <p className="text-sm font-medium line-clamp-2 text-white group-hover:text-indigo-200 transition-colors">
+            <p className="text-sm font-medium line-clamp-2 text-white group-hover:text-accent transition-colors">
               {item.gameTitle}
             </p>
             {item.currentPrice !== undefined ? (
